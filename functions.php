@@ -1,5 +1,4 @@
 <?php
-// فعال کردن امکانات پایه
 function mytheme_setup() {
     add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
@@ -8,7 +7,6 @@ function mytheme_setup() {
 }
 add_action('after_setup_theme', 'mytheme_setup');
 
-// ثبت منوها
 register_nav_menus([
     'header_menu' => 'Header Menu',
 ]);
@@ -20,7 +18,7 @@ function mytheme_enqueue_scripts() {
 }
 add_action('wp_enqueue_scripts', 'mytheme_enqueue_scripts');
 
-// تابع تبدیل اعداد انگلیسی به فارسی
+
 function toPersianNumerals($input) {
     $english = ['0','1','2','3','4','5','6','7','8','9'];
     $persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
