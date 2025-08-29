@@ -24,8 +24,29 @@ function toPersianNumerals($input) {
     $persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
     return str_replace($english, $persian, (string) $input);
 }
-function add_custom_roles() {
-    add_role('parent', 'والد', ['read' => true]);
-    add_role('teacher', 'معلم', ['read' => true]);
-}
-add_action('init', 'add_custom_roles');
+add_action('init', function() {
+    if (!get_role('parent')) {
+        add_role('parent', 'والد', ['read' => true]);
+    }
+    if (!get_role('teacher')) {
+        add_role('teacher', 'معلم', ['read' => true]);
+    }
+});
+
+add_action('admin_init', function() {
+    if (!current_user_can('administrator') && is_admin() && !defined('DOING_AJAX')) {
+        wp_redirect(home_url('/dashboard'));
+        exit;
+    }
+});
+
+add_filter('login_redirect', function($redirect_to, $request, $user) {
+    if (isset($user->roles) && is_array($user->roles)) {
+        if (in_array('parent', $user->roles)) {
+            return home_url('/dashboard-parent');
+        } elseif (in_array('teacher', $user->roles)) {
+            return home_url('/dashboard-teacher');
+        }
+    }
+    return $redirect_to;
+}, 10, 3);
