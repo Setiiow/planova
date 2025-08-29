@@ -1,7 +1,14 @@
+<?php get_header(); ?>
+<main id="main" class="site-main max-w-screen-lg mx-auto p-4">
 <?php
-get_header(); // بعداً فایل header.php رو می‌سازیم
+if(have_posts()):
+    while(have_posts()): the_post();
+        the_title('<h2 class="text-xl font-bold my-2">', '</h2>');
+        the_content();
+    endwhile;
+else:
+    echo '<p class="text-gray-500">محتوایی یافت نشد.</p>';
+endif;
 ?>
-<h1>سلام! این قالب Planova هست 🎉</h1>
-<?php
-get_footer(); // بعداً فایل footer.php رو می‌سازیم
-?>
+</main>
+<?php get_footer(); ?>
