@@ -18,12 +18,12 @@ function mytheme_enqueue_scripts() {
 }
 add_action('wp_enqueue_scripts', 'mytheme_enqueue_scripts');
 
-
 function toPersianNumerals($input) {
     $english = ['0','1','2','3','4','5','6','7','8','9'];
     $persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
     return str_replace($english, $persian, (string) $input);
 }
+
 add_action('init', function() {
     if (!get_role('parent')) {
         add_role('parent', 'والد', ['read' => true]);
@@ -43,10 +43,17 @@ add_action('admin_init', function() {
 add_filter('login_redirect', function($redirect_to, $request, $user) {
     if (isset($user->roles) && is_array($user->roles)) {
         if (in_array('parent', $user->roles)) {
-            return home_url('/dashboard-parent');
+            return home_url('/dashboard');
         } elseif (in_array('teacher', $user->roles)) {
-            return home_url('/dashboard-teacher');
+            return home_url('/dashboard');
         }
     }
     return $redirect_to;
 }, 10, 3);
+
+add_filter('login_url', function($login_url) {
+    if (!is_admin()) {
+        return home_url('/login'); 
+    }
+    return $login_url;
+});
