@@ -32,34 +32,47 @@ if ( ! is_array($group_data) ) {
 // نام فعلی سرگروه از پروفایل کاربر
 $leader_name = $user->display_name;
 
-// اگر فرم ارسال شده
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_group'])) {
-    $group_data['name']     = sanitize_text_field($_POST['group_name']);
-    $group_data['password'] = sanitize_text_field($_POST['group_password']);
 
-    // آپلود تصویر جدید اگر انتخاب شد
-    if (!empty($_FILES['group_image']['name'])) {
-        require_once(ABSPATH . 'wp-admin/includes/file.php');
-        $uploaded = wp_handle_upload($_FILES['group_image'], ['test_form' => false]);
-        if (!isset($uploaded['error'])) {
-            $group_data['image'] = $uploaded['url'];
+// مسیر عکس پیشفرض (یکبار تعریفش کن)
+$default_img = get_template_directory_uri() . '/assets/images/default-group.png';
+
+// اگر فرم ارسال شد
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // حذف عکس و جایگزینی با عکس پیشفرض
+    if (isset($_POST['remove_group_image'])) {
+        $group_data['image'] = $default_img;
+        update_user_meta($user_id, '_user_group', $group_data);
+        echo '<p class="text-green-600">عکس حذف شد و به حالت پیشفرض برگشت ✅</p>';
+    }
+
+    // ذخیره تغییرات گروه
+    if (isset($_POST['update_group'])) {
+        $group_data['name']     = sanitize_text_field($_POST['group_name']);
+        $group_data['password'] = sanitize_text_field($_POST['group_password']);
+
+        // آپلود تصویر جدید اگر انتخاب شد
+        if (!empty($_FILES['group_image']['name'])) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+            $uploaded = wp_handle_upload($_FILES['group_image'], ['test_form' => false]);
+            if (!isset($uploaded['error'])) {
+                $group_data['image'] = $uploaded['url'];
+            }
         }
+
+        update_user_meta($user_id, '_user_group', $group_data);
+
+        // بروزرسانی display_name کاربر
+        if (isset($_POST['leader_name']) && !empty($_POST['leader_name'])) {
+            wp_update_user([
+                'ID'           => $user_id,
+                'display_name' => sanitize_text_field($_POST['leader_name']),
+            ]);
+        }
+
+        echo '<p class="text-green-600">تنظیمات با موفقیت ذخیره شد ✅</p>';
+        $leader_name = get_the_author_meta('display_name', $user_id);
     }
-
-    update_user_meta($user_id, '_user_group', $group_data);
-
-    // بروزرسانی display_name کاربر
-    if (isset($_POST['leader_name']) && !empty($_POST['leader_name'])) {
-        wp_update_user([
-            'ID'           => $user_id,
-            'display_name' => sanitize_text_field($_POST['leader_name']),
-        ]);
-    }
-
-    echo '<p class="text-green-600">تنظیمات با موفقیت ذخیره شد ✅</p>';
-    
-    // آپدیت مقدار leader_name بعد از تغییر
-    $leader_name = get_the_author_meta('display_name', $user_id);
 }
 ?>
 
@@ -90,11 +103,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_group'])) {
             <?php endif; ?>
             <input type="file" name="group_image" class="border p-2 w-full">
         </label>
+        <button type="submit" name="remove_group_image" class="ml-145 bg-red-500 text-white p-2 rounded">حذف عکس</button>
 
         <div class="flex gap-4">
-            <button type="submit" name="update_group" class="bg-blue-500 text-white px-4 py-2 rounded">
-                ذخیره تغییرات
-            </button>
+            <button type="submit" name="update_group" class="bg-blue-500 text-white px-4 py-2 rounded">ذخیره تغییرات</button>
             <a href="<?php echo home_url('/dashboard'); ?>" class="bg-gray-500 text-white px-4 py-2 rounded">
                 بازگشت به داشبورد
             </a>
