@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        update_user_meta($user_id, '_', $group_data);
+        update_user_meta($user_id, '_group_info', $group_data);
 
         // بروزرسانی display_name کاربر
         if (isset($_POST['leader_name']) && !empty($_POST['leader_name'])) {
