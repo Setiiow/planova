@@ -17,9 +17,9 @@ if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
 
 $user_id = $user->ID;
 
-$group = get_user_meta($user_id, '_user_group', true);
+$group = get_user_meta($user_id, '_group_info', true);
 if (! is_array($group) || empty($group)) {
-    $group = get_user_meta($user_id, 'user_group', true);
+    $group = get_user_meta($user_id, '_group_info', true);
     if (! is_array($group)) $group = [];
 }
 
