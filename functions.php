@@ -60,3 +60,11 @@ add_filter('login_url', function ($login_url) {
     }
     return $login_url;
 });
+
+// بارگذاری توابع آپلود و رسانه وردپرس برای کل سایت
+function planova_load_media_functions() {
+    require_once(ABSPATH . 'wp-admin/includes/file.php');
+    require_once(ABSPATH . 'wp-admin/includes/media.php');
+    require_once(ABSPATH . 'wp-admin/includes/image.php');
+}
+add_action('init', 'planova_load_media_functions');
