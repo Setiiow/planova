@@ -1,5 +1,6 @@
 <?php
-function mytheme_setup() {
+function mytheme_setup()
+{
     add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
     add_theme_support('custom-logo');
@@ -12,19 +13,21 @@ register_nav_menus([
 ]);
 
 // Enqueue CSS و Tailwind
-function mytheme_enqueue_scripts() {
+function mytheme_enqueue_scripts()
+{
     wp_enqueue_style('mytheme-style', get_stylesheet_uri());
     wp_enqueue_script('tailwind', 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4', [], false, true);
 }
 add_action('wp_enqueue_scripts', 'mytheme_enqueue_scripts');
 
-function toPersianNumerals($input) {
-    $english = ['0','1','2','3','4','5','6','7','8','9'];
-    $persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+function toPersianNumerals($input)
+{
+    $english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    $persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
     return str_replace($english, $persian, (string) $input);
 }
 
-add_action('init', function() {
+add_action('init', function () {
     if (!get_role('parent')) {
         add_role('parent', 'والد', ['read' => true]);
     }
@@ -33,14 +36,14 @@ add_action('init', function() {
     }
 });
 
-add_action('admin_init', function() {
+add_action('admin_init', function () {
     if (!current_user_can('administrator') && is_admin() && !defined('DOING_AJAX')) {
         wp_redirect(home_url('/dashboard'));
         exit;
     }
 });
 
-add_filter('login_redirect', function($redirect_to, $request, $user) {
+add_filter('login_redirect', function ($redirect_to, $request, $user) {
     if (isset($user->roles) && is_array($user->roles)) {
         if (in_array('parent', $user->roles)) {
             return home_url('/dashboard');
@@ -51,9 +54,9 @@ add_filter('login_redirect', function($redirect_to, $request, $user) {
     return $redirect_to;
 }, 10, 3);
 
-add_filter('login_url', function($login_url) {
+add_filter('login_url', function ($login_url) {
     if (!is_admin()) {
-        return home_url('/login'); 
+        return home_url('/login');
     }
     return $login_url;
 });
