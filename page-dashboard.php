@@ -42,6 +42,11 @@ if ($group_name) {
         class="inline-block bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition">
         ⚙️ تنظیمات گروه
       </a>';
+    echo '<a href="' . esc_url(home_url('/add-member')) . '" 
+        class="fixed bottom-6 right-6 bg-blue-600 text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg text-3xl hover:bg-blue-700">
+        +
+      </a>';
+
     echo '</div>';
 } else {
     echo '<p>شما هنوز گروهی ایجاد نکرده‌اید.</p>';
