@@ -17,9 +17,9 @@ if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
 
 $user_id = $user->ID;
 
-$group = get_user_meta($user_id, '_user_group', true);
+$group = get_user_meta($user_id, '_group_info', true);
 if (! is_array($group) || empty($group)) {
-    $group = get_user_meta($user_id, 'user_group', true);
+    $group = get_user_meta($user_id, '_group_info', true);
     if (! is_array($group)) $group = [];
 }
 
@@ -42,9 +42,44 @@ if ($group_name) {
         class="inline-block bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition">
         ⚙️ تنظیمات گروه
       </a>';
+    echo '<a href="' . esc_url(home_url('/add-member')) . '" 
+        class="fixed bottom-6 right-6 bg-blue-600 text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg text-3xl hover:bg-blue-700">
+        +
+      </a>';
+
     echo '</div>';
 } else {
     echo '<p>شما هنوز گروهی ایجاد نکرده‌اید.</p>';
 }
 
+$members = get_user_meta($user_id, '_group_members', true);
+if (is_array($members) && !empty($members)) {
+    echo '<div class="bg-white shadow-md rounded p-4 mt-6">';
+    echo '<h2 class="text-xl font-bold mb-4">اعضای گروه</h2>';
+    echo '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">';
+    foreach($members as $member)
+    {
+        $member_name     = esc_html($member['name'] ?? '');
+        $member_lastname = esc_html($member['lastname'] ?? '');
+        $member_gender   = esc_html($member['gender'] ?? '');
+        $member_img      = esc_html($member['image']??'');
+
+        echo '<div class="bg-gray-50 rounded-lg shadow p-4 text-center">';
+        echo '<img src="' . $member_img . '" alt="' . $member_name . '" class="w-24 h-24 mx-auto rounded-full object-cover mb-3">';
+        echo '<h3 class="text-lg font-semibold">' . $member_name . ' ' . $member_lastname . '</h3>';
+        echo '<p class="text-sm text-gray-600">جنسیت: ' . ($member_gender === 'girl' ? 'دختر' : 'پسر') . '</p>';
+        echo '</div>';
+    }
+    echo '</div>';
+    echo '</div>';
+} else {
+    echo '<p class="mt-4 text-gray-600">هنوز عضوی به گروه اضافه نشده است.</p>';
+}
+echo '<a href="' . esc_url(home_url('/add-task')) . '" 
+    class="fixed bottom-6 left-6 bg-green-600 text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg text-2xl hover:bg-green-700">
+    📝
+  </a>';
+?>
+<?php
 get_footer();
+?>

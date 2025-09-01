@@ -20,7 +20,7 @@ if ( ! array_intersect(['parent','teacher'], (array) $user->roles) ) {
 }
 
 // گرفتن اطلاعات قبلی گروه
-$group_data = get_user_meta($user_id, '_user_group', true);
+$group_data = get_user_meta($user_id, '_group_info', true);
 if ( ! is_array($group_data) ) {
     $group_data = [
         'name'     => '',
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // حذف عکس و جایگزینی با عکس پیشفرض
     if (isset($_POST['remove_group_image'])) {
         $group_data['image'] = $default_img;
-        update_user_meta($user_id, '_user_group', $group_data);
+        update_user_meta($user_id, '_group_info', $group_data);
         echo '<p class="text-green-600">عکس حذف شد و به حالت پیشفرض برگشت ✅</p>';
     }
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        update_user_meta($user_id, '_user_group', $group_data);
+        update_user_meta($user_id, '_group_info', $group_data);
 
         // بروزرسانی display_name کاربر
         if (isset($_POST['leader_name']) && !empty($_POST['leader_name'])) {

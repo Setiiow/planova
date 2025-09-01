@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
 
             $default_img = get_template_directory_uri() . '/assets/images/default-group.png';
             
-            update_user_meta($user_id, '_user_group', [
+            update_user_meta($user_id, '_group_info', [
                 'name'     => $group_name,
                 'password' => $group_password,
                 'image'    => !empty($uploaded_image) ? $uploaded_image : $default_img,
