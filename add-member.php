@@ -62,6 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
         }
     }
 
+    do {
+        $member_id = rand(1000, 9999); // عدد ۴ رقمی
+    } while (in_array($member_id, array_column($members, 'id')));
+
+
     // (با بررسی حجم و پسوند) آپلود تصویر
     if (!empty($_FILES['member_image']['name'])) {
         $file = $_FILES['member_image'];
@@ -100,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
 
         // اضافه کردن عضو جدید
         $members[] = [
+            'id' => $member_id,
             'name'  => $name,
             'lastname' => $lastname,
             'gender' => $gender,
@@ -134,7 +140,7 @@ if (!empty($errors)) {
 
     <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-md flex flex-col gap-4">
         <label>نام عضو:
-            <input type="text" name="member_name" value="<?php echo esc_attr($name); ?>" class="border p-2 w-full" value="" required>
+            <input type="text" name="member_name" value="<?php echo esc_attr($name); ?>" class="border p-2 w-full" required>
         </label>
         <label>نام خانوادگی عضو:
             <input type="text" name="member_lastname" value="<?php echo esc_attr($lastname); ?>" class="border p-2 w-full" placeholder="اختیاری">
