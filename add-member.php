@@ -82,6 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
         $upload = media_handle_upload('member_image', 0);
         if (!is_wp_error($upload)) {
             $member_img_url = wp_get_attachment_url($upload);
+             } else {
+                $errors[] = 'مشکلی در آپلود تصویر پیش آمد.';
             }
         }
     }
@@ -89,10 +91,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
     
     if (empty($errors)) {
 
-        // تعیین تصویر پیش‌ فرض بر اساس جنسیت
-        $default_girl_img = get_template_directory_uri() . '/assets/images/default-girl.webp';
-        $default_boy_img  = get_template_directory_uri() . '/assets/images/default-boy.png';
-        $member_img_url = ($gender === 'girl') ? $default_girl_img : $default_boy_img;
+        if (empty($member_img_url)) {
+            $member_img_url = ($gender === 'girl') ? $default_girl_img : $default_boy_img;
+        }
 
         // اضافه کردن عضو جدید
         $members[] = [
@@ -105,6 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
         // ذخیره‌سازی
         update_user_meta($user_id, '_group_members', $members);
         $success_message = '<p class="text-green-600">عضو با موفقیت اضافه شد ✅</p>';
+
+        // خالی کردن فیلدها بعد از موفقیت
+        $name = '';
+        $lastname = '';
+        $gender = '';
     }
 }
 
