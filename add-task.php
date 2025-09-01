@@ -83,18 +83,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
         <!-- انتخاب اعضای گروه -->
         <label>اعمال برای کدام اعضا:</label>
         <div class="flex flex-col gap-2 border p-2 rounded max-h-40 overflow-y-auto">
-            <?php
-            if (is_array($members)) {
-                foreach ($members as $index => $member) {
-                    $member_name = esc_html($member['name'] ?? '');
-                    $member_lastname = esc_html($member['lastname'] ?? '');
-                    echo '<label><input type="checkbox" name="selected_members[]" value="' . $index . '"> '
-                        . $member_name . ' ' . $member_lastname . '</label>';
-                }
-            } else {
-                echo '<p>هنوز عضوی اضافه نشده است.</p>';
-            }
-            ?>
+            <?php foreach ($members as $member): ?>
+                <label>
+                    <input type="checkbox" name="selected_members[]" value="<?php echo esc_attr($member['id']); ?>">
+                    <?php
+                    // نمایش نام + نام خانوادگی (اگر وجود داشته باشه)
+                    echo esc_html($member['name'] . (!empty($member['last_name']) ? ' ' . $member['last_name'] : ''));
+                    ?>
+                </label><br>
+            <?php endforeach; ?>
+
         </div>
         <button type="submit" name="add_task" class="bg-blue-500 text-white p-2 rounded">
             ثبت وظیفه
