@@ -61,6 +61,17 @@ add_filter('login_url', function ($login_url) {
     return $login_url;
 });
 
+add_action('wp_enqueue_scripts', function(){
+  // استایل اصلی
+  wp_enqueue_style('planova-style', get_stylesheet_uri(), [], wp_get_theme()->get('Version'));
+  
+  // استایل هدر
+  wp_enqueue_style('planova-header', get_template_directory_uri() . '/assets/css/header.css', ['planova-style'], '1.0');
+  
+  // اسکریپت تب‌ها
+  wp_enqueue_script('planova-header-js', get_template_directory_uri() . '/assets/js/header.js', [], '1.0', true);
+});
+
 // بارگذاری توابع آپلود و رسانه وردپرس برای کل سایت
 function planova_load_media_functions() {
     require_once(ABSPATH . 'wp-admin/includes/file.php');
