@@ -75,6 +75,10 @@ if (is_array($members) && !empty($members)) {
 } else {
     echo '<p class="mt-4 text-gray-600">هنوز عضوی به گروه اضافه نشده است.</p>';
 }
+echo '<a href="' . esc_url(home_url('/add-task')) . '" 
+    class="fixed bottom-6 left-6 bg-green-600 text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg text-2xl hover:bg-green-700">
+    📝
+  </a>';
 ?>
 <?php
 get_footer();
