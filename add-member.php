@@ -131,15 +131,15 @@ if (!empty($errors)) {
 
     <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-md flex flex-col gap-4">
         <label>نام عضو:
-            <input type="text" name="member_name" class="border p-2 w-full" value="" required>
+            <input type="text" name="member_name" value="<?php echo esc_attr($name); ?>" class="border p-2 w-full" value="" required>
         </label>
         <label>نام خانوادگی عضو:
-            <input type="text" name="member_lastname" class="border p-2 w-full" placeholder="اختیاری">
+            <input type="text" name="member_lastname" value="<?php echo esc_attr($lastname); ?>" class="border p-2 w-full" placeholder="اختیاری">
         </label>
         <label>جنسیت:
             <select name="gender" class="border p-2" required>
-                <option value="girl">دختر</option>
-                <option value="boy">پسر</option>
+                <option value="girl" <?php selected($gender, 'girl'); ?>>دختر</option>
+                <option value="boy" <?php selected($gender, 'boy'); ?>>پسر</option>
             </select>
         </label>
         <label>تصویر عضو:
