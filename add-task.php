@@ -11,16 +11,57 @@ if (!is_user_logged_in()) {
     exit;
 }
 
-$user_id = $user->ID; 
 $user = wp_get_current_user();
+$user_id = $user->ID;
+
 if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
     echo '<p class="text-red-500">شما اجازه دسترسی به این بخش را ندارید.</p>';
     get_footer();
     exit;
 }
 
-
+// گرفتن اعضای گروه
 $members = get_user_meta($user_id, '_group_members', true);
+if (!is_array($members)) $members = [];
+
+$success_message = '';
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
+    $task_title = sanitize_text_field($_POST['task_title'] ?? '');
+    $task_desc = sanitize_textarea_field($_POST['task_desc'] ?? '');
+    $task_points = intval($_POST['task_points'] ?? 0);
+    $selected_members = $_POST['selected_members'] ?? [];
+
+    // اعتبارسنجی
+    if (empty($task_title)) $errors[] = 'عنوان وظیفه را وارد کنید.';
+    if ($task_points <= 0) $errors[] = 'امتیاز وظیفه باید بیشتر از 0 باشد.';
+    if (empty($selected_members)) $errors[] = 'حداقل یک عضو را انتخاب کنید.';
+
+    if (empty($errors)) {
+        foreach ($selected_members as $member_index) {
+            // گرفتن user ID عضو از آرایه members
+            $member_id = $members[$member_index]['id'] ?? null;
+            if ($member_id) {
+                $member_tasks = get_user_meta($member_id, '_member_tasks', true);
+                if (!is_array($member_tasks)) $member_tasks = [];
+
+                $member_tasks[] = [
+                    'title' => $task_title,
+                    'desc' => $task_desc,
+                    'points' => $task_points,
+                    'assigned_by' => $user_id,
+                    'created_at' => current_time('mysql')
+                ];
+
+                update_user_meta($member_id, '_member_tasks', $member_tasks);
+                $success_message = '<p class="text-green-600">وظیفه با موفقیت ثبت شد ✅</p>';
+                $_POST = [];
+            }
+        }
+    }
+}
+
 ?>
 <main class="max-w-screen-md mx-auto p-4">
     <h2 class="text-xl font-bold mb-4">افزودن وظیفه جدید</h2>
@@ -28,11 +69,11 @@ $members = get_user_meta($user_id, '_group_members', true);
     <form method="post" class="bg-white p-4 rounded shadow-md flex flex-col gap-4">
 
         <label>عنوان وظیفه:
-            <input type="text" name="task_title" class="border p-2 w-full" placeholder="مثلاً: انجام تکالیف ریاضی" required>
+            <input type="text" name="task_title" value="<?php echo esc_attr($_POST['task_title'] ?? '') ?>" class="border p-2 w-full" placeholder="مثلاً: انجام تکالیف ریاضی" required>
         </label>
 
         <label>توضیحات وظیفه:
-            <textarea name="task_desc" class="border p-2 w-full" placeholder="توضیحات بیشتر درباره وظیفه (اختیاری)"></textarea>
+            <textarea name="task_desc" class="border p-2 w-full" placeholder="اختیاری"><?php echo esc_textarea($_POST['task_desc'] ?? '') ?></textarea>
         </label>
 
         <label>امتیاز وظیفه:
@@ -43,13 +84,12 @@ $members = get_user_meta($user_id, '_group_members', true);
         <label>اعمال برای کدام اعضا:</label>
         <div class="flex flex-col gap-2 border p-2 rounded max-h-40 overflow-y-auto">
             <?php
-            $members = get_user_meta($user_id, '_group_members', true);
             if (is_array($members)) {
                 foreach ($members as $index => $member) {
                     $member_name = esc_html($member['name'] ?? '');
                     $member_lastname = esc_html($member['lastname'] ?? '');
-                    echo '<label><input type="checkbox" name="selected_members[]" value="' . $index . '"> ' 
-                         . $member_name . ' ' . $member_lastname . '</label>';
+                    echo '<label><input type="checkbox" name="selected_members[]" value="' . $index . '"> '
+                        . $member_name . ' ' . $member_lastname . '</label>';
                 }
             } else {
                 echo '<p>هنوز عضوی اضافه نشده است.</p>';
