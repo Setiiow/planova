@@ -26,6 +26,9 @@ $default_girl_img = get_template_directory_uri() . '/assets/images/default-girl.
 $default_boy_img  = get_template_directory_uri() . '/assets/images/default-boy.png';
 $member_img_url = '';
 $success_message = '';
+$name = '';
+$lastname = '';
+$gender = '';
 
 $errors = [];
 
@@ -52,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
     foreach ($members as $member) {
         if (
             strcasecmp($member['name'], $name) === 0 &&
-            strcasecmp($member['lastname'] ?? '', $lastname) === 0 ) 
-            {
+            strcasecmp($member['lastname'] ?? '', $lastname) === 0
+        ) {
             $errors[] = 'این عضو قبلاً ثبت شده است.';
             break;
         }
@@ -62,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
     // (با بررسی حجم و پسوند) آپلود تصویر
     if (!empty($_FILES['member_image']['name'])) {
         $file = $_FILES['member_image'];
-        
+
         // بررسی حجم
         if ($file['size'] > 2 * 1024 * 1024) {
             $errors[] = 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد.';
@@ -79,16 +82,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             require_once(ABSPATH . 'wp-admin/includes/file.php');
             require_once(ABSPATH . 'wp-admin/includes/media.php');
             require_once(ABSPATH . 'wp-admin/includes/image.php');
-        $upload = media_handle_upload('member_image', 0);
-        if (!is_wp_error($upload)) {
-            $member_img_url = wp_get_attachment_url($upload);
-             } else {
+            $upload = media_handle_upload('member_image', 0);
+            if (!is_wp_error($upload)) {
+                $member_img_url = wp_get_attachment_url($upload);
+            } else {
                 $errors[] = 'مشکلی در آپلود تصویر پیش آمد.';
             }
         }
     }
 
-    
+
     if (empty($errors)) {
 
         if (empty($member_img_url)) {
