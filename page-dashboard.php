@@ -52,4 +52,17 @@ if ($group_name) {
     echo '<p>شما هنوز گروهی ایجاد نکرده‌اید.</p>';
 }
 
+$members = get_user_meta($user_id, '_group_members', true);
+if (is_array($members) && !empty($members)) {
+    echo '<div class="bg-white shadow-md rounded p-4 mt-6">';
+    echo '<h2 class="text-xl font-bold mb-4">اعضای گروه</h2>';
+    echo '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">';
+    echo '</div>';
+    echo '</div>';
+} else {
+    echo '<p class="mt-4 text-gray-600">هنوز عضوی به گروه اضافه نشده است.</p>';
+}
+?>
+<?php
 get_footer();
+?>
