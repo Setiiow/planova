@@ -39,23 +39,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
     if (empty($selected_members)) $errors[] = 'حداقل یک عضو را انتخاب کنید.';
 
     if (empty($errors)) {
-        foreach ($selected_members as $member_index) {
-            // گرفتن user ID عضو از آرایه members
-            $member_id = $members[$member_index]['id'] ?? null;
-            if ($member_id) {
-                $member_tasks = get_user_meta($member_id, '_member_tasks', true);
-                if (!is_array($member_tasks)) $member_tasks = [];
+        foreach ($selected_members as $member_id) {
+            $member_id = absint($member_id); // مطمئن شدن از عدد بودن id
 
-                $member_tasks[] = [
-                    'title' => $task_title,
-                    'desc' => $task_desc,
-                    'points' => $task_points,
-                    'assigned_by' => $user_id,
-                    'created_at' => current_time('mysql')
-                ];
+            // گرفتن وظایف قبلی عضو
+            $member_tasks = get_user_meta($member_id, '_member_tasks', true);
+            if (!is_array($member_tasks)) $member_tasks = [];
 
-                update_user_meta($member_id, '_member_tasks', $member_tasks);
-            }
+
+            $member_tasks[] = [
+                'title' => $task_title,
+                'desc' => $task_desc,
+                'points' => $task_points,
+                'assigned_by' => $user_id,
+                'created_at' => current_time('mysql')
+            ];
+            update_user_meta($member_id, '_member_tasks', $member_tasks);
         }
         $success_message = '<p class="text-green-600">وظیفه با موفقیت ثبت شد ✅</p>';
         $_POST = [];
@@ -63,8 +62,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
 }
 
 ?>
+
 <main class="max-w-screen-md mx-auto p-4">
     <h2 class="text-xl font-bold mb-4">افزودن وظیفه جدید</h2>
+
+    <?php
+    if (!empty($errors)) {
+        echo '<ul class="text-red-500 mb-4">';
+        foreach ($errors as $error) {
+            echo '<li>' . esc_html($error) . '</li>';
+        }
+        echo '</ul>';
+    }
+
+    if ($success_message) {
+        echo $success_message;
+    }
+    ?>
 
     <form method="post" class="bg-white p-4 rounded shadow-md flex flex-col gap-4">
 
@@ -88,15 +102,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
                     <input type="checkbox" name="selected_members[]" value="<?php echo esc_attr($member['id']); ?>">
                     <?php
                     // نمایش نام + نام خانوادگی (اگر وجود داشته باشه)
-                    echo esc_html($member['name'] . (!empty($member['last_name']) ? ' ' . $member['last_name'] : ''));
+                    echo esc_html($member['name'] . (!empty($member['lastname']) ? ' ' . $member['lastname'] : ''));
                     ?>
-                </label><br>
+                </label>
             <?php endforeach; ?>
 
         </div>
-        <button type="submit" name="add_task" class="bg-blue-500 text-white p-2 rounded">
-            ثبت وظیفه
-        </button>
+        <div class="flex gap-4">
+
+            <button type="submit" name="add_task" class="bg-blue-500 text-white p-2 rounded">
+                ثبت وظیفه
+            </button>
+            <a href="<?php echo home_url('/dashboard'); ?>" class="bg-gray-500 text-white px-4 py-2 rounded">
+                بازگشت به داشبورد
+            </a>
+        </div>
     </form>
 </main>
 
