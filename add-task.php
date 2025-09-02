@@ -96,6 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
 
         <!-- انتخاب اعضای گروه -->
         <label>اعمال برای کدام اعضا:</label>
+        <button type="button" id="toggle-members" class="bg-yellow-500 text-white px-2 py-1 rounded mb-2 hover:bg-yellow-600">
+            انتخاب همه
+        </button>
         <div class="flex flex-col gap-2 border p-2 rounded max-h-40 overflow-y-auto">
             <?php foreach ($members_id as $member_id) {
                 $member_data = get_userdata($member_id); // اطلاعات کامل کاربر
@@ -120,6 +123,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
         </div>
     </form>
 </main>
+
+<script>
+const Btn = document.getElementById('toggle-members');
+Btn.addEventListener('click', function() {
+    const checkboxes = document.querySelectorAll('input[name="selected_members[]"]');
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    
+    checkboxes.forEach(cb => cb.checked = !allChecked);
+});
+</script>
 
 <?php
 get_footer();
