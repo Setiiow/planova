@@ -29,42 +29,34 @@ $success_message = '';
 $name = '';
 $lastname = '';
 $gender = '';
-
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
 
-    // نام عضو
-    $name = isset($_POST['member_name']) ? sanitize_text_field($_POST['member_name']) : '';
-    if (empty($name)) {
-        $errors[] = 'لطفاً نام عضو را وارد کنید.';
-    }
+    $name = sanitize_text_field($_POST['member_name'] ?? '');
+    $lastname = sanitize_text_field($_POST['member_lastname'] ?? '');
+    $gender = sanitize_text_field($_POST['gender'] ?? '');
 
-    // دریافت نام خانوادگی
-    $lastname = isset($_POST['member_lastname']) ? sanitize_text_field($_POST['member_lastname']) : '';
-
-    // دریافت جنسیت
-    $gender = isset($_POST['gender']) ? sanitize_text_field($_POST['gender']) : '';
-    if (empty($gender) || !in_array($gender, ['girl', 'boy'])) {
-        $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
-    }
+    if (empty($name)) $errors[] = 'لطفاً نام عضو را وارد کنید.';
+    if (empty($lastname)) $errors[] = 'لطفاً نام خانوادگی عضو را وارد کنید.';
+    if (empty($gender) || !in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
 
     // گرفتن اعضای قبلی
     $members = get_user_meta($user_id, '_group_members', true);
     if (!is_array($members)) $members = [];
-    foreach ($members as $member) {
-        if (
-            strcasecmp($member['name'], $name) === 0 &&
-            strcasecmp($member['lastname'] ?? '', $lastname) === 0
-        ) {
-            $errors[] = 'این عضو قبلاً ثبت شده است.';
-            break;
+    foreach ($members as $member_id) {
+        $member_data = get_userdata($member_id);
+        if ($member_data) {
+            if (
+                strcasecmp($member_data->first_name, $name) === 0 &&
+                strcasecmp($member_data->last_name, $lastname) === 0
+            ) {
+                $errors[] = 'این عضو قبلاً در گروه شما ثبت شده است.';
+                break;
+            }
         }
     }
 
-    do {
-        $member_id = rand(1000, 9999); // عدد ۴ رقمی
-    } while (in_array($member_id, array_column($members, 'id')));
 
 
     // (با بررسی حجم و پسوند) آپلود تصویر
@@ -103,23 +95,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             $member_img_url = ($gender === 'girl') ? $default_girl_img : $default_boy_img;
         }
 
-        // اضافه کردن عضو جدید
-        $members[] = [
-            'id' => $member_id,
-            'name'  => $name,
-            'lastname' => $lastname,
-            'gender' => $gender,
-            'image' => $member_img_url,
-        ];
+        // ساخت نام کاربری منحصر به فرد
+        $user_login = strtolower($name . $lastname . rand(1000, 9999));
+        $user_pass = wp_generate_password();
+        $user_email = $user_login . '@example.com';
 
-        // ذخیره‌سازی
+        $new_user_id = wp_create_user($user_login, $user_pass, $user_email);
+
+        if (is_wp_error($new_user_id)) {
+            $errors[] = 'خطا در ایجاد عضو: ' . $new_user_id->get_error_message();
+        } else {
+            wp_update_user([
+                'ID' => $new_user_id,
+                'first_name' => $name,
+                'last_name'  => $lastname,
+                'role'       => 'member'
+            ]);
+            update_user_meta($new_user_id, 'gender', $gender);
+            update_user_meta($new_user_id, 'profile_image', $member_img_url);
+        }
+
+        // اضافه کردن به گروه سرگروه
+        $members[] = $new_user_id;
         update_user_meta($user_id, '_group_members', $members);
         $success_message = '<p class="text-green-600">عضو با موفقیت اضافه شد ✅</p>';
 
         // خالی کردن فیلدها بعد از موفقیت
-        $name = '';
-        $lastname = '';
-        $gender = '';
+        $name = $lastname = $member_img_url = $gender = '';
     }
 }
 
