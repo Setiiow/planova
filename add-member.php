@@ -117,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             ]);
             update_user_meta($new_user_id, 'gender', $gender);
             update_user_meta($new_user_id, 'profile_image', $member_img_url);
+            update_user_meta($new_user_id, 'points', 0); // اضافه کردن فیلد امتیاز با مقدار اولیه 0
         }
 
         // اضافه کردن به گروه سرگروه
