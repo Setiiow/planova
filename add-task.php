@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
             ];
             update_user_meta($member_id, '_member_tasks', $member_tasks);
         }
-        $success_message = '<p class="text-green-600">وظیفه با موفقیت ثبت شد ✅</p>';
+        $success_message = '<p id="success-msg" class="text-green-600">وظیفه با موفقیت ثبت شد ✅</p>';
         $_POST = [];
     }
 }
@@ -132,6 +132,13 @@ Btn.addEventListener('click', function() {
     
     checkboxes.forEach(cb => cb.checked = !allChecked);
 });
+// بعد از 2 ثانیه پیام مخفی شود
+setTimeout(function() {
+    const msg = document.getElementById('success-msg');
+        if (msg) {
+            msg.style.display = 'none';
+        }
+    }, 2000);
 </script>
 
 <?php
