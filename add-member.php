@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
     // گرفتن اعضای قبلی
     $members = get_user_meta($user_id, '_group_members', true);
     if (!is_array($members)) $members = [];
+
     foreach ($members as $member_id) {
         $member_data = get_userdata($member_id);
         if ($member_data) {
@@ -95,8 +96,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             $member_img_url = ($gender === 'girl') ? $default_girl_img : $default_boy_img;
         }
 
-        // ساخت نام کاربری منحصر به فرد
-        $user_login = strtolower($name . $lastname . rand(1000, 9999));
+         // ساخت نام کاربری لاتین و یکتا
+        do {
+            $user_login = 'member' . rand(1000,9999);
+        } while (username_exists($user_login));
+        
         $user_pass = wp_generate_password();
         $user_email = $user_login . '@example.com';
 
