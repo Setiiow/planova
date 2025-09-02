@@ -64,6 +64,7 @@ if (is_array($members) && !empty($members)) {
             $member_lastname = esc_html($member_data->last_name);
             $member_gender   = esc_html(get_user_meta($member_id, 'gender', true));
             $member_img      = esc_html(get_user_meta($member_id, 'profile_image', true));
+            $member_points   = esc_html(get_user_meta($member_id, 'points', true));
         }
 
 
@@ -71,6 +72,7 @@ if (is_array($members) && !empty($members)) {
         echo '<img src="' . $member_img . '" alt="' . $member_name . '" class="w-24 h-24 mx-auto rounded-full object-cover mb-3">';
         echo '<h3 class="text-lg font-semibold">' . $member_name . ' ' . $member_lastname . '</h3>';
         echo '<p class="text-sm text-gray-600">جنسیت: ' . ($member_gender === 'girl' ? 'دختر' : 'پسر') . '</p>';
+        echo '<p class="text-sm text-gray-600">امتیاز: ' . $member_points . '</p>';
         echo '</div>';
     }
     echo '</div>';
@@ -83,6 +85,11 @@ echo '<a href="' . esc_url(home_url('/add-task')) . '"
     📝
   </a>';
 ?>
+<!-- دکمه ثبت جایزه  -->
+<a href="<?php echo esc_url(home_url('/add-reward')); ?>"
+    class="fixed top-24 right-6 z-50 bg-pink-500 text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg text-2xl hover:bg-pink-600 hover:scale-110 transition-transform duration-300">
+    🎁
+</a>
 <?php
 get_footer();
 ?>
