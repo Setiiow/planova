@@ -11,18 +11,18 @@ if (!is_user_logged_in()) {
     exit;
 }
 
-$user = wp_get_current_user();
-$user_id = $user->ID;
+$leader = wp_get_current_user();
+$leader_id = $leader->ID;
 
-if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
+if (! array_intersect(['parent', 'teacher'], (array) $leader->roles)) {
     echo '<p class="text-red-500">شما اجازه دسترسی به این بخش را ندارید.</p>';
     get_footer();
     exit;
 }
 
-// گرفتن اعضای گروه
-$members = get_user_meta($user_id, '_group_members', true);
-if (!is_array($members)) $members = [];
+// گرفتن ایدی اعضای گروه
+$members_id = get_user_meta($leader_id, '_group_members', true);
+if (!is_array($members_id)) $members_id = [];
 
 $success_message = '';
 $errors = [];
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
                 'title' => $task_title,
                 'desc' => $task_desc,
                 'points' => $task_points,
-                'assigned_by' => $user_id,
+                'assigned_by' => $leader_id,
                 'created_at' => current_time('mysql')
             ];
             update_user_meta($member_id, '_member_tasks', $member_tasks);
@@ -97,19 +97,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
         <!-- انتخاب اعضای گروه -->
         <label>اعمال برای کدام اعضا:</label>
         <div class="flex flex-col gap-2 border p-2 rounded max-h-40 overflow-y-auto">
-            <?php foreach ($members as $member): ?>
-                <label>
-                    <input type="checkbox" name="selected_members[]" value="<?php echo esc_attr($member['id']); ?>">
-                    <?php
-                    // نمایش نام + نام خانوادگی (اگر وجود داشته باشه)
-                    echo esc_html($member['name'] . (!empty($member['lastname']) ? ' ' . $member['lastname'] : ''));
-                    ?>
-                </label>
-            <?php endforeach; ?>
-
+            <?php foreach ($members_id as $member_id) {
+                $member_data = get_userdata($member_id); // اطلاعات کامل کاربر
+                if ($member_data) {
+            ?>
+                    <label>
+                        <input type="checkbox" name="selected_members[]" value="<?php echo esc_attr($member_id); ?>">
+                        <?php echo esc_html($member_data->first_name . ' ' . $member_data->last_name); ?>
+                    </label>
+            <?php
+                }
+            }
+            ?>
         </div>
         <div class="flex gap-4">
-
             <button type="submit" name="add_task" class="bg-blue-500 text-white p-2 rounded">
                 ثبت وظیفه
             </button>
