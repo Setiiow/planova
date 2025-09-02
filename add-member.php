@@ -149,7 +149,7 @@ if (!empty($errors)) {
             <input type="text" name="member_name" value="<?php echo esc_attr($name); ?>" class="border p-2 w-full" required>
         </label>
         <label>نام خانوادگی عضو:
-            <input type="text" name="member_lastname" value="<?php echo esc_attr($lastname); ?>" class="border p-2 w-full" placeholder="اختیاری">
+            <input type="text" name="member_lastname" value="<?php echo esc_attr($lastname); ?>" class="border p-2 w-full">
         </label>
         <label>جنسیت:
             <select name="gender" class="border p-2" required>
