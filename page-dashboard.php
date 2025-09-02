@@ -17,6 +17,43 @@ if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
 
 $user_id = $user->ID;
 
+// پردازش فرم ویرایش
+$members = get_user_meta($user_id, '_group_members', true);
+if (!is_array($members)) $members = [];
+
+$success_message = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_member'])) {
+    $member_id = intval($_POST['member_id']);
+    if (in_array($member_id, $members)) {
+        $first_name = sanitize_text_field($_POST['first_name'] ?? '');
+        $last_name  = sanitize_text_field($_POST['last_name'] ?? '');
+        $gender     = sanitize_text_field($_POST['gender'] ?? '');
+        $points     = intval($_POST['points'] ?? 0);
+
+        wp_update_user([
+            'ID' => $member_id,
+            'first_name' => $first_name,
+            'last_name'  => $last_name
+        ]);
+
+        update_user_meta($member_id, 'gender', $gender);
+        update_user_meta($member_id, 'points', $points);
+
+        // آپلود تصویر
+        if (!empty($_FILES['profile_image']['name'])) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+            require_once(ABSPATH . 'wp-admin/includes/media.php');
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+            $upload = media_handle_upload('profile_image', 0);
+            if (!is_wp_error($upload)) {
+                update_user_meta($member_id, 'profile_image', wp_get_attachment_url($upload));
+            }
+        }
+
+        $success_message = 'عضو با موفقیت ویرایش شد.';
+    }
+}
+
 $group = get_user_meta($user_id, '_group_info', true);
 if (! is_array($group) || empty($group)) {
     $group = get_user_meta($user_id, '_group_info', true);
@@ -52,7 +89,11 @@ if ($group_name) {
     echo '<p>شما هنوز گروهی ایجاد نکرده‌اید.</p>';
 }
 
-$members = get_user_meta($user_id, '_group_members', true);
+if (!empty($success_message)) : ?>
+    <div class="bg-green-200 text-green-800 p-3 rounded mb-4"><?php echo esc_html($success_message); ?></div>
+    <?php endif;
+
+
 if (is_array($members) && !empty($members)) {
     echo '<div class="bg-white shadow-md rounded p-4 mt-6">';
     echo '<h2 class="text-xl font-bold mb-4">اعضای گروه</h2>';
@@ -66,15 +107,36 @@ if (is_array($members) && !empty($members)) {
             $member_img      = esc_html(get_user_meta($member_id, 'profile_image', true));
             $member_points   = esc_html(get_user_meta($member_id, 'points', true));
         }
+    ?>
 
+        <div class="bg-gray-50 rounded-lg shadow p-4 text-center member-card" data-member-id="<?php echo $member_id; ?>">
+            <form method="post" enctype="multipart/form-data" class="flex flex-col items-center">
+                <input type="hidden" name="member_id" value="<?php echo $member_id; ?>">
 
-        echo '<div class="bg-gray-50 rounded-lg shadow p-4 text-center">';
-        echo '<img src="' . $member_img . '" alt="' . $member_name . '" class="w-24 h-24 mx-auto rounded-full object-cover mb-3">';
-        echo '<h3 class="text-lg font-semibold">' . $member_name . ' ' . $member_lastname . '</h3>';
-        echo '<p class="text-sm text-gray-600">جنسیت: ' . ($member_gender === 'girl' ? 'دختر' : 'پسر') . '</p>';
-        echo '<p class="text-sm text-gray-600">امتیاز: ' . $member_points . '</p>';
-        echo '</div>';
-    }
+                <img src="<?php echo $member_img; ?>" alt="<?php echo $member_name; ?>" class="w-24 h-24 mx-auto rounded-full object-cover mb-3 member-img">
+
+                <div class="member-view">
+                    <h3 class="text-lg font-semibold"><?php echo $member_name . ' ' . $member_lastname; ?></h3>
+                    <p class="text-sm text-gray-600">جنسیت: <?php echo ($member_gender === 'girl' ? 'دختر' : 'پسر'); ?></p>
+                    <p class="text-sm text-gray-600">امتیاز: <?php echo $member_points; ?></p>
+                    <button type="button" class="bg-blue-500 text-white px-3 py-1 mt-2 rounded edit-btn">ویرایش</button>
+                </div>
+
+                <div class="member-edit hidden flex flex-col gap-2 w-full">
+                    <input type="text" name="first_name" value="<?php echo $member_name; ?>" class="border p-1 w-full">
+                    <input type="text" name="last_name" value="<?php echo $member_lastname; ?>" class="border p-1 w-full">
+                    <select name="gender" class="border p-1 w-full">
+                        <option value="girl" <?php selected($member_gender, 'girl'); ?>>دختر</option>
+                        <option value="boy" <?php selected($member_gender, 'boy'); ?>>پسر</option>
+                    </select>
+                    <input type="number" name="points" value="<?php echo $member_points; ?>" class="border p-1 w-full">
+                    <input type="file" name="profile_image" class="border p-1 w-full">
+                    <button type="submit" name="save_member" class="bg-green-500 text-white px-4 py-2 rounded mt-2">ثبت تغییرات</button>
+                    <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded mt-1 cancel-btn">لغو</button>
+                </div>
+            </form>
+        </div>
+<?php }
     echo '</div>';
     echo '</div>';
 } else {
@@ -90,6 +152,26 @@ echo '<a href="' . esc_url(home_url('/add-task')) . '"
     class="fixed top-24 right-6 z-50 bg-pink-500 text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg text-2xl hover:bg-pink-600 hover:scale-110 transition-transform duration-300">
     🎁
 </a>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.edit-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const card = btn.closest('.member-card');
+                card.querySelector('.member-view').classList.add('hidden');
+                card.querySelector('.member-edit').classList.remove('hidden');
+            });
+        });
+        document.querySelectorAll('.cancel-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const card = btn.closest('.member-card');
+                card.querySelector('.member-edit').classList.add('hidden');
+                card.querySelector('.member-view').classList.remove('hidden');
+            });
+        });
+    });
+</script>
+
 <?php
 get_footer();
 ?>
