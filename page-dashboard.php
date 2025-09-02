@@ -57,12 +57,15 @@ if (is_array($members) && !empty($members)) {
     echo '<div class="bg-white shadow-md rounded p-4 mt-6">';
     echo '<h2 class="text-xl font-bold mb-4">اعضای گروه</h2>';
     echo '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">';
-    foreach($members as $member)
-    {
-        $member_name     = esc_html($member['name'] ?? '');
-        $member_lastname = esc_html($member['lastname'] ?? '');
-        $member_gender   = esc_html($member['gender'] ?? '');
-        $member_img      = esc_html($member['image']??'');
+    foreach ($members as $member_id) {
+        $member_data = get_userdata($member_id);
+        if ($member_data) {
+            $member_name     = esc_html($member_data->first_name);
+            $member_lastname = esc_html($member_data->last_name);
+            $member_gender   = esc_html(get_user_meta($member_id, 'gender', true));
+            $member_img      = esc_html(get_user_meta($member_id, 'profile_image', true));
+        }
+
 
         echo '<div class="bg-gray-50 rounded-lg shadow p-4 text-center">';
         echo '<img src="' . $member_img . '" alt="' . $member_name . '" class="w-24 h-24 mx-auto rounded-full object-cover mb-3">';
