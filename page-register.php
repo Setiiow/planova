@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
     $email          = sanitize_email($_POST['email']);
     $role           = sanitize_text_field($_POST['role']);
     $group_name     = sanitize_text_field($_POST['group_name']);
-    $group_password = sanitize_text_field($_POST['group_password']);
+
 
     $errors = [];
 
@@ -58,11 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
             wp_set_current_user($user_id);
             wp_set_auth_cookie($user_id);
             do_action('wp_login', $username, get_user_by('id', $user_id));
-
-            // نمایش رمز گروه بعد از ثبت‌نام
-            echo '<div class="bg-green-200 text-green-800 p-4 rounded mb-4">';
-            echo 'ثبت‌نام موفق ✅ <br> رمز گروه شما: <strong>' . esc_html($group_password) . '</strong> (لطفاً ذخیره کنید)';
-            echo '</div>';
 
             wp_redirect(home_url('/dashboard'));
             exit;
