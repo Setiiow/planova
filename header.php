@@ -68,11 +68,11 @@
   <div class="flex mt-4 space-x-5">
     <a href="<?php echo esc_url(get_permalink(get_page_by_path('login'))); ?>" 
        class="px-4 py-2 rounded-full font-semibold transition transform bg-yellow-400 text-purple-700 hover:bg-yellow-300 hover:-translate-y-1">
-       ورود
+      ورود سرگروه
     </a>
-    <a href="<?php echo esc_url(get_permalink(get_page_by_path('regester'))); ?>" 
+    <a href="<?php echo esc_url(get_permalink(get_page_by_path('member-login'))); ?>" 
        class="px-4 py-2 rounded-full font-semibold transition transform bg-yellow-400 text-purple-700 hover:bg-yellow-300 hover:-translate-y-1">
-       ثبت نام 
+       ورود اعضا
     </a>
   </div>
 <?php endif; ?>
