@@ -96,11 +96,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             $member_img_url = ($gender === 'girl') ? $default_girl_img : $default_boy_img;
         }
 
-         // ساخت نام کاربری لاتین و یکتا
+        // ساخت نام کاربری لاتین و یکتا
         do {
-            $user_login = 'member' . rand(1000,9999);
+            $user_login = 'member' . rand(1000, 9999);
         } while (username_exists($user_login));
-        
+
         $user_pass = wp_generate_password();
         $user_email = $user_login . '@example.com';
 
@@ -118,6 +118,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             update_user_meta($new_user_id, 'gender', $gender);
             update_user_meta($new_user_id, 'profile_image', $member_img_url);
             update_user_meta($new_user_id, 'points', 0); // اضافه کردن فیلد امتیاز با مقدار اولیه 0
+            // ذخیره رمز گروه در پروفایل عضو هنگام افزودن عضو جدید
+            $group_info = get_user_meta($user_id, '_group_info', true);
+            if (!empty($group_info['password'])) {
+                update_user_meta($new_user_id, 'group_password', $group_info['password']);
+            }
         }
 
         // اضافه کردن به گروه سرگروه
