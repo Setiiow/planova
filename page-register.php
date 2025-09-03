@@ -14,8 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
     $password       = $_POST['password'];
     $email          = sanitize_email($_POST['email']);
     $role           = sanitize_text_field($_POST['role']);
-    $group_name     = sanitize_text_field($_POST['group_name']); 
-    $group_password = sanitize_text_field($_POST['group_password']); 
+    $group_name     = sanitize_text_field($_POST['group_name']);
+    $group_password = sanitize_text_field($_POST['group_password']);
 
     $errors = [];
 
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
     if (email_exists($email)) $errors[] = 'این ایمیل قبلاً استفاده شده است.';
     if (empty($password)) $errors[] = 'رمز عبور را وارد کنید.';
     if (empty($group_name)) $errors[] = 'نام گروه را وارد کنید.';
-    if (empty($group_password)) $errors[] = 'رمز گروه را وارد کنید.';
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) $errors[] = 'لطفاً نام کاربری را فقط به حروف و اعداد انگلیسی وارد کنید.';
 
     if (empty($errors)) {
 
@@ -37,17 +37,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
                 'role' => $role,
             ]);
 
+            // تولید رمز گروه یکتا 4 رقمی
+            do {
+                $group_password = rand(1000, 9999);
+            } while (!empty(get_users([
+                'meta_key' => '_group_info',
+                'meta_value' => $group_password
+            ])));
+
+
+            // عکس پیش‌ فرض گروه
             $default_img = get_template_directory_uri() . '/assets/images/default-group.png';
-            
+
             update_user_meta($user_id, '_group_info', [
                 'name'     => $group_name,
                 'password' => $group_password,
-                'image'    => !empty($uploaded_image) ? $uploaded_image : $default_img,
+                'image'    => $default_img,
             ]);
 
             wp_set_current_user($user_id);
             wp_set_auth_cookie($user_id);
             do_action('wp_login', $username, get_user_by('id', $user_id));
+
+            // نمایش رمز گروه بعد از ثبت‌نام
+            echo '<div class="bg-green-200 text-green-800 p-4 rounded mb-4">';
+            echo 'ثبت‌نام موفق ✅ <br> رمز گروه شما: <strong>' . esc_html($group_password) . '</strong> (لطفاً ذخیره کنید)';
+            echo '</div>';
 
             wp_redirect(home_url('/dashboard'));
             exit;
@@ -68,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
     <!-- فرم ثبت‌ نام , ایجاد گروه -->
     <form method="post" class="bg-white p-4 rounded shadow-md flex flex-col gap-4">
         <label>نام کاربری:
-            <input type="text" name="username" class="border p-2" required>
+            <input type="text" name="username" class="border p-2" placeholder="لطفا نام انگلیسی انتخاب کنید." required>
         </label>
         <label>ایمیل:
             <input type="email" name="email" class="border p-2" required>
@@ -86,9 +101,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
         <label>نام گروه:
             <input type="text" name="group_name" class="border p-2" required>
         </label>
-        <label>رمز گروه:
-            <input type="password" name="group_password" class="border p-2" required>
-        </label>
 
         <button type="submit" name="register_user" class="bg-blue-500 text-white p-2 rounded">
             ثبت‌ نام و ایجاد گروه
@@ -96,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
     </form>
 </main>
 
-<?php 
-ob_end_flush(); 
+<?php
+ob_end_flush();
 get_footer();
 ?>
