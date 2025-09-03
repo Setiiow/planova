@@ -16,8 +16,9 @@ if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
 }
 
 $user_id = $user->ID;
+$errors = [];
 
-// پردازش فرم ویرایش
+// گرفتن اعضای قبلی
 $members = get_user_meta($user_id, '_group_members', true);
 if (!is_array($members)) $members = [];
 
@@ -30,27 +31,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_member'])) {
         $gender     = sanitize_text_field($_POST['gender'] ?? '');
         $points     = intval($_POST['points'] ?? 0);
 
-        wp_update_user([
-            'ID' => $member_id,
-            'first_name' => $first_name,
-            'last_name'  => $last_name
-        ]);
+        if (empty($first_name)) $errors[] = 'لطفاً نام عضو را وارد کنید.';
+        if (empty($last_name)) $errors[] = 'لطفاً نام خانوادگی عضو را وارد کنید.';
+        if (empty($gender) || !in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
 
-        update_user_meta($member_id, 'gender', $gender);
-        update_user_meta($member_id, 'points', $points);
-
-        // آپلود تصویر
+        // بررسی تصویر (حجم و فرمت)
         if (!empty($_FILES['profile_image']['name'])) {
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
-            require_once(ABSPATH . 'wp-admin/includes/media.php');
-            require_once(ABSPATH . 'wp-admin/includes/image.php');
-            $upload = media_handle_upload('profile_image', 0);
-            if (!is_wp_error($upload)) {
-                update_user_meta($member_id, 'profile_image', wp_get_attachment_url($upload));
+            $file = $_FILES['profile_image'];
+
+            // حجم (حداکثر ۲ مگابایت)
+            if ($file['size'] > 2 * 1024 * 1024) {
+                $errors[] = 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد.';
+            }
+
+            // فرمت
+            $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
+            $file_type = mime_content_type($file['tmp_name']);
+            if (!in_array($file_type, $allowed_types)) {
+                $errors[] = 'فرمت تصویر معتبر نیست. فقط JPG, PNG, WEBP مجاز است.';
             }
         }
+        
+        if (empty($errors)) {
 
-        $success_message = 'عضو با موفقیت ویرایش شد.';
+
+            wp_update_user([
+                'ID' => $member_id,
+                'first_name' => $first_name,
+                'last_name'  => $last_name
+            ]);
+
+            update_user_meta($member_id, 'gender', $gender);
+            update_user_meta($member_id, 'points', $points);
+
+            // آپلود تصویر
+            if (!empty($_FILES['profile_image']['name'])) {
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+                require_once(ABSPATH . 'wp-admin/includes/media.php');
+                require_once(ABSPATH . 'wp-admin/includes/image.php');
+                $upload = media_handle_upload('profile_image', 0);
+                if (!is_wp_error($upload)) {
+                    update_user_meta($member_id, 'profile_image', wp_get_attachment_url($upload));
+                } else {
+                    $errors[] = 'مشکلی در آپلود تصویر پیش آمد.';
+                }
+            }
+            
+
+            if (empty($errors)) {
+                $success_message = 'عضو با موفقیت ویرایش شد.';
+            }
+        }
     }
 }
 
@@ -63,7 +94,6 @@ if (! is_array($group) || empty($group)) {
 $group_name     = $group['name']     ?? '';
 $group_password = $group['password'] ?? '';
 $group_img = $group['image'] ?? '';
-
 $leader_name    = get_the_author_meta('display_name', $user_id);
 
 if ($group_name) {
@@ -89,9 +119,19 @@ if ($group_name) {
     echo '<p>شما هنوز گروهی ایجاد نکرده‌اید.</p>';
 }
 
-if (!empty($success_message)) : ?>
-    <div id="success-msg" class="bg-green-200 text-green-800 p-3 rounded mb-4"><?php echo esc_html($success_message); ?></div>
-    <?php endif;
+
+// نمایش پیام خطا یا موفقیت
+if (!empty($errors)) {
+    echo '<div class="bg-red-200 text-red-800 p-3 rounded mb-4">';
+    foreach ($errors as $error) {
+        echo '<p>' . esc_html($error) . '</p>';
+    }
+    echo '</div>';
+}
+if (!empty($success_message)) {
+    echo '<div id="success-msg" class="bg-green-200 text-green-800 p-3 rounded mb-4">' . esc_html($success_message) . '</div>';
+}
+
 
 
 if (is_array($members) && !empty($members)) {
