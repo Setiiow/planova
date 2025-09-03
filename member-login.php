@@ -4,82 +4,63 @@ Template Name: Member Login
 */
 
 
+
 $login_error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['member_login'])) {
     // گرفتن و ایمن سازی ورودی‌ها
-    $first_name     = isset($_POST['first_name']) ? sanitize_text_field($_POST['first_name']) : '';
-    $last_name      = isset($_POST['last_name']) ? sanitize_text_field($_POST['last_name']) : '';
-    $group_password = isset($_POST['group_password']) ? sanitize_text_field($_POST['group_password']) : '';
+    $first_name     = sanitize_text_field($_POST['first_name'] ?? '');
+    $last_name      = sanitize_text_field($_POST['last_name'] ?? '');
+    $group_password = sanitize_text_field($_POST['group_password'] ?? '');
 
     if ($first_name === '' || $last_name === '' || $group_password === '') {
         $login_error = 'همه فیلدها الزامی هستند.';
     } else {
-        //پیدا کردن سرگروه بر اساس رمز گروه
-        $leader_id = 0;
+        // جستجو بین تمام اعضای گروه بر اساس نام، نام خانوادگی و رمز گروه
+        $args = [
+            'role' => 'member',
+            'meta_query' => [
+                'relation' => 'AND',
+                [
+                    'key'     => 'group_password', // متای رمز گروه
+                    'value'   => $group_password,
+                    'compare' => '='
+                ],
+                [
+                    'key'     => 'first_name',
+                    'value'   => $first_name,
+                    'compare' => '='
+                ],
+                [
+                    'key'     => 'last_name',
+                    'value'   => $last_name,
+                    'compare' => '='
+                ],
+            ],
+            'number' => 1
+        ];
 
-        // فقط بین والد و معلم‌ها بگرد
-        $leaders = get_users([
-            'role__in' => ['parent', 'teacher'],
-            'fields'   => ['ID'],
-        ]);
+        $users = get_users($args);
 
-        foreach ($leaders as $leader) {
-            $group_info = get_user_meta($leader->ID, '_group_info', true);
-            if (is_array($group_info) && isset($group_info['password'])) {
-                if ((string)$group_info['password'] === (string)$group_password) {
-                    $leader_id = (int)$leader->ID;
-                    break;
-                }
-            }
-        }
-
-        if (!$leader_id) {
-            $login_error = 'گروهی با این رمز یافت نشد.';
+        if (empty($users)) {
+            $login_error = 'عضوی با این اطلاعات یافت نشد.';
         } else {
-            // ذخیره ایدی اعضای گروه سرگروه پیدا شده
-            $member_ids = get_user_meta($leader_id, '_group_members', true);
-            if (!is_array($member_ids)) {
-                $member_ids = [];
-            }
+            $member = $users[0];
 
-            $matched_member_id = 0;
-            $matched_member_info = null;
+            // ورود همان کاربر (ست کردن کوکی‌های وردپرس)
+            wp_set_current_user($member->ID);
+            wp_set_auth_cookie($member->ID);
+            do_action('wp_login', $member->user_login, $member);
 
-            // پیدا کردن عضوی در گروه که هم نام با فردی که لاگین کرده باشه
-            foreach ($member_ids as $id) {
-                $info = get_userdata($id);
-                if (!$info) continue;
-
-                if (
-                    strcasecmp(trim($info->first_name), trim($first_name)) === 0 &&
-                    strcasecmp(trim($info->last_name), trim($last_name)) === 0
-                ) {
-                    $matched_member_id  = (int)$id;
-                    $matched_member_info = $info;
-                    break;
-                }
-            }
-
-            if (!$matched_member_id) {
-                $login_error = 'عضوی با این نام و نام خانوادگی در این گروه پیدا نشد.';
-            } else {
-                // ورود همان کاربر (ست کردن کوکی‌های وردپرس)
-                wp_set_current_user($matched_member_id);
-                wp_set_auth_cookie($matched_member_id);
-                do_action('wp_login', $matched_member_info->user_login, $matched_member_info);
-
-                // ریدایرکت به داشبورد اعضا
-                $redirect_url = home_url('/member-dashboard');
-                wp_redirect($redirect_url);
-                exit;
-            }
+            // ریدایرکت به داشبورد اعضا
+            wp_redirect(home_url('/member-dashboard'));
+            exit;
         }
     }
 }
-
 get_header();
 ?>
+
 <main class="max-w-screen-md mx-auto p-4">
     <h2 class="text-xl font-bold mb-4">ورود اعضا</h2>
 
@@ -105,6 +86,7 @@ get_header();
         </button>
     </form>
 </main>
+
 <?php
 get_footer();
 ?>
