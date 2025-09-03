@@ -90,7 +90,7 @@ if ($group_name) {
 }
 
 if (!empty($success_message)) : ?>
-    <div class="bg-green-200 text-green-800 p-3 rounded mb-4"><?php echo esc_html($success_message); ?></div>
+    <div id="success-msg" class="bg-green-200 text-green-800 p-3 rounded mb-4"><?php echo esc_html($success_message); ?></div>
     <?php endif;
 
 
@@ -170,6 +170,14 @@ echo '<a href="' . esc_url(home_url('/add-task')) . '"
             });
         });
     });
+
+    // بعد از 1 ثانیه پیام مخفی شود
+    setTimeout(function() {
+        const msg = document.getElementById('success-msg');
+        if (msg) {
+            msg.style.display = 'none';
+        }
+    }, 1000);
 </script>
 
 <?php
