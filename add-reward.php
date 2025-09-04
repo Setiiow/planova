@@ -44,10 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_reward'])) {
             $errors[] = 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد.';
         }
 
-        $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
-        $file_type = mime_content_type($file['tmp_name']);
-        if (!in_array($file_type, $allowed_types)) {
-            $errors[] = 'فرمت تصویر معتبر نیست. فقط JPG, PNG, WEBP مجاز است.';
+        if (!empty($file['tmp_name'])) {
+            $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
+            $file_type = mime_content_type($file['tmp_name']);
+            if (!in_array($file_type, $allowed_types)) {
+                $errors[] = 'فرمت تصویر معتبر نیست. فقط JPG, PNG, WEBP مجاز است.';
+            }
+        } else {
+            $errors[] = 'مشکلی در آپلود فایل پیش آمد.';
         }
 
         if (empty($errors)) {
