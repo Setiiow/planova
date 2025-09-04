@@ -74,7 +74,7 @@ if (is_array($members) && !empty($members)) {
             <img src="<?php echo $member_img; ?>" alt="<?php echo $member_name; ?>" class="w-16 h-16 rounded-full object-cover mb-1">
             <h3 class="text-sm font-semibold truncate w-16"><?php echo $member_name; ?></h3>
             <p class="text-xs text-gray-600 mt-1">⭐<?php echo $member_points; ?></p>
-            <a href="<?php echo home_url('/edit-member'); ?>" 
+            <a href="<?php echo home_url('/edit-member?member_id=' . $member_id); ?>" 
                    class="mt-1 text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">
                    ویرایش
                 </a>
