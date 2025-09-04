@@ -14,12 +14,25 @@ get_header();
 $member_id = get_current_user_id();
 
 // متاهای دلخواه
-$first_name    = get_user_meta( $member_id, 'first_name', true );
-$last_name     = get_user_meta( $member_id, 'last_name', true );
-$gender        = get_user_meta( $member_id, 'gender', true );
-$points_raw    = get_user_meta( $member_id, 'points', true );
-$points        = ( $points_raw === '' ) ? 0 : intval( $points_raw ); // مقدار پیش‌فرض 0
-$profile_image = get_user_meta( $member_id, 'profile_image', true );
+$first_name    = get_user_meta($member_id, 'first_name', true);
+$last_name     = get_user_meta($member_id, 'last_name', true);
+$gender        = get_user_meta($member_id, 'gender', true);
+$points_raw    = get_user_meta($member_id, 'points', true);
+$points        = ($points_raw === '') ? 0 : intval($points_raw); // مقدار پیش‌فرض 0
+$profile_image = get_user_meta($member_id, 'profile_image', true);
+// گرفتن وظایف عضو
+$tasks = get_user_meta($member_id, '_member_tasks', true);
+if (!is_array($tasks)) $tasks = [];
+
+// بررسی تغییر وضعیت انجام وظایف
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_tasks'])) {
+    $done_tasks = $_POST['done_tasks'] ?? [];
+    foreach ($tasks as $i => $task) {
+        $tasks[$i]['done'] = in_array($i, $done_tasks) ? 1 : 0;
+    }
+    update_user_meta($member_id, '_member_tasks', $tasks);
+    echo '<p id="success-msg" class="text-green-600 mb-4">وضعیت وظایف به‌روزرسانی شد ✅</p>';
+}
 
 ?>
 
@@ -37,7 +50,37 @@ $profile_image = get_user_meta( $member_id, 'profile_image', true );
             <p>امتیاز: <strong><?php echo esc_html( $points ); ?></strong></p>
         </div>
     </div>
+    <h2 class="text-xl font-bold my-4">وظایف من</h2>
+    <form method="post" class="bg-white p-4 rounded shadow-md flex flex-col gap-4">
+        <?php if (empty($tasks)) : ?>
+            <p>فعلاً وظیفه‌ای برای شما تعریف نشده است.</p>
+        <?php else: ?>
+            <?php foreach ($tasks as $index => $task): ?>
+                <div class="border p-3 rounded flex items-start gap-4">
+                    <input type="checkbox" name="done_tasks[]" value="<?php echo $index; ?>" <?php checked($task['done'], 1); ?>>
+                    <div>
+                        <h3 class="font-bold"><?php echo esc_html($task['title']); ?> (<?php echo esc_html($task['points']); ?> امتیاز)</h3>
+                        <?php if (!empty($task['desc'])): ?>
+                            <p><?php echo esc_html($task['desc']); ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+            <button type="submit" name="update_tasks" class="bg-blue-500 text-white px-4 py-2 rounded mt-4">بروزرسانی وضعیت</button>
+        <?php endif; ?>
+    </form>
+
 </main>
+
+<script>
+    // بعد از 1 ثانیه پیام مخفی شود
+    setTimeout(function() {
+        const msg = document.getElementById('success-msg');
+        if (msg) {
+            msg.style.display = 'none';
+        }
+    }, 1000);
+</script>
 
 <?php
 get_footer();
