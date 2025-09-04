@@ -75,23 +75,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_tasks'])) {
         </div>
     </div>
 
-        <h2 class="text-xl font-bold my-4">جوایز من</h2>
+    <h2 class="text-xl font-bold my-4">جوایز من</h2>
     <?php if (!empty($rewards) && is_array($rewards)): ?>
         <div class="grid grid-cols-2 gap-4">
             <?php foreach ($rewards as $reward): ?>
                 <div class="bg-white p-4 rounded shadow text-center">
-                    <img src="<?php echo esc_url($reward['image']); ?>" 
-                        alt="<?php echo esc_attr($reward['title']); ?>" 
+                    <img src="<?php echo esc_url($reward['image']); ?>"
+                        alt="<?php echo esc_attr($reward['title']); ?>"
                         class="w-24 h-24 mx-auto rounded-full object-cover">
                     <h3 class="mt-2 font-bold"><?php echo esc_html($reward['title']); ?></h3>
                     <p class="text-sm text-gray-600"><?php echo intval($reward['points']); ?> امتیاز</p>
+                    <?php if ($points >= intval($reward['points'])): ?>
+                        <div class="mt-2 p-2 rounded bg-green-100 text-green-700 font-semibold">
+                            🎉 تبریک! این جایزه برایت باز شد!
+                        </div>
+                    <?php else: ?>
+                        <div class="mt-2 p-2 rounded bg-yellow-100 text-yellow-700 font-semibold">
+                            🔒 هنوز به این جایزه دسترسی نداری
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
     <?php else: ?>
         <p>فعلاً جایزه‌ای برای شما ثبت نشده است.</p>
     <?php endif; ?>
-    
+
     <h2 class="text-xl font-bold my-4">وظایف من</h2>
     <form method="post" class="bg-white p-4 rounded shadow-md flex flex-col gap-4">
         <?php if (empty($tasks)) : ?>
