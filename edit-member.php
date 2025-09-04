@@ -43,6 +43,37 @@ $profile_img = get_user_meta($member_id, 'profile_image', true);
 $tasks       = get_user_meta($member_id, '_member_tasks', true);
 
 ?>
+<!-- فرم ویرایش اعضا -->
+<form method="post" enctype="multipart/form-data" class="max-w-md rounded shadow-md flex flex-col  mx-auto bg-white p-6 my-4 gap-4">
+    <label class="flex flex-col">
+        نام:
+        <input type="text" name="first_name" value="<?php echo esc_attr($member_data->first_name); ?>" required class="border p-2 rounded mt-1">
+    </label>
+    <label class="flex flex-col">
+        نام خانوادگی:
+        <input type="text" name="last_name" value="<?php echo esc_attr($member_data->last_name); ?>" required class="border p-2 rounded mt-1">
+    </label>
+    <label class="flex flex-col">
+        جنسیت:
+        <select name="gender" required class="border p-2 rounded mt-1">
+            <option value="girl" <?php selected($gender, 'girl'); ?>>دختر</option>
+            <option value="boy" <?php selected($gender, 'boy'); ?>>پسر</option>
+        </select>
+    </label>
+    <label class="flex flex-col">
+        امتیاز:
+        <input type="number" name="points" value="<?php echo esc_attr($points); ?>" required class="border p-2 rounded mt-1">
+    </label>
+    <label class="flex flex-col">
+        تصویر پروفایل:
+        <input type="file" name="profile_image" class="border p-2 rounded mt-1">
+    </label>
+
+    <button type="submit" name="save_member" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+        ذخیره تغییرات
+    </button>
+</form>
+
 
 <?php
 get_footer();
