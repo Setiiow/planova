@@ -21,6 +21,8 @@ $gender        = get_user_meta($member_id, 'gender', true);
 $points_raw    = get_user_meta($member_id, 'points', true);
 $points        = ($points_raw === '') ? 0 : intval($points_raw); // مقدار پیش‌فرض 0
 $profile_image = get_user_meta($member_id, 'profile_image', true);
+// گرفتن جوایز عضو
+$rewards = get_user_meta($member_id, '_member_rewards', true);
 // گرفتن وظایف عضو
 $tasks = get_user_meta($member_id, '_member_tasks', true);
 if (!is_array($tasks)) $tasks = [];
@@ -72,6 +74,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_tasks'])) {
             <p>امتیاز: <strong><?php echo esc_html($points); ?></strong></p>
         </div>
     </div>
+
+        <h2 class="text-xl font-bold my-4">جوایز من</h2>
+    <?php if (!empty($rewards) && is_array($rewards)): ?>
+        <div class="grid grid-cols-2 gap-4">
+            <?php foreach ($rewards as $reward): ?>
+                <div class="bg-white p-4 rounded shadow text-center">
+                    <img src="<?php echo esc_url($reward['image']); ?>" 
+                        alt="<?php echo esc_attr($reward['title']); ?>" 
+                        class="w-24 h-24 mx-auto rounded-full object-cover">
+                    <h3 class="mt-2 font-bold"><?php echo esc_html($reward['title']); ?></h3>
+                    <p class="text-sm text-gray-600"><?php echo intval($reward['points']); ?> امتیاز</p>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php else: ?>
+        <p>فعلاً جایزه‌ای برای شما ثبت نشده است.</p>
+    <?php endif; ?>
+    
     <h2 class="text-xl font-bold my-4">وظایف من</h2>
     <form method="post" class="bg-white p-4 rounded shadow-md flex flex-col gap-4">
         <?php if (empty($tasks)) : ?>
