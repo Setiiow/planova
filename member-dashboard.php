@@ -1,10 +1,11 @@
 <?php
 /* Template Name: Member Dashboard */
 
-if ( ! is_user_logged_in() ) {
+if (! is_user_logged_in()) {
     // کاربر وارد نشده -> ریدایرکت به صفحه ورود یا نمایش پیام
-    wp_redirect(wp_redirect( home_url('/member-login'))
-);
+    wp_redirect(
+        wp_redirect(home_url('/member-login'))
+    );
     exit;
 }
 
@@ -27,27 +28,48 @@ if (!is_array($tasks)) $tasks = [];
 // بررسی تغییر وضعیت انجام وظایف
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_tasks'])) {
     $done_tasks = $_POST['done_tasks'] ?? [];
-    foreach ($tasks as $i => $task) {
-        $tasks[$i]['done'] = in_array($i, $done_tasks) ? 1 : 0;
-    }
-    update_user_meta($member_id, '_member_tasks', $tasks);
-    echo '<p id="success-msg" class="text-green-600 mb-4">وضعیت وظایف به‌روزرسانی شد ✅</p>';
-}
 
+    $points_change = 0; // تغییرات امتیاز
+
+    foreach ($tasks as $i => $task) {
+        $was_done = $task['done'];
+        $is_done_now = in_array($i, $done_tasks) ? 1 : 0;
+
+        // اگر وضعیت تغییر کرده
+        if ($was_done != $is_done_now) {
+            $tasks[$i]['done'] = $is_done_now;
+            if ($is_done_now) {
+                // اگر تازه انجام شده -> امتیاز اضافه شود
+                $points_change += intval($task['points']);
+            } else {
+                // اگر تیک برداشته شده -> امتیاز کم شود
+                $points_change -= intval($task['points']);
+            }
+        }
+    }
+    // بروزرسانی وظایف
+    update_user_meta($member_id, '_member_tasks', $tasks);
+
+    // بروزرسانی امتیاز کل
+    $points += $points_change;
+    update_user_meta($member_id, 'points', $points);
+
+    echo '<p id="success-msg" class="text-green-600 mb-4">وضعیت وظایف و امتیازها به‌روزرسانی شد ✅</p>';
+}
 ?>
 
 <main class="max-w-screen-md mx-auto p-4">
     <div class="bg-white p-6 rounded shadow">
         <div class="flex items-center gap-4">
-            <img src="<?php echo esc_url( $profile_image ); ?>" alt="<?php echo esc_attr( $first_name . ' ' . $last_name ); ?>" class="w-24 h-24 rounded-full object-cover">
+            <img src="<?php echo esc_url($profile_image); ?>" alt="<?php echo esc_attr($first_name . ' ' . $last_name); ?>" class="w-24 h-24 rounded-full object-cover">
             <div>
-                <h1 class="text-2xl font-bold"><?php echo esc_html( $first_name . ' ' . $last_name ); ?></h1>
-                <p class="text-sm text-gray-600">جنسیت: <?php echo esc_html( $gender ); ?></p>
+                <h1 class="text-2xl font-bold"><?php echo esc_html($first_name . ' ' . $last_name); ?></h1>
+                <p class="text-sm text-gray-600">جنسیت: <?php echo esc_html($gender); ?></p>
             </div>
         </div>
 
         <div class="mt-6">
-            <p>امتیاز: <strong><?php echo esc_html( $points ); ?></strong></p>
+            <p>امتیاز: <strong><?php echo esc_html($points); ?></strong></p>
         </div>
     </div>
     <h2 class="text-xl font-bold my-4">وظایف من</h2>
