@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_tasks'])) {
             <img src="<?php echo esc_url($profile_image); ?>" alt="<?php echo esc_attr($first_name . ' ' . $last_name); ?>" class="w-24 h-24 rounded-full object-cover">
             <div>
                 <h1 class="text-2xl font-bold"><?php echo esc_html($first_name . ' ' . $last_name); ?></h1>
-                <p class="text-sm text-gray-600">جنسیت: <?php echo esc_html($gender); ?></p>
+                <p class="text-sm text-gray-600">جنسیت: <?php echo $p_gender = ($gender === 'girl') ? 'دختر' : 'پسر'; ?></p>
             </div>
         </div>
 
