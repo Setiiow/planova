@@ -70,10 +70,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['save_member']) || $b
         }
 
         // بررسی فرمت
-        $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
-        $file_type = mime_content_type($file['tmp_name']);
-        if (!in_array($file_type, $allowed_types)) {
-            $errors[] = 'فرمت تصویر معتبر نیست. فقط JPG, PNG, WEBP مجاز است.';
+        if (!empty($file['tmp_name'])) {
+            $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
+            $file_type = mime_content_type($file['tmp_name']);
+            if (!in_array($file_type, $allowed_types)) {
+                $errors[] = 'فرمت تصویر معتبر نیست. فقط JPG, PNG, WEBP مجاز است.';
+            }
+        } else {
+            $errors[] = 'مشکلی در آپلود فایل پیش آمد.';
         }
 
         if (empty($errors)) {
@@ -89,17 +93,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['save_member']) || $b
         }
     }
 
-        // تعیین تصویر نهایی
-        if (!empty($member_img_url)) {
-            $final_image = $member_img_url;
-        } elseif ($back_to_default) {
-            $final_image = ($gender === 'girl') ? $default_girl_img : $default_boy_img;
-        } else {
-            $final_image = $profile_image ?: (($gender === 'girl') ? $default_girl_img : $default_boy_img);
-        }
+    // تعیین تصویر نهایی
+    if (!empty($member_img_url)) {
+        $final_image = $member_img_url;
+    } elseif ($back_to_default) {
+        $final_image = ($gender === 'girl') ? $default_girl_img : $default_boy_img;
+    } else {
+        $final_image = $profile_image ?: (($gender === 'girl') ? $default_girl_img : $default_boy_img);
+    }
 
-        // ذخیره اطلاعات در صورت عدم خطا
-        if (empty($errors)) {
+    // ذخیره اطلاعات در صورت عدم خطا
+    if (empty($errors)) {
         wp_update_user([
             'ID' => $member_id,
             'first_name' => $name,
@@ -110,17 +114,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['save_member']) || $b
         update_user_meta($member_id, 'profile_image', $final_image);
         $profile_image = $final_image; // برای نمایش بعد از ذخیره
         $success_message = 'تغییرات با موفقیت ذخیره شد.';
-
     } else {
         echo '<div id="success-msg" class="bg-red-200 text-red-800 p-3 rounded mb-4">';
-    foreach ($errors as $error) {
-        echo '<p>' . esc_html($error) . '</p>';
-    }
-    echo '</div>';
+        foreach ($errors as $error) {
+            echo '<p>' . esc_html($error) . '</p>';
+        }
+        echo '</div>';
     }
 }
 ?>
-<?php if(!empty($success_message)): ?>
+<?php if (!empty($success_message)): ?>
     <div id="success-msg" class="bg-green-200 text-green-800 p-3 rounded mb-2">
         <?php echo esc_html($success_message); ?>
     </div>
