@@ -50,20 +50,48 @@ $tasks         = get_user_meta($member_id, '_member_tasks', true);
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+    
     // ذخیره تغییرات وظایف
     if (isset($_POST['save_task'])) {
         $task_id = $_POST['save_task'];
+
         foreach ($tasks as $index => $task) {
-        if ($task['id'] === $task_id) {
-            $tasks[$index]['title']  = sanitize_text_field($_POST['tasks'][$task_id]['title']);
-            $tasks[$index]['points'] = intval($_POST['tasks'][$task_id]['points']);
-            $tasks[$index]['done']   = intval($_POST['tasks'][$task_id]['done']);
-            update_user_meta($member_id, '_member_tasks', $tasks);
-            $success_message = 'تغییرات وظیفه با موفقیت ذخیره شد.';
+            if ($task['id'] === $task_id) {
+            // دریافت اطلاعات از فرم
+            $new_title  = sanitize_text_field($_POST['tasks'][$task_id]['title']);
+            $new_points = intval($_POST['tasks'][$task_id]['points']);
+            $new_done   = intval($_POST['tasks'][$task_id]['done']);
+
+            // بررسی تغییر وضعیت انجام/انجام نشده
+            $was_done = intval($task['done']);
+            if ($was_done != $new_done) {
+                $user_points = intval(get_user_meta($member_id, 'points', true));
+
+                if ($new_done === 1) {
+                    // تازه انجام شده -> امتیاز اضافه شود
+                    $user_points += $new_points;
+                } else {
+                    // اگر تیک برداشته شده -> امتیاز کم شود
+                    $user_points -= $new_points;
+                }
+
+                 // ذخیره امتیاز جدید کاربر
+                update_user_meta($member_id, 'points', $user_points);
+               
+            }
+
+            // بروزرسانی اطلاعات تسک
+            $tasks[$index]['title']  = $new_title;
+            $tasks[$index]['points'] = $new_points;
+            $tasks[$index]['done']   = $new_done;
+            
             break;
             }
         }
+        // ذخیره‌ی تمام وظایف در متای کاربر
+        update_user_meta($member_id, '_member_tasks', $tasks);
+
+        $success_message = 'تغییرات وظیفه با موفقیت ذخیره شد.';
     }
 
     // حذف وظیفه
@@ -75,28 +103,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             update_user_meta($member_id, '_member_tasks', $tasks);
             $success_message = 'وظیفه با موفقیت حذف شد.';
             break;
+            }
         }
     }
 
     // بررسی اینکه آیا دکمه حذف عکس زده شده
     if (isset($_POST['del_photo'])) {
+        update_user_meta($member_id, 'profile_image', '');
         $success_message = 'عکس حذف شد.';
         $profile_image = ''; // برای نمایش پیش‌فرض
     }
 
     if (isset($_POST['save_member'])) {
 
-        $name = sanitize_text_field($_POST['first_name'] ?? '');
-        $lastname = sanitize_text_field($_POST['last_name'] ?? '');
+        $first_name = sanitize_text_field($_POST['first_name'] ?? '');
+        $last_name = sanitize_text_field($_POST['last_name'] ?? '');
         $gender = sanitize_text_field($_POST['gender'] ?? '');
         $points = intval($_POST['points'] ?? 0);
 
         if (empty($first_name)) $errors[] = 'لطفاً نام عضو را وارد کنید.';
         if (empty($last_name)) $errors[] = 'لطفاً نام خانوادگی عضو را وارد کنید.';
-        if (empty($gender) || !in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
+        if (!in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
 
         // بررسی آپلود تصویر جدید
-        $member_img_url = '';
         if (!empty($_FILES['profile_image']['name'])) {
             $file = $_FILES['profile_image'];
 
@@ -129,11 +158,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-        // اگر دکمه حذف عکس زده شده
-        if (empty($_FILES['profile_image']['name'])) {
-            $profile_image = ($gender === 'girl' ? $default_girl_img : $default_boy_img);
-            update_user_meta($member_id, 'profile_image', '');
-        }
+        // // اگر دکمه حذف عکس زده شده
+        // if (empty($_FILES['profile_image']['name'])) {
+        //     $profile_image = ($gender === 'girl' ? $default_girl_img : $default_boy_img);
+        //     update_user_meta($member_id, 'profile_image', '');
+        // }
 
         if (empty($errors)) {
             wp_update_user([
@@ -144,29 +173,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             update_user_meta($member_id, 'gender', $gender);
             update_user_meta($member_id, 'points', $points);
 
-            if (!$delete_photo && !empty($member_img_url)) {
-                update_user_meta($member_id, 'profile_image', $member_img_url);
-            }
 
             $success_message = 'تغییرات با موفقیت ذخیره شد.';
             }
         }
+
+
+    // حذف عضو
+    if (isset($_POST['delete_member'])) {
+        if (in_array($member_id, $members)) {
+            $members = array_diff($members, [$member_id]);
+            update_user_meta($user->ID, '_group_members', $members);
+
+            require_once(ABSPATH . 'wp-admin/includes/user.php');
+            wp_delete_user($member_id);
+
+            $success_message = 'عضو با موفقیت حذف شد.';
+        }
     }
 }
-
-// حذف عضو
-if (isset($_POST['delete_member'])) {
-    if (in_array($member_id, $members)) {
-        $members = array_diff($members, [$member_id]);
-        update_user_meta($user->ID, '_group_members', $members);
-
-        require_once(ABSPATH . 'wp-admin/includes/user.php');
-        wp_delete_user($member_id);
-
-        $success_message = 'عضو با موفقیت حذف شد.';
-    }
-}
-
 
 // نمایش پیام‌ها
 if (!empty($errors)) {
