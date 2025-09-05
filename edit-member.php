@@ -55,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     // بررسی اینکه آیا دکمه حذف عکس زده شده
     if (isset($_POST['del_photo'])) {
-        $delete_photo = 1;
         $success_message = 'عکس حذف شد.';
         $profile_image = ''; // برای نمایش پیش‌فرض
     }
@@ -106,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             }
        }
     // اگر دکمه حذف عکس زده شده
-    if ($delete_photo && empty($_FILES['profile_image']['name'])) {
+    if (empty($_FILES['profile_image']['name'])) {
         $profile_image = ($gender === 'girl' ? $default_girl_img : $default_boy_img);
         update_user_meta($member_id, 'profile_image', '');
     }
