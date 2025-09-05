@@ -48,11 +48,31 @@ $points        = get_user_meta($member_id, 'points', true);
 $profile_image = get_user_meta($member_id, 'profile_image', true);
 $tasks         = get_user_meta($member_id, '_member_tasks', true);
 
-$delete_photo = 0; // متغیر برای حذف عکس
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST')
-{
+    // ذخیره تغییرات وظایف
+    if (isset($_POST['save_task'])) {
+        $task_index = intval($_POST['save_task']);
+        if (isset($_POST['tasks'][$task_index])) {
+            $tasks[$task_index]['title']  = sanitize_text_field($_POST['tasks'][$task_index]['title']);
+            $tasks[$task_index]['points'] = intval($_POST['tasks'][$task_index]['points']);
+            $tasks[$task_index]['done']   = intval($_POST['tasks'][$task_index]['done']);
+            update_user_meta($member_id, '_member_tasks', $tasks);
+            $success_message = 'تغییرات وظیفه با موفقیت ذخیره شد.';
+        }
+    }
+
+    // حذف وظیفه
+    if (isset($_POST['delete_task'])) {
+        $task_index = intval($_POST['delete_task']);
+        if (isset($tasks[$task_index])) {
+            array_splice($tasks, $task_index, 1); // حذف آیتم
+            update_user_meta($member_id, '_member_tasks', $tasks);
+            $success_message = 'وظیفه با موفقیت حذف شد.';
+        }
+    }
+
     // بررسی اینکه آیا دکمه حذف عکس زده شده
     if (isset($_POST['del_photo'])) {
         $success_message = 'عکس حذف شد.';
@@ -103,32 +123,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
                     $errors[] = 'مشکلی در آپلود تصویر پیش آمد.';
                 }
             }
-       }
-    // اگر دکمه حذف عکس زده شده
-    if (empty($_FILES['profile_image']['name'])) {
-        $profile_image = ($gender === 'girl' ? $default_girl_img : $default_boy_img);
-        update_user_meta($member_id, 'profile_image', '');
-    }
-
-    if (empty($errors)) {
-        wp_update_user([
-            'ID'         => $member_id,
-            'first_name' => $first_name,
-            'last_name'  => $last_name
-        ]);
-        update_user_meta($member_id, 'gender', $gender);
-        update_user_meta($member_id, 'points', $points);
-
-        if (!$delete_photo && !empty($member_img_url)) {
-            update_user_meta($member_id, 'profile_image', $member_img_url);
+        }
+        // اگر دکمه حذف عکس زده شده
+        if (empty($_FILES['profile_image']['name'])) {
+            $profile_image = ($gender === 'girl' ? $default_girl_img : $default_boy_img);
+            update_user_meta($member_id, 'profile_image', '');
         }
 
-        $success_message = 'تغییرات با موفقیت ذخیره شد.';
+        if (empty($errors)) {
+            wp_update_user([
+                'ID'         => $member_id,
+                'first_name' => $first_name,
+                'last_name'  => $last_name
+            ]);
+            update_user_meta($member_id, 'gender', $gender);
+            update_user_meta($member_id, 'points', $points);
+
+            if (!$delete_photo && !empty($member_img_url)) {
+                update_user_meta($member_id, 'profile_image', $member_img_url);
+            }
+
+            $success_message = 'تغییرات با موفقیت ذخیره شد.';
+        }
     }
 }
-}
 
-  
+
 
 // حذف عضو
 if (isset($_POST['delete_member'])) {
@@ -187,7 +207,7 @@ if (!empty($success_message)) {
                 <button type="submit" name="save_member" class="bg-green-500 text-white px-4 py-2 rounded mt-2">ثبت تغییرات</button>
                 <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded mt-1 cancel-btn">لغو</button>
             </div>
-        </form>
+        
     </div>
 <?php endif; ?>
 <!-- نمایش وظایف عضو -->
@@ -195,17 +215,35 @@ if (!empty($success_message)) {
     <div class="bg-white shadow-md rounded p-4 mt-6">
         <h2 class="text-lg font-bold mb-4">وظایف عضو</h2>
         <ul class="space-y-2">
-            <?php foreach ($tasks as $task): ?>
-                <li class="flex justify-between items-center border-b pb-2">
-                    <div class="flex">
-                        <span><?php echo esc_html($task['title']); ?></span>
-                        <span class="mr-2 text-green-700">(امتیاز: <?php echo esc_html($task['points']); ?>)</span>
+            <?php foreach ($tasks as $index => $task): ?>
+                <li class="flex justify-between items-center border-b pb-2" data-task-index="<?php echo $index; ?>">
+                    <div class="task-view flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span><?php echo esc_html($task['title']); ?></span>
+                            <span class="mr-2 text-green-700">(امتیاز: <?php echo esc_html($task['points']); ?>)</span>
+                            <?php if (!empty($task['done']) && $task['done'] == 1): ?>
+                                <span class="text-green-600 font-semibold">انجام شده ✅</span>
+                            <?php else: ?>
+                                <span class="text-red-600 font-semibold">انجام نشده ❌</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" class="bg-blue-500 text-white px-2 py-1 rounded edit-task-btn">ویرایش</button>
+                            <button type="submit" name="delete_task" value="<?php echo $index; ?>" class="bg-red-500 text-white px-2 py-1 rounded del-task-btn">حذف</button>
+                        </div>
                     </div>
-                    <?php if (!empty($task['done']) && $task['done'] == 1): ?>
-                        <span class="text-green-600 font-semibold">انجام شده ✅</span>
-                    <?php else: ?>
-                        <span class="text-red-600 font-semibold">انجام نشده ❌</span>
-                    <?php endif; ?>
+
+                    <!-- فرم ویرایش وظیفه -->
+                    <div class="task-edit hidden flex flex-col gap-1 mt-2">
+                        <input type="text" name="tasks[<?php echo $index; ?>][title]" value="<?php echo esc_attr($task['title']); ?>" class="border p-1 w-full">
+                        <input type="number" name="tasks[<?php echo $index; ?>][points]" value="<?php echo esc_attr($task['points']); ?>" class="border p-1 w-full">
+                        <select name="tasks[<?php echo $index; ?>][done]" class="border p-1 w-full">
+                            <option value="1" <?php selected($task['done'], 1); ?>>انجام شده</option>
+                            <option value="0" <?php selected($task['done'], 0); ?>>انجام نشده</option>
+                        </select>
+                        <button type="submit" name="save_task" value="<?php echo $index; ?>" class="bg-green-500 text-white px-2 py-1 rounded">ثبت تغییرات</button>
+                        <button type="button" class="bg-gray-500 text-white px-2 py-1 rounded cancel-task-btn">لغو</button>
+                    </div>
                 </li>
             <?php endforeach; ?>
         </ul>
@@ -213,7 +251,7 @@ if (!empty($success_message)) {
 <?php else: ?>
     <p class="mt-4 text-gray-600">هنوز وظیفه‌ای برای این عضو ثبت نشده است.</p>
 <?php endif; ?>
-
+</form>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.edit-btn').forEach(function(btn) {
@@ -230,6 +268,22 @@ if (!empty($success_message)) {
                 card.querySelector('.member-view').classList.remove('hidden');
             });
         });
+        // ویرایش وظایف
+        document.querySelectorAll('.edit-task-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const task = btn.closest('li[data-task-index]');
+                task.querySelector('.task-view').classList.add('hidden');
+                task.querySelector('.task-edit').classList.remove('hidden');
+            });
+        });
+        document.querySelectorAll('.cancel-task-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const task = btn.closest('li[data-task-index]');
+                task.querySelector('.task-edit').classList.add('hidden');
+                task.querySelector('.task-view').classList.remove('hidden');
+            });
+        });
+
         document.querySelectorAll('.del-btn').forEach(function(btn) {
             btn.addEventListener('click', function(e) {
                 const memberName = btn.getAttribute('data-name');
