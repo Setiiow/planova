@@ -48,51 +48,67 @@ $points        = get_user_meta($member_id, 'points', true);
 $profile_image = get_user_meta($member_id, 'profile_image', true);
 $tasks         = get_user_meta($member_id, '_member_tasks', true);
 
+$delete_photo = 0; // متغیر برای حذف عکس
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_member'])) {
 
-    $name = sanitize_text_field($_POST['first_name'] ?? '');
-    $lastname = sanitize_text_field($_POST['last_name'] ?? '');
-    $gender = sanitize_text_field($_POST['gender'] ?? '');
-    $points = intval($_POST['points'] ?? 0);
+if ($_SERVER['REQUEST_METHOD'] === 'POST')
+{
+    // بررسی اینکه آیا دکمه حذف عکس زده شده
+    if (isset($_POST['del_photo'])) {
+        $delete_photo = 1;
+        $success_message = 'عکس حذف شد.';
+        $profile_image = ''; // برای نمایش پیش‌فرض
+    }
 
-    if (empty($first_name)) $errors[] = 'لطفاً نام عضو را وارد کنید.';
-    if (empty($last_name)) $errors[] = 'لطفاً نام خانوادگی عضو را وارد کنید.';
-    if (empty($gender) || !in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
+    if (isset($_POST['save_member'])) {
 
-    // بررسی آپلود تصویر جدید
-    $member_img_url = '';
-    if (!empty($_FILES['profile_image']['name'])) {
-        $file = $_FILES['profile_image'];
+        $name = sanitize_text_field($_POST['first_name'] ?? '');
+        $lastname = sanitize_text_field($_POST['last_name'] ?? '');
+        $gender = sanitize_text_field($_POST['gender'] ?? '');
+        $points = intval($_POST['points'] ?? 0);
 
-        // بررسی حجم
-        if ($file['size'] > 2 * 1024 * 1024) {
-            $errors[] = 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد.';
-        }
+        if (empty($first_name)) $errors[] = 'لطفاً نام عضو را وارد کنید.';
+        if (empty($last_name)) $errors[] = 'لطفاً نام خانوادگی عضو را وارد کنید.';
+        if (empty($gender) || !in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
 
-        // بررسی فرمت
-        if (!empty($file['tmp_name'])) {
-            $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
-            $file_type = mime_content_type($file['tmp_name']);
-            if (!in_array($file_type, $allowed_types)) {
-                $errors[] = 'فرمت تصویر معتبر نیست. فقط JPG, PNG, WEBP مجاز است.';
+        // بررسی آپلود تصویر جدید
+        $member_img_url = '';
+        if (!empty($_FILES['profile_image']['name'])) {
+            $file = $_FILES['profile_image'];
+
+            // بررسی حجم
+            if ($file['size'] > 2 * 1024 * 1024) {
+                $errors[] = 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد.';
             }
-        } else {
-            $errors[] = 'مشکلی در آپلود فایل پیش آمد.';
-        }
 
-        if (empty($errors)) {
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
-            require_once(ABSPATH . 'wp-admin/includes/media.php');
-            require_once(ABSPATH . 'wp-admin/includes/image.php');
-            $upload = media_handle_upload('profile_image', 0);
-            if (!is_wp_error($upload)) {
-                $member_img_url = wp_get_attachment_url($upload);
-                update_user_meta($member_id, 'profile_image', $profile_image);
+            // بررسی فرمت
+            if (!empty($file['tmp_name'])) {
+                $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
+                $file_type = mime_content_type($file['tmp_name']);
+                if (!in_array($file_type, $allowed_types)) {
+                    $errors[] = 'فرمت تصویر معتبر نیست. فقط JPG, PNG, WEBP مجاز است.';
+                }
             } else {
-                $errors[] = 'مشکلی در آپلود تصویر پیش آمد.';
+                $errors[] = 'مشکلی در آپلود فایل پیش آمد.';
             }
-        }
+
+            if (empty($errors)) {
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+                require_once(ABSPATH . 'wp-admin/includes/media.php');
+                require_once(ABSPATH . 'wp-admin/includes/image.php');
+                $upload = media_handle_upload('profile_image', 0);
+                if (!is_wp_error($upload)) {
+                    $member_img_url = wp_get_attachment_url($upload);
+                    $profile_image = $member_img_url; // بروزرسانی متغیر برای نمایش بعد از ثبت
+                } else {
+                    $errors[] = 'مشکلی در آپلود تصویر پیش آمد.';
+                }
+            }
+       }
+    // اگر دکمه حذف عکس زده شده
+    if ($delete_photo && empty($_FILES['profile_image']['name'])) {
+        $profile_image = ($gender === 'girl' ? $default_girl_img : $default_boy_img);
+        update_user_meta($member_id, 'profile_image', '');
     }
 
     if (empty($errors)) {
@@ -104,9 +120,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_member'])) {
         update_user_meta($member_id, 'gender', $gender);
         update_user_meta($member_id, 'points', $points);
 
+        if (!$delete_photo && !empty($member_img_url)) {
+            update_user_meta($member_id, 'profile_image', $member_img_url);
+        }
+
         $success_message = 'تغییرات با موفقیت ذخیره شد.';
     }
 }
+}
+
+  
 
 // حذف عضو
 if (isset($_POST['delete_member'])) {
@@ -161,6 +184,7 @@ if (!empty($success_message)) {
                 </select>
                 <input type="number" name="points" value="<?php echo esc_attr($points); ?>" class="border p-1 w-full">
                 <input type="file" name="profile_image" class="border p-1 w-full">
+                <button type="submit" name="del_photo" class="bg-red-500 text-white px-4 py-2 rounded mt-2">حذف عکس</button>
                 <button type="submit" name="save_member" class="bg-green-500 text-white px-4 py-2 rounded mt-2">ثبت تغییرات</button>
                 <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded mt-1 cancel-btn">لغو</button>
             </div>
