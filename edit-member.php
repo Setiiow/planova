@@ -18,8 +18,9 @@ if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
 // مقدار پیش‌ فرض تصاویر بر اساس جنسیت
 $default_girl_img = get_template_directory_uri() . '/assets/images/default-girl.webp';
 $default_boy_img  = get_template_directory_uri() . '/assets/images/default-boy.png';
-$user_id = $user->ID;
+
 $errors = [];
+$success_message = '';
 
 // گرفتن member_id از URL
 $member_id = isset($_GET['member_id']) ? intval($_GET['member_id']) : 0;
@@ -40,24 +41,23 @@ if (!is_array($members) || !in_array($member_id, $members)) {
 
 // گرفتن اطلاعات عضو
 $member_data   = get_userdata($member_id);
+$first_name    = $member_data->first_name;
+$last_name     = $member_data->last_name;
 $gender        = get_user_meta($member_id, 'gender', true);
 $points        = get_user_meta($member_id, 'points', true);
 $profile_image = get_user_meta($member_id, 'profile_image', true);
-$tasks         = get_user_meta($member_id, '_member_tasks', true);
 
-// بررسی درخواست حذف عکس یا ذخیره
-$back_to_default = isset($_POST['del_image']) ? true : false;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['save_member']) || $back_to_default)) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_member'])) {
 
     $name = sanitize_text_field($_POST['first_name'] ?? '');
     $lastname = sanitize_text_field($_POST['last_name'] ?? '');
     $gender = sanitize_text_field($_POST['gender'] ?? '');
-    $points = intval($_POST['points']);
+    $points = intval($_POST['points'] ?? 0 );
 
-    if (empty($name)) $errors[] = 'لطفاً نام عضو را وارد کنید.';
-    if (empty($lastname)) $errors[] = 'لطفاً نام خانوادگی عضو را وارد کنید.';
-    if (empty($gender) || !in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
+        if (empty($first_name)) $errors[] = 'لطفاً نام عضو را وارد کنید.';
+        if (empty($last_name)) $errors[] = 'لطفاً نام خانوادگی عضو را وارد کنید.';
+        if (empty($gender) || !in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
 
     // بررسی آپلود تصویر جدید
     $member_img_url = '';
@@ -80,91 +80,119 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['save_member']) || $b
             $errors[] = 'مشکلی در آپلود فایل پیش آمد.';
         }
 
-        if (empty($errors)) {
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
-            require_once(ABSPATH . 'wp-admin/includes/media.php');
-            require_once(ABSPATH . 'wp-admin/includes/image.php');
-            $upload = media_handle_upload('profile_image', 0);
-            if (!is_wp_error($upload)) {
-                $member_img_url = wp_get_attachment_url($upload);
-            } else {
-                $errors[] = 'مشکلی در آپلود تصویر پیش آمد.';
+            if (empty($errors)) {
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+                require_once(ABSPATH . 'wp-admin/includes/media.php');
+                require_once(ABSPATH . 'wp-admin/includes/image.php');
+                $upload = media_handle_upload('profile_image', 0);
+                if (!is_wp_error($upload)) {
+                    $member_img_url = wp_get_attachment_url($upload);
+                    update_user_meta($member_id, 'profile_image', $profile_image);
+                } else {
+                    $errors[] = 'مشکلی در آپلود تصویر پیش آمد.';
+                }
             }
         }
-    }
 
-    // تعیین تصویر نهایی
-    if (!empty($member_img_url)) {
-        $final_image = $member_img_url;
-    } elseif ($back_to_default) {
-        $final_image = ($gender === 'girl') ? $default_girl_img : $default_boy_img;
-    } else {
-        $final_image = $profile_image ?: (($gender === 'girl') ? $default_girl_img : $default_boy_img);
-    }
+        if (empty($errors)) {
+            wp_update_user([
+                'ID'         => $member_id,
+                'first_name' => $first_name,
+                'last_name'  => $last_name
+            ]);
+            update_user_meta($member_id, 'gender', $gender);
+            update_user_meta($member_id, 'points', $points);
 
-    // ذخیره اطلاعات در صورت عدم خطا
-    if (empty($errors)) {
-        wp_update_user([
-            'ID' => $member_id,
-            'first_name' => $name,
-            'last_name'  => $lastname
-        ]);
-        update_user_meta($member_id, 'gender', $gender);
-        update_user_meta($member_id, 'points', $points);
-        update_user_meta($member_id, 'profile_image', $final_image);
-        $profile_image = $final_image; // برای نمایش بعد از ذخیره
-        $success_message = 'تغییرات با موفقیت ذخیره شد.';
-    } else {
-        echo '<div id="success-msg" class="bg-red-200 text-red-800 p-3 rounded mb-4">';
-        foreach ($errors as $error) {
-            echo '<p>' . esc_html($error) . '</p>';
+            $success_message = 'تغییرات با موفقیت ذخیره شد.';
         }
-        echo '</div>';
     }
+
+    // حذف عضو
+    if (isset($_POST['delete_member'])) {
+        if (in_array($member_id, $members)) {
+            $members = array_diff($members, [$member_id]);
+            update_user_meta($user->ID, '_group_members', $members);
+
+            require_once(ABSPATH . 'wp-admin/includes/user.php');
+            wp_delete_user($member_id);
+
+            $success_message = 'عضو با موفقیت حذف شد.';
+        }
+    }
+
+
+// نمایش پیام‌ها
+if (!empty($errors)) {
+    echo '<div id="success-msg" class="bg-red-200 text-red-800 p-3 rounded mb-4">';
+    foreach ($errors as $error) {
+        echo '<p>' . esc_html($error) . '</p>';
+    }
+    echo '</div>';
+}
+if (!empty($success_message)) {
+    echo '<div id="success-msg" class="bg-green-200 text-green-800 p-3 rounded mb-4">' . esc_html($success_message) . '</div>';
 }
 ?>
-<?php if (!empty($success_message)): ?>
-    <div id="success-msg" class="bg-green-200 text-green-800 p-3 rounded mb-2">
-        <?php echo esc_html($success_message); ?>
+
+<?php if ($member_data): ?>
+    <div class="bg-gray-50 rounded-lg shadow p-4 text-center member-card max-w-md mx-auto" data-member-id="<?php echo $member_id; ?>">
+        <form method="post" enctype="multipart/form-data" class="flex flex-col items-center">
+            <input type="hidden" name="member_id" value="<?php echo $member_id; ?>">
+
+            <img src="<?php echo esc_url($profile_image ?: ($gender === 'girl' ? $default_girl_img : $default_boy_img)); ?>"
+                alt="<?php echo esc_attr($first_name); ?>"
+                class="w-24 h-24 mx-auto rounded-full object-cover mb-3 member-img">
+
+            <div class="member-view">
+                <h3 class="text-lg font-semibold"><?php echo esc_html($first_name . ' ' . $last_name); ?></h3>
+                <p class="text-sm text-gray-600">جنسیت: <?php echo ($gender === 'girl' ? 'دختر' : 'پسر'); ?></p>
+                <p class="text-sm text-gray-600">امتیاز: <?php echo esc_html($points); ?></p>
+                <button type="button" class="bg-blue-500 text-white px-3 py-1 mt-2 rounded edit-btn">ویرایش</button>
+                <button type="submit" name="delete_member" class="bg-red-500 text-white px-3 py-1 mt-2 rounded del-btn" data-name="<?php echo esc_attr(trim($first_name . ' ' . $last_name)); ?>">حذف</button>
+            </div>
+
+            <div class="member-edit hidden flex flex-col gap-2 w-full">
+                <input type="text" name="first_name" value="<?php echo esc_attr($first_name); ?>" class="border p-1 w-full">
+                <input type="text" name="last_name" value="<?php echo esc_attr($last_name); ?>" class="border p-1 w-full">
+                <select name="gender" class="border p-1 w-full">
+                    <option value="girl" <?php selected($gender, 'girl'); ?>>دختر</option>
+                    <option value="boy" <?php selected($gender, 'boy'); ?>>پسر</option>
+                </select>
+                <input type="number" name="points" value="<?php echo esc_attr($points); ?>" class="border p-1 w-full">
+                <input type="file" name="profile_image" class="border p-1 w-full">
+                <button type="submit" name="save_member" class="bg-green-500 text-white px-4 py-2 rounded mt-2">ثبت تغییرات</button>
+                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded mt-1 cancel-btn">لغو</button>
+            </div>
+        </form>
     </div>
 <?php endif; ?>
 
-<!-- فرم ویرایش اعضا -->
-<form method="post" enctype="multipart/form-data" class="max-w-md rounded shadow-md flex flex-col  mx-auto bg-white p-6 my-4 gap-4">
-    <label class="flex flex-col">
-        نام:
-        <input type="text" name="first_name" value="<?php echo esc_attr($member_data->first_name); ?>" required class="border p-2 rounded mt-1">
-    </label>
-    <label class="flex flex-col">
-        نام خانوادگی:
-        <input type="text" name="last_name" value="<?php echo esc_attr($member_data->last_name); ?>" required class="border p-2 rounded mt-1">
-    </label>
-    <label class="flex flex-col">
-        جنسیت:
-        <select name="gender" required class="border p-2 rounded mt-1">
-            <option value="girl" <?php selected($gender, 'girl'); ?>>دختر</option>
-            <option value="boy" <?php selected($gender, 'boy'); ?>>پسر</option>
-        </select>
-    </label>
-    <label class="flex flex-col">
-        امتیاز:
-        <input type="number" name="points" value="<?php echo esc_attr($points); ?>" required class="border p-2 rounded mt-1">
-    </label>
-    <label class="flex flex-col">
-        تصویر پروفایل:
-        <img src="<?php echo esc_url($profile_image ?: ($gender === 'girl' ? $default_girl_img : $default_boy_img)); ?>" alt="Profile Image" class="w-24 h-24 object-cover rounded mb-2">
-        <input type="file" name="profile_image" class="border p-2 rounded mt-1">
-    </label>
-    <button type="submit" name="del_image" class="bg-red-500 w-32 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
-        حذف عکس
-    </button>
-
-    <button type="submit" name="save_member" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
-        ذخیره تغییرات
-    </button>
-</form>
-
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.edit-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const card = btn.closest('.member-card');
+                card.querySelector('.member-view').classList.add('hidden');
+                card.querySelector('.member-edit').classList.remove('hidden');
+            });
+        });
+        document.querySelectorAll('.cancel-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const card = btn.closest('.member-card');
+                card.querySelector('.member-edit').classList.add('hidden');
+                card.querySelector('.member-view').classList.remove('hidden');
+            });
+        });
+        document.querySelectorAll('.del-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                const memberName = btn.getAttribute('data-name');
+                if (!confirm("آیا مطمئن هستید که می‌خواهید «" + memberName + "» حذف شود؟")) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+
     // بعد از 2 ثانیه پیام مخفی شود
     setTimeout(function() {
         const msg = document.getElementById('success-msg');
@@ -174,6 +202,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['save_member']) || $b
     }, 2000);
 </script>
 
-<?php
-get_footer();
-?>
+<?php get_footer(); ?>
