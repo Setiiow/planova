@@ -207,7 +207,7 @@ if (!empty($success_message)) {
                 <button type="submit" name="save_member" class="bg-green-500 text-white px-4 py-2 rounded mt-2">ثبت تغییرات</button>
                 <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded mt-1 cancel-btn">لغو</button>
             </div>
-        
+
     </div>
 <?php endif; ?>
 <!-- نمایش وظایف عضو -->
@@ -271,6 +271,14 @@ if (!empty($success_message)) {
         // ویرایش وظایف
         document.querySelectorAll('.edit-task-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
+                // همه‌ی تسک‌ها رو برگردون به حالت نمایش
+                document.querySelectorAll('.task-edit').forEach(function(editBox) {
+                    editBox.classList.add('hidden');
+                });
+                document.querySelectorAll('.task-view').forEach(function(viewBox) {
+                    viewBox.classList.remove('hidden');
+                });
+                
                 const task = btn.closest('li[data-task-index]');
                 task.querySelector('.task-view').classList.add('hidden');
                 task.querySelector('.task-edit').classList.remove('hidden');
