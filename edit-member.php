@@ -278,7 +278,7 @@ if (!empty($success_message)) {
                 document.querySelectorAll('.task-view').forEach(function(viewBox) {
                     viewBox.classList.remove('hidden');
                 });
-                
+
                 const task = btn.closest('li[data-task-index]');
                 task.querySelector('.task-view').classList.add('hidden');
                 task.querySelector('.task-edit').classList.remove('hidden');
@@ -291,6 +291,16 @@ if (!empty($success_message)) {
                 task.querySelector('.task-view').classList.remove('hidden');
             });
         });
+
+        // تأیید حذف وظیفه
+        document.querySelectorAll('.del-task-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                if (!confirm("آیا مطمئن هستید که می‌خواهید این وظیفه حذف شود؟")) {
+                    e.preventDefault();
+                }
+            });
+        });
+
 
         document.querySelectorAll('.del-btn').forEach(function(btn) {
             btn.addEventListener('click', function(e) {
