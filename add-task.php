@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
 
 
             $member_tasks[] = [
+                'id' => uniqid(),      // شناسه یکتا
                 'title' => $task_title,
                 'desc' => $task_desc,
                 'points' => $task_points,
