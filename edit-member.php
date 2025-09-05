@@ -53,23 +53,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ذخیره تغییرات وظایف
     if (isset($_POST['save_task'])) {
-        $task_index = intval($_POST['save_task']);
-        if (isset($_POST['tasks'][$task_index])) {
-            $tasks[$task_index]['title']  = sanitize_text_field($_POST['tasks'][$task_index]['title']);
-            $tasks[$task_index]['points'] = intval($_POST['tasks'][$task_index]['points']);
-            $tasks[$task_index]['done']   = intval($_POST['tasks'][$task_index]['done']);
+        $task_id = $_POST['save_task'];
+        foreach ($tasks as $index => $task) {
+        if ($task['id'] === $task_id) {
+            $tasks[$index]['title']  = sanitize_text_field($_POST['tasks'][$task_id]['title']);
+            $tasks[$index]['points'] = intval($_POST['tasks'][$task_id]['points']);
+            $tasks[$index]['done']   = intval($_POST['tasks'][$task_id]['done']);
             update_user_meta($member_id, '_member_tasks', $tasks);
             $success_message = 'تغییرات وظیفه با موفقیت ذخیره شد.';
+            break;
+            }
         }
     }
 
     // حذف وظیفه
     if (isset($_POST['delete_task'])) {
-        $task_index = intval($_POST['delete_task']);
-        if (isset($tasks[$task_index])) {
-            array_splice($tasks, $task_index, 1); // حذف آیتم
+        $task_id = $_POST['delete_task'];
+        foreach ($tasks as $index => $task) {
+        if ($task['id'] === $task_id) {
+            array_splice($tasks, $index, 1); // حذف آیتم
             update_user_meta($member_id, '_member_tasks', $tasks);
             $success_message = 'وظیفه با موفقیت حذف شد.';
+            break;
         }
     }
 
@@ -144,11 +149,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $success_message = 'تغییرات با موفقیت ذخیره شد.';
+            }
         }
     }
 }
-
-
 
 // حذف عضو
 if (isset($_POST['delete_member'])) {
@@ -229,19 +233,19 @@ if (!empty($success_message)) {
                         </div>
                         <div class="flex gap-2">
                             <button type="button" class="bg-blue-500 text-white px-2 py-1 rounded edit-task-btn">ویرایش</button>
-                            <button type="submit" name="delete_task" value="<?php echo $index; ?>" class="bg-red-500 text-white px-2 py-1 rounded del-task-btn">حذف</button>
+                            <button type="submit" name="delete_task" value="<?php echo esc_attr($task['id']); ?>" class="bg-red-500 text-white px-2 py-1 rounded del-task-btn">حذف</button>
                         </div>
                     </div>
 
                     <!-- فرم ویرایش وظیفه -->
                     <div class="task-edit hidden flex flex-col gap-1 mt-2">
-                        <input type="text" name="tasks[<?php echo $index; ?>][title]" value="<?php echo esc_attr($task['title']); ?>" class="border p-1 w-full">
-                        <input type="number" name="tasks[<?php echo $index; ?>][points]" value="<?php echo esc_attr($task['points']); ?>" class="border p-1 w-full">
-                        <select name="tasks[<?php echo $index; ?>][done]" class="border p-1 w-full">
+                        <input type="text" name="tasks[<?php echo esc_attr($task['id']); ?>][title]" value="<?php echo esc_attr($task['title']); ?>" class="border p-1 w-full">
+                        <input type="number" name="tasks[<?php echo esc_attr($task['id']); ?>][points]" value="<?php echo esc_attr($task['points']); ?>" class="border p-1 w-full">
+                        <select name="tasks[<?php echo esc_attr($task['id']); ?>][done]" class="border p-1 w-full">
                             <option value="1" <?php selected($task['done'], 1); ?>>انجام شده</option>
                             <option value="0" <?php selected($task['done'], 0); ?>>انجام نشده</option>
                         </select>
-                        <button type="submit" name="save_task" value="<?php echo $index; ?>" class="bg-green-500 text-white px-2 py-1 rounded">ثبت تغییرات</button>
+                        <button type="submit" name="save_task" value="<?php echo esc_attr($task['id']); ?>" class="bg-green-500 text-white px-2 py-1 rounded">ثبت تغییرات</button>
                         <button type="button" class="bg-gray-500 text-white px-2 py-1 rounded cancel-task-btn">لغو</button>
                     </div>
                 </li>
