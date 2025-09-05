@@ -38,7 +38,6 @@ if (!is_array($members) || !in_array($member_id, $members)) {
     exit;
 }
 
-
 // گرفتن اطلاعات عضو
 $member_data   = get_userdata($member_id);
 $first_name    = $member_data->first_name;
@@ -47,10 +46,11 @@ $gender        = get_user_meta($member_id, 'gender', true);
 $points        = get_user_meta($member_id, 'points', true);
 $profile_image = get_user_meta($member_id, 'profile_image', true);
 $tasks         = get_user_meta($member_id, '_member_tasks', true);
+$tasks         = is_array($tasks) ? $tasks : [];
 
-
+// پردازش فرم
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+
     // ذخیره تغییرات وظایف
     if (isset($_POST['save_task'])) {
         $task_id = $_POST['save_task'];
@@ -62,35 +62,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $new_points = intval($_POST['tasks'][$task_id]['points']);
             $new_done   = intval($_POST['tasks'][$task_id]['done']);
 
-            // بررسی تغییر وضعیت انجام/انجام نشده
-            $was_done = intval($task['done']);
-            if ($was_done != $new_done) {
-                $user_points = intval(get_user_meta($member_id, 'points', true));
-
-                if ($new_done === 1) {
-                    // تازه انجام شده -> امتیاز اضافه شود
-                    $user_points += $new_points;
-                } else {
-                    // اگر تیک برداشته شده -> امتیاز کم شود
-                    $user_points -= $new_points;
+                $was_done = intval($task['done']);
+                if ($was_done !== $new_done) {
+                    $user_points = intval(get_user_meta($member_id, 'points', true));
+                    $user_points += ($new_done === 1 ? $new_points : -$new_points);
+                    update_user_meta($member_id, 'points', $user_points);
                 }
 
-                 // ذخیره امتیاز جدید کاربر
-                update_user_meta($member_id, 'points', $user_points);
-               
-            }
-
-            // بروزرسانی اطلاعات تسک
-            $tasks[$index]['title']  = $new_title;
-            $tasks[$index]['points'] = $new_points;
-            $tasks[$index]['done']   = $new_done;
-            
-            break;
+                $tasks[$index]['title']  = $new_title;
+                $tasks[$index]['points'] = $new_points;
+                $tasks[$index]['done']   = $new_done;
+                break;
             }
         }
-        // ذخیره‌ی تمام وظایف در متای کاربر
         update_user_meta($member_id, '_member_tasks', $tasks);
-
         $success_message = 'تغییرات وظیفه با موفقیت ذخیره شد.';
     }
 
@@ -98,24 +83,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['delete_task'])) {
         $task_id = $_POST['delete_task'];
         foreach ($tasks as $index => $task) {
-        if ($task['id'] === $task_id) {
-            array_splice($tasks, $index, 1); // حذف آیتم
-            update_user_meta($member_id, '_member_tasks', $tasks);
-            $success_message = 'وظیفه با موفقیت حذف شد.';
-            break;
+            if ($task['id'] == $task_id) {
+                array_splice($tasks, $index, 1);
+                update_user_meta($member_id, '_member_tasks', $tasks);
+                $success_message = 'وظیفه با موفقیت حذف شد.';
+                break;
             }
         }
     }
 
-    // بررسی اینکه آیا دکمه حذف عکس زده شده
+    // حذف عکس
     if (isset($_POST['del_photo'])) {
         update_user_meta($member_id, 'profile_image', '');
+        $profile_image = '';
         $success_message = 'عکس حذف شد.';
-        $profile_image = ''; // برای نمایش پیش‌فرض
     }
 
+    // ذخیره تغییرات اطلاعات عضو
     if (isset($_POST['save_member'])) {
-
         $first_name = sanitize_text_field($_POST['first_name'] ?? '');
         $last_name = sanitize_text_field($_POST['last_name'] ?? '');
         $gender = sanitize_text_field($_POST['gender'] ?? '');
@@ -129,40 +114,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($_FILES['profile_image']['name'])) {
             $file = $_FILES['profile_image'];
 
-            // بررسی حجم
-            if ($file['size'] > 2 * 1024 * 1024) {
-                $errors[] = 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد.';
-            }
-
-            // بررسی فرمت
-            if (!empty($file['tmp_name'])) {
-                $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
-                $file_type = mime_content_type($file['tmp_name']);
-                if (!in_array($file_type, $allowed_types)) {
-                    $errors[] = 'فرمت تصویر معتبر نیست. فقط JPG, PNG, WEBP مجاز است.';
-                }
-            } else {
-                $errors[] = 'مشکلی در آپلود فایل پیش آمد.';
-            }
+            if ($file['size'] > 2 * 1024 * 1024) $errors[] = 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد.';
+            $allowed_types = ['image/jpeg','image/png','image/webp'];
+            if (!in_array(mime_content_type($file['tmp_name']), $allowed_types)) $errors[] = 'فرمت تصویر معتبر نیست.';
 
             if (empty($errors)) {
                 require_once(ABSPATH . 'wp-admin/includes/file.php');
                 require_once(ABSPATH . 'wp-admin/includes/media.php');
                 require_once(ABSPATH . 'wp-admin/includes/image.php');
+
                 $upload = media_handle_upload('profile_image', 0);
                 if (!is_wp_error($upload)) {
-                    $member_img_url = wp_get_attachment_url($upload);
-                    $profile_image = $member_img_url; // بروزرسانی متغیر برای نمایش بعد از ثبت
+                    $profile_image = wp_get_attachment_url($upload);
+                    update_user_meta($member_id, 'profile_image', $profile_image);
                 } else {
                     $errors[] = 'مشکلی در آپلود تصویر پیش آمد.';
                 }
             }
         }
-        // // اگر دکمه حذف عکس زده شده
-        // if (empty($_FILES['profile_image']['name'])) {
-        //     $profile_image = ($gender === 'girl' ? $default_girl_img : $default_boy_img);
-        //     update_user_meta($member_id, 'profile_image', '');
-        // }
 
         if (empty($errors)) {
             wp_update_user([
@@ -172,12 +141,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             update_user_meta($member_id, 'gender', $gender);
             update_user_meta($member_id, 'points', $points);
-
-
             $success_message = 'تغییرات با موفقیت ذخیره شد.';
-            }
         }
-
+    }
 
     // حذف عضو
     if (isset($_POST['delete_member'])) {
@@ -239,6 +205,7 @@ if (!empty($success_message)) {
 
     </div>
 <?php endif; ?>
+
 <!-- نمایش وظایف عضو -->
 <?php if (!empty($tasks) && is_array($tasks)): ?>
     <div class="bg-white shadow-md rounded p-4 mt-6">
@@ -281,6 +248,7 @@ if (!empty($success_message)) {
     <p class="mt-4 text-gray-600">هنوز وظیفه‌ای برای این عضو ثبت نشده است.</p>
 <?php endif; ?>
 </form>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.edit-btn').forEach(function(btn) {
@@ -321,25 +289,18 @@ if (!empty($success_message)) {
             });
         });
 
-        // تأیید حذف وظیفه
-        document.querySelectorAll('.del-task-btn').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                if (!confirm("آیا مطمئن هستید که می‌خواهید این وظیفه حذف شود؟")) {
-                    e.preventDefault();
-                }
-            });
-        });
-
-
-        document.querySelectorAll('.del-btn').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                const memberName = btn.getAttribute('data-name');
-                if (!confirm("آیا مطمئن هستید که می‌خواهید «" + memberName + "» حذف شود؟")) {
-                    e.preventDefault();
-                }
-            });
+    document.querySelectorAll('.del-task-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            if (!confirm("آیا مطمئن هستید که می‌خواهید این وظیفه حذف شود؟")) e.preventDefault();
         });
     });
+    document.querySelectorAll('.del-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            const memberName = btn.getAttribute('data-name');
+            if (!confirm("آیا مطمئن هستید که می‌خواهید «" + memberName + "» حذف شود؟")) e.preventDefault();
+        });
+    });
+});
 
     // بعد از 2 ثانیه پیام مخفی شود
     setTimeout(function() {
