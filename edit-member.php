@@ -46,6 +46,7 @@ $last_name     = $member_data->last_name;
 $gender        = get_user_meta($member_id, 'gender', true);
 $points        = get_user_meta($member_id, 'points', true);
 $profile_image = get_user_meta($member_id, 'profile_image', true);
+$tasks         = get_user_meta($member_id, '_member_tasks', true);
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_member'])) {
@@ -53,11 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_member'])) {
     $name = sanitize_text_field($_POST['first_name'] ?? '');
     $lastname = sanitize_text_field($_POST['last_name'] ?? '');
     $gender = sanitize_text_field($_POST['gender'] ?? '');
-    $points = intval($_POST['points'] ?? 0 );
+    $points = intval($_POST['points'] ?? 0);
 
-        if (empty($first_name)) $errors[] = 'لطفاً نام عضو را وارد کنید.';
-        if (empty($last_name)) $errors[] = 'لطفاً نام خانوادگی عضو را وارد کنید.';
-        if (empty($gender) || !in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
+    if (empty($first_name)) $errors[] = 'لطفاً نام عضو را وارد کنید.';
+    if (empty($last_name)) $errors[] = 'لطفاً نام خانوادگی عضو را وارد کنید.';
+    if (empty($gender) || !in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
 
     // بررسی آپلود تصویر جدید
     $member_img_url = '';
@@ -80,45 +81,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_member'])) {
             $errors[] = 'مشکلی در آپلود فایل پیش آمد.';
         }
 
-            if (empty($errors)) {
-                require_once(ABSPATH . 'wp-admin/includes/file.php');
-                require_once(ABSPATH . 'wp-admin/includes/media.php');
-                require_once(ABSPATH . 'wp-admin/includes/image.php');
-                $upload = media_handle_upload('profile_image', 0);
-                if (!is_wp_error($upload)) {
-                    $member_img_url = wp_get_attachment_url($upload);
-                    update_user_meta($member_id, 'profile_image', $profile_image);
-                } else {
-                    $errors[] = 'مشکلی در آپلود تصویر پیش آمد.';
-                }
+        if (empty($errors)) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+            require_once(ABSPATH . 'wp-admin/includes/media.php');
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+            $upload = media_handle_upload('profile_image', 0);
+            if (!is_wp_error($upload)) {
+                $member_img_url = wp_get_attachment_url($upload);
+                update_user_meta($member_id, 'profile_image', $profile_image);
+            } else {
+                $errors[] = 'مشکلی در آپلود تصویر پیش آمد.';
             }
         }
-
-        if (empty($errors)) {
-            wp_update_user([
-                'ID'         => $member_id,
-                'first_name' => $first_name,
-                'last_name'  => $last_name
-            ]);
-            update_user_meta($member_id, 'gender', $gender);
-            update_user_meta($member_id, 'points', $points);
-
-            $success_message = 'تغییرات با موفقیت ذخیره شد.';
-        }
     }
 
-    // حذف عضو
-    if (isset($_POST['delete_member'])) {
-        if (in_array($member_id, $members)) {
-            $members = array_diff($members, [$member_id]);
-            update_user_meta($user->ID, '_group_members', $members);
+    if (empty($errors)) {
+        wp_update_user([
+            'ID'         => $member_id,
+            'first_name' => $first_name,
+            'last_name'  => $last_name
+        ]);
+        update_user_meta($member_id, 'gender', $gender);
+        update_user_meta($member_id, 'points', $points);
 
-            require_once(ABSPATH . 'wp-admin/includes/user.php');
-            wp_delete_user($member_id);
-
-            $success_message = 'عضو با موفقیت حذف شد.';
-        }
+        $success_message = 'تغییرات با موفقیت ذخیره شد.';
     }
+}
+
+// حذف عضو
+if (isset($_POST['delete_member'])) {
+    if (in_array($member_id, $members)) {
+        $members = array_diff($members, [$member_id]);
+        update_user_meta($user->ID, '_group_members', $members);
+
+        require_once(ABSPATH . 'wp-admin/includes/user.php');
+        wp_delete_user($member_id);
+
+        $success_message = 'عضو با موفقیت حذف شد.';
+    }
+}
 
 
 // نمایش پیام‌ها
@@ -165,6 +166,29 @@ if (!empty($success_message)) {
             </div>
         </form>
     </div>
+<?php endif; ?>
+<!-- نمایش وظایف عضو -->
+<?php if (!empty($tasks) && is_array($tasks)): ?>
+    <div class="bg-white shadow-md rounded p-4 mt-6">
+        <h2 class="text-lg font-bold mb-4">وظایف عضو</h2>
+        <ul class="space-y-2">
+            <?php foreach ($tasks as $task): ?>
+                <li class="flex justify-between items-center border-b pb-2">
+                    <div class="flex">
+                        <span><?php echo esc_html($task['title']); ?></span>
+                        <span class="mr-2 text-green-700">(امتیاز: <?php echo esc_html($task['points']); ?>)</span>
+                    </div>
+                    <?php if (!empty($task['done']) && $task['done'] == 1): ?>
+                        <span class="text-green-600 font-semibold">انجام شده ✅</span>
+                    <?php else: ?>
+                        <span class="text-red-600 font-semibold">انجام نشده ❌</span>
+                    <?php endif; ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php else: ?>
+    <p class="mt-4 text-gray-600">هنوز وظیفه‌ای برای این عضو ثبت نشده است.</p>
 <?php endif; ?>
 
 <script>
