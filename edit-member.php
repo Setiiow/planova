@@ -15,7 +15,7 @@ if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
     exit;
 }
 
-// مقدار پیش‌ فرض تصاویر بر اساس جنسیت
+// مقدار پیش‌ فرض تصویر پروفایل اعضا بر اساس جنسیت
 $default_girl_img = get_template_directory_uri() . '/assets/images/default-girl.webp';
 $default_boy_img  = get_template_directory_uri() . '/assets/images/default-boy.png';
 
@@ -53,6 +53,52 @@ $rewards       = is_array($rewards) ? $rewards : [];
 
 // پردازش فرم
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // ذخیره تغییرات جوایز
+    if (isset($_POST['save_reward']) && !empty($rewards)) {
+        $reward_id = $_POST['save_reward'];
+
+        foreach ($rewards as $index => $reward) {
+            if ($reward['id'] === $reward_id) {
+
+                // بروزرسانی عنوان و امتیاز
+                $rewards[$index]['title'] = sanitize_text_field($_POST['rewards'][$reward_id]['title']);
+                $rewards[$index]['points'] = intval($_POST['rewards'][$reward_id]['points']);
+
+                // آپلود تصویر جدید
+                if (!empty($_FILES['rewards']['name'][$reward_id]['image'])) {
+                    $file_array = [
+                        'name'     => $_FILES['rewards']['name'][$reward_id]['image'],
+                        'type'     => $_FILES['rewards']['type'][$reward_id]['image'],
+                        'tmp_name' => $_FILES['rewards']['tmp_name'][$reward_id]['image'],
+                        'error'    => $_FILES['rewards']['error'][$reward_id]['image'],
+                        'size'     => $_FILES['rewards']['size'][$reward_id]['image'],
+                    ];
+
+                    require_once(ABSPATH . 'wp-admin/includes/file.php');
+                    require_once(ABSPATH . 'wp-admin/includes/media.php');
+                    require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+                    $upload = wp_handle_upload($file_array, ['test_form' => false]);
+
+                    if (!empty($upload['url'])) {
+                        $rewards[$index]['image'] = esc_url($upload['url']);
+                    } else {
+                        $errors[] = 'مشکلی در آپلود تصویر جایزه پیش آمد.';
+                    }
+                }
+
+                break;
+            }
+        }
+
+        // ذخیره جوایز به user_meta
+        update_user_meta($member_id, '_member_rewards', $rewards);
+        if (empty($errors)) {
+            $success_message = 'تغییرات جایزه با موفقیت ذخیره شد.';
+        }
+    }
+
 
     // ذخیره تغییرات وظایف
     if (isset($_POST['save_task'])) {
@@ -202,7 +248,7 @@ if (!empty($success_message)) {
 <?php if ($member_data): ?>
     <?php if (!empty($rewards) && is_array($rewards)): ?>
         <div class="reward-view mb-5">
-            <h2 class="text-lg font-bold mb-4">وظایف عضو</h2>
+            <h2 class="text-lg font-bold mb-4 text-center mt-4">جوایز عضو</h2>
             <ul class="space-y-2">
                 <?php foreach ($rewards as $index => $reward): ?>
                     <form method="post" enctype="multipart/form-data" class="flex flex-col items-center">
@@ -222,9 +268,9 @@ if (!empty($success_message)) {
                             </div>
                             <!-- فرم ویرایش جایزه -->
                             <div class="reward-edit hidden flex flex-col gap-1 mt-2">
-                                <input type="file" name="rewards[<?php echo esc_attr($reward['id']); ?>][image]" class="border p-1 w-full">
                                 <input type="text" name="rewards[<?php echo esc_attr($reward['id']); ?>][title]" value="<?php echo esc_attr($reward['title']); ?>" class="border p-1 w-full">
                                 <input type="number" name="rewards[<?php echo esc_attr($reward['id']); ?>][points]" value="<?php echo esc_attr($reward['points']); ?>" class="border p-1 w-full">
+                                <input type="file" name="rewards[<?php echo esc_attr($reward['id']); ?>][image]" class="border p-1 w-full">
                                 <button type="submit" name="save_reward" value="<?php echo esc_attr($reward['id']); ?>" class="bg-green-500 text-white px-2 py-1 rounded">ثبت تغییرات</button>
                                 <button type="button" class="bg-gray-500 text-white px-2 py-1 rounded cancel-reward-btn">لغو</button>
                             </div>
