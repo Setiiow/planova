@@ -32,6 +32,7 @@ if (!$member_id) {
 
 // بررسی اینکه عضو انتخاب شده از گروه همین سرگروه باشد
 $members = get_user_meta($user->ID, '_group_members', true);
+if (!is_array($members)) $members = [];
 if (!is_array($members) || !in_array($member_id, $members)) {
     echo '<p>این عضو جزو گروه شما نیست.</p>';
     get_footer();
@@ -57,10 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         foreach ($tasks as $index => $task) {
             if ($task['id'] === $task_id) {
-            // دریافت اطلاعات از فرم
-            $new_title  = sanitize_text_field($_POST['tasks'][$task_id]['title']);
-            $new_points = intval($_POST['tasks'][$task_id]['points']);
-            $new_done   = intval($_POST['tasks'][$task_id]['done']);
+                // دریافت اطلاعات از فرم
+                $new_title  = sanitize_text_field($_POST['tasks'][$task_id]['title']);
+                $new_points = intval($_POST['tasks'][$task_id]['points']);
+                $new_done   = intval($_POST['tasks'][$task_id]['done']);
 
                 $was_done = intval($task['done']);
                 if ($was_done !== $new_done) {
@@ -109,13 +110,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($first_name)) $errors[] = 'لطفاً نام عضو را وارد کنید.';
         if (empty($last_name)) $errors[] = 'لطفاً نام خانوادگی عضو را وارد کنید.';
         if (!in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
+        // گرفتن اطلاعات اعضای گروه و بررسی وجود نام و نام خانوادگی انتخاب شده در اعضای گروه
+        if (is_array($members) && !empty($members)) {
+            foreach ($members as $m_id) {
+                // کاربر جاری
+                $member_data = get_userdata($m_id);
+                if ($member_data && $m_id != $member_id) {
+                    if (
+                        strcasecmp($member_data->first_name, $first_name) === 0 &&
+                        strcasecmp($member_data->last_name, $last_name) === 0
+                    ) {
+                        $errors[] = 'این عضو قبلاً در گروه شما ثبت شده است.';
+                        break;
+                    }
+                }
+            }
+        }
 
         // بررسی آپلود تصویر جدید
         if (!empty($_FILES['profile_image']['name'])) {
             $file = $_FILES['profile_image'];
 
             if ($file['size'] > 2 * 1024 * 1024) $errors[] = 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد.';
-            $allowed_types = ['image/jpeg','image/png','image/webp'];
+            $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
             if (!in_array(mime_content_type($file['tmp_name']), $allowed_types)) $errors[] = 'فرمت تصویر معتبر نیست.';
 
             if (empty($errors)) {
@@ -161,6 +178,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // نمایش پیام‌ها
 if (!empty($errors)) {
+    // دوباره از دیتابیس مقدار اصلی رو بخون
+    $member_data   = get_userdata($member_id);
+    $first_name    = $member_data->first_name;
+    $last_name     = $member_data->last_name;
+    $gender        = get_user_meta($member_id, 'gender', true);
+    $points        = get_user_meta($member_id, 'points', true);
+    $profile_image = get_user_meta($member_id, 'profile_image', true);
     echo '<div id="success-msg" class="bg-red-200 text-red-800 p-3 rounded mb-4">';
     foreach ($errors as $error) {
         echo '<p>' . esc_html($error) . '</p>';
@@ -289,18 +313,18 @@ if (!empty($success_message)) {
             });
         });
 
-    document.querySelectorAll('.del-task-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            if (!confirm("آیا مطمئن هستید که می‌خواهید این وظیفه حذف شود؟")) e.preventDefault();
+        document.querySelectorAll('.del-task-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                if (!confirm("آیا مطمئن هستید که می‌خواهید این وظیفه حذف شود؟")) e.preventDefault();
+            });
+        });
+        document.querySelectorAll('.del-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                const memberName = btn.getAttribute('data-name');
+                if (!confirm("آیا مطمئن هستید که می‌خواهید «" + memberName + "» حذف شود؟")) e.preventDefault();
+            });
         });
     });
-    document.querySelectorAll('.del-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            const memberName = btn.getAttribute('data-name');
-            if (!confirm("آیا مطمئن هستید که می‌خواهید «" + memberName + "» حذف شود؟")) e.preventDefault();
-        });
-    });
-});
 
     // بعد از 2 ثانیه پیام مخفی شود
     setTimeout(function() {
