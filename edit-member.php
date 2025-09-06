@@ -206,8 +206,8 @@ if (!empty($success_message)) {
             <ul class="space-y-2">
                 <?php foreach ($rewards as $index => $reward): ?>
                     <form method="post" enctype="multipart/form-data" class="flex flex-col items-center">
-                        <li class="flex justify-between items-center border-b pb-2" data-task-index="<?php echo $index; ?>">
-                            <div class="task-view flex justify-between items-center">
+                        <li class="flex justify-between items-center border-b pb-2" data-reward-index="<?php echo $index; ?>">
+                            <div class="reward-view flex justify-between items-center">
                                 <div class="flex items-center gap-2">
                                     <img src="<?php echo esc_url($reward['image']); ?>"
                                         alt="<?php echo esc_attr($reward['title']); ?>"
@@ -351,6 +351,36 @@ if (!empty($success_message)) {
                 const task = btn.closest('li[data-task-index]');
                 task.querySelector('.task-edit').classList.add('hidden');
                 task.querySelector('.task-view').classList.remove('hidden');
+            });
+        });
+
+        // ویرایش جوایز
+        document.querySelectorAll('.edit-reward-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                // همه‌ی جوایز رو برگردون به حالت نمایش
+                document.querySelectorAll('.reward-edit').forEach(function(editBox) {
+                    editBox.classList.add('hidden');
+                });
+                document.querySelectorAll('.reward-view').forEach(function(viewBox) {
+                    viewBox.classList.remove('hidden');
+                });
+
+                const reward = btn.closest('li[data-reward-index]');
+                reward.querySelector('.reward-view').classList.add('hidden');
+                reward.querySelector('.reward-edit').classList.remove('hidden');
+            });
+        });
+        document.querySelectorAll('.cancel-reward-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const reward = btn.closest('li[data-reward-index]');
+                reward.querySelector('.reward-edit').classList.add('hidden');
+                reward.querySelector('.reward-view').classList.remove('hidden');
+            });
+        });
+
+        document.querySelectorAll('.del-reward-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                if (!confirm("آیا مطمئن هستید که می‌خواهید این جایزه حذف شود؟")) e.preventDefault();
             });
         });
 
