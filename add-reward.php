@@ -78,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_reward'])) {
             if (!is_array($member_rewards)) $member_rewards = [];
 
             $member_rewards[] = [
+                'id' => uniqid(),      // شناسه یکتا
                 'title' => $reward_title,
                 'points' => $reward_points,
                 'assigned_by' => $leader_id,
