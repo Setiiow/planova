@@ -18,7 +18,7 @@ if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
 $user_id = $user->ID;
 $errors = [];
 
-// گرفتن اعضای قبلی
+// گرفتن اعضا 
 $members = get_user_meta($user_id, '_group_members', true);
 if (!is_array($members)) $members = [];
 
@@ -75,8 +75,8 @@ if (is_array($members) && !empty($members)) {
             <h3 class="text-sm font-semibold truncate w-16"><?php echo $member_name; ?></h3>
             <p class="text-xs text-gray-600 mt-1">⭐<?php echo $member_points; ?></p>
             <a href="<?php echo home_url('/edit-member?member_id=' . $member_id); ?>" 
-                   class="mt-1 text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">
-                   ویرایش
+                   class="mt-1 text-xl text-white px-3 py-1 rounded hover:bg-gray-200 transition">
+                   👁️
                 </a>
         </div>
 <?php }
@@ -97,32 +97,6 @@ echo '<a href="' . esc_url(home_url('/add-task')) . '"
 </a>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.edit-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                const card = btn.closest('.member-card');
-                card.querySelector('.member-view').classList.add('hidden');
-                card.querySelector('.member-edit').classList.remove('hidden');
-            });
-        });
-        document.querySelectorAll('.cancel-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                const card = btn.closest('.member-card');
-                card.querySelector('.member-edit').classList.add('hidden');
-                card.querySelector('.member-view').classList.remove('hidden');
-            });
-        });
-        // حذف با تایید
-        document.querySelectorAll('.del-btn').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                const memberName = btn.getAttribute('data-name');
-                if (!confirm("آیا مطمئن هستید که می‌خواهید «" + memberName + "» حذف شود؟")) {
-                    e.preventDefault(); // جلوگیری از ارسال فرم
-                }
-            });
-        });
-    });
-
     // بعد از 1 ثانیه پیام مخفی شود
     setTimeout(function() {
         const msg = document.getElementById('success-msg');
