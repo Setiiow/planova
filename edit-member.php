@@ -18,6 +18,8 @@ if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
 // مقدار پیش‌ فرض تصویر پروفایل اعضا بر اساس جنسیت
 $default_girl_img = get_template_directory_uri() . '/assets/images/default-girl.webp';
 $default_boy_img  = get_template_directory_uri() . '/assets/images/default-boy.png';
+// عکس پیشفرض جایزه
+$default_reward_img  = get_template_directory_uri() . '/assets/images/default-reward.jpeg';
 
 $errors = [];
 $success_message = '';
@@ -75,20 +77,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'size'     => $_FILES['rewards']['size'][$reward_id]['image'],
                     ];
 
-                    require_once(ABSPATH . 'wp-admin/includes/file.php');
-                    require_once(ABSPATH . 'wp-admin/includes/media.php');
-                    require_once(ABSPATH . 'wp-admin/includes/image.php');
 
-                    $upload = wp_handle_upload($file_array, ['test_form' => false]);
+                    $file_type = mime_content_type($file_array['tmp_name']);
+                    $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
+                    $max_size = 2 * 1024 * 1024; // 2MB
+                    $errors = [];
 
-                    if (!empty($upload['url'])) {
-                        $rewards[$index]['image'] = esc_url($upload['url']);
-                    } else {
-                        $errors[] = 'مشکلی در آپلود تصویر جایزه پیش آمد.';
+                    if ($file_array['size'] > $max_size) {
+                        $errors[] = 'حجم تصویر جایزه نباید بیشتر از ۲ مگابایت باشد.';
+                    }
+                    if (!in_array($file_type, $allowed_types)) {
+                        $errors[] = 'فرمت تصویر جایزه معتبر نیست.';
+                    }
+
+                    if (empty($errors)) {
+                        require_once(ABSPATH . 'wp-admin/includes/file.php');
+                        require_once(ABSPATH . 'wp-admin/includes/media.php');
+                        require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+                        $upload = wp_handle_upload($file_array, ['test_form' => false]);
+                        if (!empty($upload['url'])) {
+                            $rewards[$index]['image'] = esc_url($upload['url']);
+                        } else {
+                            $errors[] = 'مشکلی در آپلود تصویر جایزه پیش آمد.';
+                        }
                     }
                 }
-
-                break;
             }
         }
 
@@ -97,6 +111,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($errors)) {
             $success_message = 'تغییرات جایزه با موفقیت ذخیره شد.';
         }
+    }
+
+    // حذف جایزه
+    if (isset($_POST['delete_reward'])) {
+        $reward_id = $_POST['delete_reward'];
+        foreach ($rewards as $index => $reward) {
+            if ($reward['id'] == $reward_id) {
+                array_splice($rewards, $index, 1);
+                update_user_meta($member_id, '_member_rewards', $rewards);
+                $success_message = 'جایزه با موفقیت حذف شد.';
+                break;
+            }
+        }
+    }
+
+    // حذف عکس جایزه
+    if (isset($_POST['del_reward_photo'])) {
+        $reward_id = $_POST['del_reward_photo']; // id جایزه که باید حذف شود
+
+        foreach ($rewards as $index => $reward) {
+            if ($reward['id'] == $reward_id) {
+                // جایگزینی عکس جایزه با پیش‌ فرض
+                $rewards[$index]['image'] = $default_reward_img;
+                break;
+            }
+        }
+        update_user_meta($member_id, '_member_rewards', $rewards);
+        $success_message = 'عکس جایزه حذف شد.';
     }
 
 
@@ -144,8 +186,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // حذف عکس
     if (isset($_POST['del_photo'])) {
-        update_user_meta($member_id, 'profile_image', '');
-        $profile_image = '';
+        // تعیین تصویر پیش‌فرض بر اساس جنسیت
+        $default_profile = ($gender === 'girl' ? $default_girl_img : $default_boy_img);
+        update_user_meta($member_id, 'profile_image', $default_profile);
+        $profile_image = $default_profile;
         $success_message = 'عکس حذف شد.';
     }
 
@@ -260,17 +304,27 @@ if (!empty($success_message)) {
                                         class="w-24 h-24 mx-auto rounded-full object-cover mb-3 member-img">
                                     <span><?php echo esc_html($reward['title']); ?></span>
                                     <span class="mr-2 text-green-700">(امتیاز: <?php echo esc_html($reward['points']); ?>)</span>
+                                    <?php if ($points >= intval($reward['points'])): ?>
+                                        <div class="mx-3 text-xl p-2 rounded font-semibold">
+                                            🔓
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="mx-3 text-xl p-2 rounded font-semibold">
+                                            🔒
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="flex gap-2">
                                     <button type="button" class="bg-blue-500 text-white px-2 py-1 rounded edit-reward-btn">ویرایش</button>
-                                    <button type="submit" name="delete_reward" value="<?php echo esc_attr($reward['id']); ?>" class="bg-red-500 text-white px-2 py-1 rounded del-task-btn">حذف</button>
+                                    <button type="submit" name="delete_reward" value="<?php echo esc_attr($reward['id']); ?>" class="bg-red-500 text-white px-2 py-1 rounded del-reward-btn">حذف</button>
                                 </div>
                             </div>
                             <!-- فرم ویرایش جایزه -->
                             <div class="reward-edit hidden flex flex-col gap-1 mt-2">
                                 <input type="text" name="rewards[<?php echo esc_attr($reward['id']); ?>][title]" value="<?php echo esc_attr($reward['title']); ?>" class="border p-1 w-full">
-                                <input type="number" name="rewards[<?php echo esc_attr($reward['id']); ?>][points]" value="<?php echo esc_attr($reward['points']); ?>" class="border p-1 w-full">
+                                <input type="number" name="rewards[<?php echo esc_attr($reward['id']); ?>][points]" value="<?php echo esc_attr($reward['points']); ?>" min="0" class="border p-1 w-full">
                                 <input type="file" name="rewards[<?php echo esc_attr($reward['id']); ?>][image]" class="border p-1 w-full">
+                                <button type="submit" name="del_reward_photo" value="<?php echo esc_attr($reward['id']); ?>" class="bg-red-500 text-white px-4 py-2 rounded mt-2">حذف عکس</button>
                                 <button type="submit" name="save_reward" value="<?php echo esc_attr($reward['id']); ?>" class="bg-green-500 text-white px-2 py-1 rounded">ثبت تغییرات</button>
                                 <button type="button" class="bg-gray-500 text-white px-2 py-1 rounded cancel-reward-btn">لغو</button>
                             </div>
@@ -305,7 +359,7 @@ if (!empty($success_message)) {
                     <option value="girl" <?php selected($gender, 'girl'); ?>>دختر</option>
                     <option value="boy" <?php selected($gender, 'boy'); ?>>پسر</option>
                 </select>
-                <input type="number" name="points" value="<?php echo esc_attr($points); ?>" class="border p-1 w-full">
+                <input type="number" name="points" value="<?php echo esc_attr($points); ?>" min="0" class="border p-1 w-full">
                 <input type="file" name="profile_image" class="border p-1 w-full">
                 <button type="submit" name="del_photo" class="bg-red-500 text-white px-4 py-2 rounded mt-2">حذف عکس</button>
                 <button type="submit" name="save_member" class="bg-green-500 text-white px-4 py-2 rounded mt-2">ثبت تغییرات</button>
@@ -342,7 +396,7 @@ if (!empty($success_message)) {
                         <!-- فرم ویرایش وظیفه -->
                         <div class="task-edit hidden flex flex-col gap-1 mt-2">
                             <input type="text" name="tasks[<?php echo esc_attr($task['id']); ?>][title]" value="<?php echo esc_attr($task['title']); ?>" class="border p-1 w-full">
-                            <input type="number" name="tasks[<?php echo esc_attr($task['id']); ?>][points]" value="<?php echo esc_attr($task['points']); ?>" class="border p-1 w-full">
+                            <input type="number" name="tasks[<?php echo esc_attr($task['id']); ?>][points]" value="<?php echo esc_attr($task['points']); ?>" min="0" class="border p-1 w-full">
                             <select name="tasks[<?php echo esc_attr($task['id']); ?>][done]" class="border p-1 w-full">
                                 <option value="1" <?php selected($task['done'], 1); ?>>انجام شده</option>
                                 <option value="0" <?php selected($task['done'], 0); ?>>انجام نشده</option>
