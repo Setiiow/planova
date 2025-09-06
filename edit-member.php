@@ -48,6 +48,8 @@ $points        = get_user_meta($member_id, 'points', true);
 $profile_image = get_user_meta($member_id, 'profile_image', true);
 $tasks         = get_user_meta($member_id, '_member_tasks', true);
 $tasks         = is_array($tasks) ? $tasks : [];
+$rewards       = get_user_meta($member_id, '_member_rewards', true);
+$rewards       = is_array($rewards) ? $rewards : [];
 
 // پردازش فرم
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -198,7 +200,43 @@ if (!empty($success_message)) {
 ?>
 
 <?php if ($member_data): ?>
-    <div class="bg-gray-50 rounded-lg shadow p-4 text-center member-card max-w-md mx-auto" data-member-id="<?php echo $member_id; ?>">
+    <?php if (!empty($rewards) && is_array($rewards)): ?>
+        <div class="reward-view mb-5">
+            <h2 class="text-lg font-bold mb-4">وظایف عضو</h2>
+            <ul class="space-y-2">
+                <?php foreach ($rewards as $index => $reward): ?>
+                    <form method="post" enctype="multipart/form-data" class="flex flex-col items-center">
+                        <li class="flex justify-between items-center border-b pb-2" data-task-index="<?php echo $index; ?>">
+                            <div class="task-view flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <img src="<?php echo esc_url($reward['image']); ?>"
+                                        alt="<?php echo esc_attr($reward['title']); ?>"
+                                        class="w-24 h-24 mx-auto rounded-full object-cover mb-3 member-img">
+                                    <span><?php echo esc_html($reward['title']); ?></span>
+                                    <span class="mr-2 text-green-700">(امتیاز: <?php echo esc_html($reward['points']); ?>)</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button type="button" class="bg-blue-500 text-white px-2 py-1 rounded edit-reward-btn">ویرایش</button>
+                                    <button type="submit" name="delete_reward" value="<?php echo esc_attr($reward['id']); ?>" class="bg-red-500 text-white px-2 py-1 rounded del-task-btn">حذف</button>
+                                </div>
+                            </div>
+                            <!-- فرم ویرایش جایزه -->
+                            <div class="reward-edit hidden flex flex-col gap-1 mt-2">
+                                <input type="file" name="rewards[<?php echo esc_attr($reward['id']); ?>][image]" class="border p-1 w-full">
+                                <input type="text" name="rewards[<?php echo esc_attr($reward['id']); ?>][title]" value="<?php echo esc_attr($reward['title']); ?>" class="border p-1 w-full">
+                                <input type="number" name="rewards[<?php echo esc_attr($reward['id']); ?>][points]" value="<?php echo esc_attr($reward['points']); ?>" class="border p-1 w-full">
+                                <button type="submit" name="save_reward" value="<?php echo esc_attr($reward['id']); ?>" class="bg-green-500 text-white px-2 py-1 rounded">ثبت تغییرات</button>
+                                <button type="button" class="bg-gray-500 text-white px-2 py-1 rounded cancel-reward-btn">لغو</button>
+                            </div>
+                        </li>
+                    </form>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php else: ?>
+        <p class="mt-4 text-gray-600">هنوز جایزه ای برای این عضو ثبت نشده است.</p>
+    <?php endif; ?>
+    <div class="bg-gray-50 rounded-lg shadow p-4 text-center member-card max-w-xl mx-auto" data-member-id="<?php echo $member_id; ?>">
         <form method="post" enctype="multipart/form-data" class="flex flex-col items-center">
             <input type="hidden" name="member_id" value="<?php echo $member_id; ?>">
 
@@ -227,7 +265,7 @@ if (!empty($success_message)) {
                 <button type="submit" name="save_member" class="bg-green-500 text-white px-4 py-2 rounded mt-2">ثبت تغییرات</button>
                 <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded mt-1 cancel-btn">لغو</button>
             </div>
-
+        </form>
     </div>
 <?php endif; ?>
 
@@ -237,42 +275,44 @@ if (!empty($success_message)) {
         <h2 class="text-lg font-bold mb-4">وظایف عضو</h2>
         <ul class="space-y-2">
             <?php foreach ($tasks as $index => $task): ?>
-                <li class="flex justify-between items-center border-b pb-2" data-task-index="<?php echo $index; ?>">
-                    <div class="task-view flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <span><?php echo esc_html($task['title']); ?></span>
-                            <span class="mr-2 text-green-700">(امتیاز: <?php echo esc_html($task['points']); ?>)</span>
-                            <?php if (!empty($task['done']) && $task['done'] == 1): ?>
-                                <span class="text-green-600 font-semibold">انجام شده ✅</span>
-                            <?php else: ?>
-                                <span class="text-red-600 font-semibold">انجام نشده ❌</span>
-                            <?php endif; ?>
+                <form method="post" enctype="multipart/form-data" class="flex flex-col items-center">
+                    <li class="flex justify-between items-center border-b pb-2" data-task-index="<?php echo $index; ?>">
+                        <div class="task-view flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span><?php echo esc_html($task['title']); ?></span>
+                                <span class="mr-2 text-green-700">(امتیاز: <?php echo esc_html($task['points']); ?>)</span>
+                                <?php if (!empty($task['done']) && $task['done'] == 1): ?>
+                                    <span class="text-green-600 font-semibold">انجام شده ✅</span>
+                                <?php else: ?>
+                                    <span class="text-red-600 font-semibold">انجام نشده ❌</span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" class="bg-blue-500 text-white px-2 py-1 rounded edit-task-btn">ویرایش</button>
+                                <button type="submit" name="delete_task" value="<?php echo esc_attr($task['id']); ?>" class="bg-red-500 text-white px-2 py-1 rounded del-task-btn">حذف</button>
+                            </div>
                         </div>
-                        <div class="flex gap-2">
-                            <button type="button" class="bg-blue-500 text-white px-2 py-1 rounded edit-task-btn">ویرایش</button>
-                            <button type="submit" name="delete_task" value="<?php echo esc_attr($task['id']); ?>" class="bg-red-500 text-white px-2 py-1 rounded del-task-btn">حذف</button>
-                        </div>
-                    </div>
 
-                    <!-- فرم ویرایش وظیفه -->
-                    <div class="task-edit hidden flex flex-col gap-1 mt-2">
-                        <input type="text" name="tasks[<?php echo esc_attr($task['id']); ?>][title]" value="<?php echo esc_attr($task['title']); ?>" class="border p-1 w-full">
-                        <input type="number" name="tasks[<?php echo esc_attr($task['id']); ?>][points]" value="<?php echo esc_attr($task['points']); ?>" class="border p-1 w-full">
-                        <select name="tasks[<?php echo esc_attr($task['id']); ?>][done]" class="border p-1 w-full">
-                            <option value="1" <?php selected($task['done'], 1); ?>>انجام شده</option>
-                            <option value="0" <?php selected($task['done'], 0); ?>>انجام نشده</option>
-                        </select>
-                        <button type="submit" name="save_task" value="<?php echo esc_attr($task['id']); ?>" class="bg-green-500 text-white px-2 py-1 rounded">ثبت تغییرات</button>
-                        <button type="button" class="bg-gray-500 text-white px-2 py-1 rounded cancel-task-btn">لغو</button>
-                    </div>
-                </li>
+                        <!-- فرم ویرایش وظیفه -->
+                        <div class="task-edit hidden flex flex-col gap-1 mt-2">
+                            <input type="text" name="tasks[<?php echo esc_attr($task['id']); ?>][title]" value="<?php echo esc_attr($task['title']); ?>" class="border p-1 w-full">
+                            <input type="number" name="tasks[<?php echo esc_attr($task['id']); ?>][points]" value="<?php echo esc_attr($task['points']); ?>" class="border p-1 w-full">
+                            <select name="tasks[<?php echo esc_attr($task['id']); ?>][done]" class="border p-1 w-full">
+                                <option value="1" <?php selected($task['done'], 1); ?>>انجام شده</option>
+                                <option value="0" <?php selected($task['done'], 0); ?>>انجام نشده</option>
+                            </select>
+                            <button type="submit" name="save_task" value="<?php echo esc_attr($task['id']); ?>" class="bg-green-500 text-white px-2 py-1 rounded">ثبت تغییرات</button>
+                            <button type="button" class="bg-gray-500 text-white px-2 py-1 rounded cancel-task-btn">لغو</button>
+                        </div>
+                    </li>
+                </form>
             <?php endforeach; ?>
         </ul>
     </div>
 <?php else: ?>
     <p class="mt-4 text-gray-600">هنوز وظیفه‌ای برای این عضو ثبت نشده است.</p>
 <?php endif; ?>
-</form>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
