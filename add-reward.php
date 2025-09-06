@@ -130,7 +130,7 @@ get_header();
         </label>
 
         <label>امتیاز جایزه:
-            <input type="number" name="reward_points" value="<?php echo esc_attr($_POST['reward_points'] ?? '') ?>" class="border p-2 w-full" min="0" required>
+            <input type="number" name="reward_points" value="<?php echo esc_attr($_POST['reward_points'] ?? '') ?>" min="0" class="border p-2 w-full" min="0" required>
         </label>
 
         <label>تصویر جایزه:
