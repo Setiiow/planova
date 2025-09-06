@@ -77,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         update_user_meta($member_id, '_member_tasks', $tasks);
+        $points = get_user_meta($member_id, 'points', true);
         $success_message = 'تغییرات وظیفه با موفقیت ذخیره شد.';
     }
 
