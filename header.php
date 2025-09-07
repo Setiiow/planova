@@ -10,33 +10,39 @@
 
 <body <?php body_class("bg-gray-100 text-gray-600"); ?>>
 
-  <header class="bg-purple1 border-b-3 border-[#f4c056] text-white">
-    <div class="max-w-[1100px] mx-auto flex items-center justify-between px-4 py-4">
+  <header class="bg-purple1 border-b-4 border-[#f4c056] text-white rounded-b-4xl">
+    <div class="max-w-[1100px] mx-auto flex items-center justify-between px-4 py-4 relative">
 
-      <!-- لوگو سمت راست -->
-      <div class="flex-none flex ">
+      <!--(منوی همبرگری (سمت راست -->
+      <button id="hamburger-btn" class="p-2 md:hidden z-20">
+        <i class="fa fa-bars text-yellow1 text-2xl"></i>
+      </button>
+
+      <!-- لوگو -->
+      <div class="flex-1 flex justify-center md:justify-start">
         <?php if (function_exists("the_custom_logo")) {
           the_custom_logo();
         } ?>
       </div>
 
-      <!-- منوی اصلی وسط هدر -->
-      <?php
-      wp_nav_menu([
-        'theme_location' => 'header_menu',
-        'container' => false,
-        'menu_class' => 'flex gap-6',
-        'walker' => new class extends Walker_Nav_Menu {
-          function start_el(&$output, $item, $depth = 0, $args = [], $id = 0)
-          {
-            $active = in_array('current-menu-item', $item->classes) ? 'border-b-2 border-yellow-400' : '';
-            $output .= '<li><a href="' . esc_url($item->url) . '" class="pb-1 hover:border-b-2 hover:border-yellow-400 ' . $active . '">'
-              . esc_html($item->title) . '</a></li>';
+      <!-- منوی اصلی وسط هدر (دسکتاپ) -->
+      <nav class="header-menu hidden md:flex absolute left-1/2 transform -translate-x-1/2 flex-row gap-6">
+        <?php
+        wp_nav_menu([
+          'theme_location' => 'header_menu',
+          'container' => false,
+          'menu_class' => 'flex gap-6',
+          'walker' => new class extends Walker_Nav_Menu {
+            function start_el(&$output, $item, $depth = 0, $args = [], $id = 0)
+            {
+              $active = in_array('current-menu-item', $item->classes) ? 'border-b-2 border-yellow-400' : '';
+              $output .= '<li><a href="' . esc_url($item->url) . '" class="pb-1 hover:border-b-2 hover:border-yellow-400 ' . $active . '">'
+                . esc_html($item->title) . '</a></li>';
+            }
           }
-        }
-      ]);
-      ?>
-
+        ]);
+        ?>
+      </nav>
 
       <!-- دکمه ورود ، انتخاب نقش -->
       <div class="flex-none flex items-center relative">
@@ -53,7 +59,10 @@
             خروج
 
             <!-- ستاره -->
-            <svg class="absolute top-0 left-1 w-3 h-3 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="absolute top-0 left-0 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
+            </svg>
+            <svg class="absolute right-1 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
             </svg>
           </a>
@@ -70,14 +79,17 @@
             ورود
 
             <!-- ستاره -->
-            <svg class="absolute top-0 left-1 w-3 h-3 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="absolute top-0 left-1 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
+            </svg>
+            <svg class="absolute right-1 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
             </svg>
           </button>
           <!-- منوی کشویی -->
           <div id="role-menu"
             class="absolute top-full mt-2 hidden flex-col 
-            bg-gradient-to-br from-[#ffffff] to-[#fefcf9]
+            bg-white
             rounded-xl shadow-xl 
             min-w-[160px] sm:min-w-[192px] 
             max-w-[85vw] sm:max-w-xs   <!-- کنترل عرض -->
@@ -111,7 +123,21 @@
       </div>
 
       <script>
-        // باز و بسته کردن منو
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const mobileMenu = document.querySelector('.mobile-menu');
+
+        hamburgerBtn.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+          const icon = hamburgerBtn.querySelector('i');
+          if (icon.classList.contains('fa-bars')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-xmark');
+          } else {
+            icon.classList.remove('fa-xmark');
+            icon.classList.add('fa-bars');
+          }
+        });
+
         const roleBtn = document.getElementById('role-btn');
         const roleMenu = document.getElementById('role-menu');
 
@@ -119,12 +145,26 @@
           roleMenu.classList.toggle('hidden');
         });
 
-        // کلیک بیرون منو = بسته شدن
         document.addEventListener('click', function(e) {
-          if (!roleBtn.contains(e.target) && !roleMenu.contains(e.target)) {
-            roleMenu.classList.add('hidden');
+          if (!roleBtn?.contains(e.target) && !roleMenu?.contains(e.target) && !hamburgerBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+            roleMenu?.classList.add('hidden');
+            mobileMenu?.classList.add('hidden');
+            hamburgerBtn.querySelector('i').classList.remove('fa-xmark');
+            hamburgerBtn.querySelector('i').classList.add('fa-bars');
           }
         });
+
+        // لوگو وسط برای صفحه‌های کوچک
+        const logoContainer = document.querySelector('.flex-1');
+
+        function checkWidth() {
+          if (window.innerWidth < 768) {
+            logoContainer.classList.add('justify-center');
+          } else {
+            logoContainer.classList.remove('justify-center');
+          }
+        }
+        window.addEventListener('resize', checkWidth);
+        checkWidth();
       </script>
-    </div>
   </header>
