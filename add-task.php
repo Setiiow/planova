@@ -48,11 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_task'])) {
 
 
             $member_tasks[] = [
+                'id' => uniqid(),      // شناسه یکتا
                 'title' => $task_title,
                 'desc' => $task_desc,
                 'points' => $task_points,
                 'assigned_by' => $leader_id,
-                'created_at' => current_time('mysql')
+                'created_at' => current_time('mysql'),
+                'done'       => 0 // 0 یعنی انجام نشده
             ];
             update_user_meta($member_id, '_member_tasks', $member_tasks);
         }

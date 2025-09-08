@@ -44,10 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_reward'])) {
             $errors[] = 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد.';
         }
 
-        $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
-        $file_type = mime_content_type($file['tmp_name']);
-        if (!in_array($file_type, $allowed_types)) {
-            $errors[] = 'فرمت تصویر معتبر نیست. فقط JPG, PNG, WEBP مجاز است.';
+        if (!empty($file['tmp_name'])) {
+            $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
+            $file_type = mime_content_type($file['tmp_name']);
+            if (!in_array($file_type, $allowed_types)) {
+                $errors[] = 'فرمت تصویر معتبر نیست. فقط JPG, PNG, WEBP مجاز است.';
+            }
+        } else {
+            $errors[] = 'مشکلی در آپلود فایل پیش آمد.';
         }
 
         if (empty($errors)) {
@@ -74,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_reward'])) {
             if (!is_array($member_rewards)) $member_rewards = [];
 
             $member_rewards[] = [
+                'id' => uniqid(),      // شناسه یکتا
                 'title' => $reward_title,
                 'points' => $reward_points,
                 'assigned_by' => $leader_id,
@@ -125,7 +130,7 @@ get_header();
         </label>
 
         <label>امتیاز جایزه:
-            <input type="number" name="reward_points" value="<?php echo esc_attr($_POST['reward_points'] ?? '') ?>" class="border p-2 w-full" min="0" required>
+            <input type="number" name="reward_points" value="<?php echo esc_attr($_POST['reward_points'] ?? '') ?>" min="0" class="border p-2 w-full" min="0" required>
         </label>
 
         <label>تصویر جایزه:

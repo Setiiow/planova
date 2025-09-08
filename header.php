@@ -1,87 +1,171 @@
 <!DOCTYPE html>
-<html <?php language_attributes(); ?> dir="rtl">
+<html <?php language_attributes(); ?>>
 
 <head>
   <meta charset="<?php bloginfo('charset'); ?>">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <?php wp_head(); ?>
-  <script src="https://cdn.tailwindcss.com"></script> <!--برای استفاده از کلاس های آماده tailwind -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body <?php body_class("bg-gray-100"); ?>>
-<?php wp_body_open(); ?><!-- برای اضافه کردن هوک افزونه ها ووردپرس-->
-<header class="relative overflow-hidden text-white" style="background: linear-gradient(135deg, #7B61FF, #8356FF); padding:40px 16px;">
 
-  <!--کانتینر اصلی هدر -->
-  <div class="max-w-[1100px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-    
-    <!-- نمایش لوگو در صورتی که وجود داشت نشان داده میشود درغیر اینصورت با نام سایت به صفحه اصلی لینک میشود  -->
-    <div class="site-branding">
-      <?php if ( function_exists('the_custom_logo') && has_custom_logo() ) {
+<body <?php body_class("bg-gray-100 text-gray-600"); ?>>
+
+  <header class="bg-purple1 border-b-4 border-[#f4c056] text-white rounded-b-4xl">
+    <div class="max-w-[1100px] mx-auto flex items-center justify-between px-4 py-4 relative">
+
+      <!--(منوی همبرگری (سمت راست -->
+      <button id="hamburger-btn" class="p-2 md:hidden z-20">
+        <i class="fa fa-bars text-yellow1 text-2xl"></i>
+      </button>
+
+      <!-- لوگو -->
+      <div class="flex-1 flex justify-center md:justify-start">
+        <?php if (function_exists("the_custom_logo")) {
           the_custom_logo();
-        } else { ?>
-          <a class="text-white font-bold text-lg no-underline" href="<?php echo esc_url(home_url('/')); ?>">
-            <?php bloginfo('name'); ?>
+        } ?>
+      </div>
+
+      <!-- منوی اصلی وسط هدر (دسکتاپ) -->
+      <nav class="header-menu hidden md:flex absolute left-1/2 transform -translate-x-1/2 flex-row gap-6">
+        <?php
+        wp_nav_menu([
+          'theme_location' => 'header_menu',
+          'container' => false,
+          'menu_class' => 'flex gap-6',
+          'walker' => new class extends Walker_Nav_Menu {
+            function start_el(&$output, $item, $depth = 0, $args = [], $id = 0)
+            {
+              $active = in_array('current-menu-item', (array) $item->classes) ? 'border-b-2 border-yellow-400' : '';
+              $output .= '<li><a href="' . esc_url($item->url) . '" class="pb-1 hover:border-b-2 hover:border-yellow-400 ' . $active . '">'
+                . esc_html($item->title) . '</a></li>';
+            }
+          }
+        ]);
+        ?>
+      </nav>
+
+      <!-- دکمه ورود ، انتخاب نقش -->
+      <div class="flex-none flex items-center relative">
+
+        <?php if (is_user_logged_in()) : ?>
+          <!-- دکمه خروج -->
+          <a href="<?php echo wp_logout_url(home_url()); ?>"
+            class="relative px-4 py-2 rounded-full font-semibold bg-[#f4c056] text-white
+              shadow-[0_6px_15px_rgba(126,103,139,0.3)]
+              hover:bg-[#efce7b] hover:text-[#7c51e0]
+              hover:shadow-[0_6px_15px_rgba(254,200,154,0.5)]
+              transition transform duration-200 ease-in-out hover:scale-105 text-sm md:text-base">
+
+            خروج
+
+            <!-- ستاره -->
+            <svg class="absolute top-0 left-0 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
+            </svg>
+            <svg class="absolute right-1 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
+            </svg>
           </a>
-      <?php } ?>
-    </div>
 
-  <!-- منوی وردپرس -->
-<nav class="main-menu flex flex-col md:flex-row gap-4">
-  <?php
-  wp_nav_menu([
-    'theme_location' => 'header_menu',
-    'container'      => false,
-    'menu_class'     => 'flex flex-col md:flex-row gap-4',
-    'walker'         => new class extends Walker_Nav_Menu {
-      function start_el(&$output, $item, $depth = 0, $args = [], $id = 0) {
-        $classes = 'px-4 py-2 rounded-full transition-colors duration-200 hover:bg-yellow-400 hover:text-purple-700';
-        $output .= '<a href="' . esc_url($item->url) . '" class="' . $classes . '">' . esc_html($item->title) . '</a>';
-      }
-    }
-  ]);
-  ?>
-</nav>
+        <?php else : ?>
+          <!-- دکمه اصلی -->
+          <button id="role-btn"
+            class="relative px-4 py-2 rounded-full font-semibold bg-[#f4c056] text-white
+             shadow-[0_6px_15px_rgba(126,103,139,0.3)]
+             hover:bg-[#efce7b] hover:text-[#7c51e0]
+             hover:shadow-[0_6px_15px_rgba(254,200,154,0.5)]
+             transition transform duration-200 ease-in-out hover:scale-105 text-sm md:text-base">
 
-<!--تب‌ها که به صفحات مختلف لینک میشوند  -->
-<nav class="header-tabs mt-6 flex justify-center gap-3">
-  <?php $current_page = get_post_field('post_name', get_post()); ?>
-  
-  <a href="/joayez" class="px-4 py-2 rounded-full font-semibold transition-colors duration-200 
-     <?php echo ($current_page=='joayez') ? 'bg-purple-700 text-yellow-400' : 'bg-yellow-400 text-purple-700 hover:bg-purple-700 hover:text-yellow-400'; ?>">
-     جوایز من
-  </a>
+            ورود
 
-  <a href="/ahdaf" class="px-4 py-2 rounded-full font-semibold transition-colors duration-200 
-     <?php echo ($current_page=='ahdaf') ? 'bg-purple-700 text-yellow-400' : 'bg-white/50 text-white hover:bg-yellow-400 hover:text-purple-700'; ?>">
-     اهداف
-  </a>
+            <!-- ستاره -->
+            <svg class="absolute top-0 left-1 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
+            </svg>
+            <svg class="absolute right-1 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
+            </svg>
+          </button>
+          <!-- منوی کشویی -->
+          <div id="role-menu"
+    class="absolute top-full mt-2 hidden flex-col 
+    bg-white
+    rounded-xl shadow-xl 
+    min-w-[160px] sm:min-w-[192px] 
+    max-w-[85vw] sm:max-w-xs   <!-- کنترل عرض -->
+    origin-top-left left-0 
+    flex text-sm sm:text-base border border-[#f4c056]
+    transition-all duration-200 ease-in-out">
 
-  <a href="/packages" class="px-4 py-2 rounded-full font-semibold transition-colors duration-200 
-     <?php echo ($current_page=='packages') ? 'bg-purple-700 text-yellow-400' : 'bg-white/50 text-white hover:bg-yellow-400 hover:text-purple-700'; ?>">
-     پکیج های آموزشی
-  </a>
-</nav>
-
-
-<!--  دکمه ورود و ثبت نام -->
-<?php if ( !is_page('login') ) : ?>
-  <div class="flex mt-4 space-x-5">
-    <a href="<?php echo esc_url(get_permalink(get_page_by_path('login'))); ?>" 
-       class="px-4 py-2 rounded-full font-semibold transition transform bg-yellow-400 text-purple-700 hover:bg-yellow-300 hover:-translate-y-1">
-      ورود سرگروه
+    <a href="<?php echo site_url('/login/'); ?>"
+      class="px-3 sm:px-4 py-2 sm:py-3 text-center font-medium 
+      bg-transparent hover:bg-[#f4c056] hover:text-white
+      text-[#7c51e0]
+      transition-all duration-200 ease-in-out
+      rounded-t-xl">
+      والدین / معلم
     </a>
-    <a href="<?php echo esc_url(get_permalink(get_page_by_path('member-login'))); ?>" 
-       class="px-4 py-2 rounded-full font-semibold transition transform bg-yellow-400 text-purple-700 hover:bg-yellow-300 hover:-translate-y-1">
-       ورود اعضا
+
+    <a href="<?php echo site_url('/member-login/'); ?>"
+      class="px-3 sm:px-4 py-2 sm:py-3 text-center font-medium 
+      bg-transparent hover:bg-[#7c51e0] hover:text-white
+      text-[#f4c056]
+      transition-all duration-200 ease-in-out
+      rounded-b-xl">
+      اعضا
     </a>
-  </div>
-<?php endif; ?>
+</div>
 
 
-  
 
-  <!-- موج پایین هدر که برا طراحی گرافیکی زیبا استفاده شده و سفید رنگ هستش  -->
-  <svg class="absolute bottom-0 left-0 w-full h-16" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">
-    <path fill="#ffffff" d="M0,30 C320,90 1120,0 1440,30 L1440 100 L0 100 Z"></path>
-  </svg>
-</header>
+
+        <?php endif; ?>
+
+      </div>
+
+      <script>
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const mobileMenu = document.querySelector('.mobile-menu');
+
+        hamburgerBtn.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+          const icon = hamburgerBtn.querySelector('i');
+          if (icon.classList.contains('fa-bars')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-xmark');
+          } else {
+            icon.classList.remove('fa-xmark');
+            icon.classList.add('fa-bars');
+          }
+        });
+
+        const roleBtn = document.getElementById('role-btn');
+        const roleMenu = document.getElementById('role-menu');
+
+        roleBtn?.addEventListener('click', () => {
+          roleMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!roleBtn?.contains(e.target) && !roleMenu?.contains(e.target) && !hamburgerBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+            roleMenu?.classList.add('hidden');
+            mobileMenu?.classList.add('hidden');
+            hamburgerBtn.querySelector('i').classList.remove('fa-xmark');
+            hamburgerBtn.querySelector('i').classList.add('fa-bars');
+          }
+        });
+
+        // لوگو وسط برای صفحه‌های کوچک
+        const logoContainer = document.querySelector('.flex-1');
+
+        function checkWidth() {
+          if (window.innerWidth < 768) {
+            logoContainer.classList.add('justify-center');
+          } else {
+            logoContainer.classList.remove('justify-center');
+          }
+        }
+        window.addEventListener('resize', checkWidth);
+        checkWidth();
+      </script>
+  </header>
