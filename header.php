@@ -10,12 +10,12 @@
 
 <body <?php body_class("bg-gray-100 text-gray-600"); ?>>
 
-  <header class="bg-purple1 border-b-4 border-[#f4c056] text-white rounded-b-4xl">
+  <header class="bg-[#fdf7f0] border-b-2 border-[#e5cfa3] text-gray-800 rounded-b-2xl">
     <div class="max-w-[1100px] mx-auto flex items-center justify-between px-4 py-4 relative">
 
       <!--(منوی همبرگری (سمت راست -->
       <button id="hamburger-btn" class="p-2 md:hidden z-20">
-        <i class="fa fa-bars text-yellow1 text-2xl"></i>
+        <i class="fa fa-bars text-[#d4a373] text-2xl"></i>
       </button>
 
       <!-- لوگو -->
@@ -35,8 +35,8 @@
           'walker' => new class extends Walker_Nav_Menu {
             function start_el(&$output, $item, $depth = 0, $args = [], $id = 0)
             {
-              $active = in_array('current-menu-item', (array) $item->classes) ? 'border-b-2 border-yellow-400' : '';
-              $output .= '<li><a href="' . esc_url($item->url) . '" class="pb-1 hover:border-b-2 hover:border-yellow-400 ' . $active . '">'
+              $active = in_array('current-menu-item', (array) $item->classes) ? 'border-b-2 border-[#d4a373]' : '';
+              $output .= '<li><a href="' . esc_url($item->url) . '" class="pb-1 hover:border-b-2 hover:border-[#d4a373] ' . $active . '">'
                 . esc_html($item->title) . '</a></li>';
             }
           }
@@ -50,19 +50,19 @@
         <?php if (is_user_logged_in()) : ?>
           <!-- دکمه خروج -->
           <a href="<?php echo wp_logout_url(home_url()); ?>"
-            class="relative px-4 py-2 rounded-full font-semibold bg-[#f4c056] text-white
-              shadow-[0_6px_15px_rgba(126,103,139,0.3)]
-              hover:bg-[#efce7b] hover:text-[#7c51e0]
-              hover:shadow-[0_6px_15px_rgba(254,200,154,0.5)]
-              transition transform duration-200 ease-in-out hover:scale-105 text-sm md:text-base">
+            class="relative px-4 py-2 rounded-full font-semibold bg-[#f7d59c] text-gray-800
+            shadow-[0_4px_10px_rgba(180,140,100,0.3)]
+            hover:bg-[#f2c57c] hover:text-gray-900
+            hover:shadow-[0_4px_10px_rgba(180,140,100,0.4)]
+            transition transform duration-200 ease-in-out hover:scale-105 text-sm md:text-base">
 
             خروج
 
             <!-- ستاره -->
-            <svg class="absolute top-0 left-0 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="absolute top-0 left-0 w-4 h-4 text-gray-600 animate-pulse" fill="#f4c056" viewBox="0 0 24 24">
               <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
             </svg>
-            <svg class="absolute right-1 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="absolute right-1 w-4 h-4 text-gray-600 animate-pulse" fill="#f4c056" viewBox="0 0 24 24">
               <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
             </svg>
           </a>
@@ -70,58 +70,71 @@
         <?php else : ?>
           <!-- دکمه اصلی -->
           <button id="role-btn"
-            class="relative px-4 py-2 rounded-full font-semibold bg-[#f4c056] text-white
-             shadow-[0_6px_15px_rgba(126,103,139,0.3)]
-             hover:bg-[#efce7b] hover:text-[#7c51e0]
-             hover:shadow-[0_6px_15px_rgba(254,200,154,0.5)]
-             transition transform duration-200 ease-in-out hover:scale-105 text-sm md:text-base">
+            class="relative px-4 py-2 rounded-full font-semibold bg-[#f7d59c] text-gray-800
+           shadow-[0_4px_10px_rgba(180,140,100,0.3)]
+           hover:bg-[#f2c57c] hover:text-gray-900
+           hover:shadow-[0_4px_10px_rgba(180,140,100,0.4)]
+           transition transform duration-200 ease-in-out hover:scale-105 text-sm md:text-base">
 
             ورود
 
             <!-- ستاره -->
-            <svg class="absolute top-0 left-1 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="absolute top-0 left-1 w-4 h-4 text-gray-600 animate-pulse" fill="#f4c056" viewBox="0 0 24 24">
               <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
             </svg>
-            <svg class="absolute right-1 w-4 h-4 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="absolute right-1 w-4 h-4 text-gray-600 animate-pulse" fill="#f4c056" viewBox="0 0 24 24">
               <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
             </svg>
           </button>
           <!-- منوی کشویی -->
           <div id="role-menu"
-    class="absolute top-full mt-2 hidden flex-col 
-    bg-white
-    rounded-xl shadow-xl 
-    min-w-[160px] sm:min-w-[192px] 
-    max-w-[85vw] sm:max-w-xs   <!-- کنترل عرض -->
-    origin-top-left left-0 
-    flex text-sm sm:text-base border border-[#f4c056]
-    transition-all duration-200 ease-in-out">
+            class="absolute top-full mt-2 hidden flex-col 
+          bg-white
+          rounded-xl shadow-lg 
+          min-w-[160px] sm:min-w-[192px] 
+          max-w-[85vw] sm:max-w-xs
+          origin-top-left left-0 
+          flex text-sm sm:text-base border border-[#e5cfa3]
+          transition-all duration-200 ease-in-out">
 
-    <a href="<?php echo site_url('/login/'); ?>"
-      class="px-3 sm:px-4 py-2 sm:py-3 text-center font-medium 
-      bg-transparent hover:bg-[#f4c056] hover:text-white
-      text-[#7c51e0]
-      transition-all duration-200 ease-in-out
-      rounded-t-xl">
-      والدین / معلم
-    </a>
+            <a href="<?php echo site_url('/login/'); ?>"
+              class="px-3 sm:px-4 py-2 sm:py-3 text-center font-medium 
+            bg-transparent hover:bg-[#f7d59c] hover:text-gray-900
+            text-gray-800
+            transition-all duration-200 ease-in-out
+            rounded-t-xl">
+              والدین / معلم
+            </a>
 
-    <a href="<?php echo site_url('/member-login/'); ?>"
-      class="px-3 sm:px-4 py-2 sm:py-3 text-center font-medium 
-      bg-transparent hover:bg-[#7c51e0] hover:text-white
-      text-[#f4c056]
-      transition-all duration-200 ease-in-out
-      rounded-b-xl">
-      اعضا
-    </a>
-</div>
-
-
-
-
+            <a href="<?php echo site_url('/member-login/'); ?>"
+              class="px-3 sm:px-4 py-2 sm:py-3 text-center font-medium 
+            bg-transparent hover:bg-[#f2c57c] hover:text-gray-900
+            text-gray-700
+            transition-all duration-200 ease-in-out
+            rounded-b-xl">
+              اعضا
+            </a>
+          </div>
         <?php endif; ?>
-
       </div>
+
+      <!-- منوی موبایل -->
+      <?php
+      wp_nav_menu([
+        'theme_location' => 'header_menu',
+        'container' => false,
+        'menu_class' => 'mobile-menu absolute top-full right-0 mt-2 hidden flex-col gap-4 bg-[#fdf7f0] text-gray-800 p-4 rounded-lg shadow-lg w-56',
+        'walker' => new class extends Walker_Nav_Menu {
+          function start_el(&$output, $item, $depth = 0, $args = [], $id = 0)
+          {
+            $output .= '<li><a href="' . esc_url($item->url) . '" class="block py-2 px-3 hover:bg-[#f2c57c] hover:text-gray-900 rounded">'
+              . esc_html($item->title) . '</a></li>';
+          }
+        }
+      ]);
+      ?>
+    </div>
+
 
       <script>
         const hamburgerBtn = document.getElementById('hamburger-btn');
