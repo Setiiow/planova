@@ -33,28 +33,84 @@ $group_password = $group['password'] ?? '';
 $group_img = $group['image'] ?? '';
 $leader_name    = get_the_author_meta('display_name', $user_id);
 
-if ($group_name) {
-    echo '<div class="bg-white shadow-md rounded p-4 mb-4">';
-    echo '<h2 class="text-xl font-bold mb-4">گروه شما</h2>';
-    echo '<div class="flex flex-wrap gap-6 items-center">';
-    echo '<p><strong>نام گروه:</strong> <span class="text-blue-600">' . esc_html($group_name) . '</span></p>';
-    echo '<p><strong>نام سرگروه:</strong> <span class="text-green-600">' . esc_html($leader_name) . '</span></p>';
-    echo '<p><strong>عکس گروه: </strong><img src="' . esc_url($group_img) . '" alt="Group Image" class="w-32 h-32 object-cover rounded"></p>';
-    echo '<p><strong>رمز گروه:</strong> <span class="text-red-600">' . esc_html($group_password) . '</span></p>';
-    echo '</div>';
-    echo '<a href="' . esc_url(home_url('/group-settings')) . '" 
-        class="inline-block bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition">
-        ⚙️ تنظیمات گروه
-      </a>';
+if ($group_name) : ?>
+    <div class="relative ">
+        <div class="flex flex-wrap pb-11 gap-6 items-center justify-between relative flex-col sm:flex-row">
+
+            <div class="flower relative w-65 h-60 mt-5 sm:w-72 sm:h-72 md:mr-15 lg:w-100 lg:h-90 flex-shrink-0 mx-auto my-auto lg:ml-auto lg:mr-25">
+
+                <!-- دایره‌ها پشت عکس -->
+                <div class="absolute w-35 h-35 sm:w-36 sm:h-36 lg:w-48 lg:h-48 
+                bg-[#edbabc] rounded-full top-0 left-1/3 opacity-60"></div>
+
+                <div class="absolute w-35 h-35 sm:w-36 sm:h-36 lg:w-48 lg:h-48 
+                bg-[#f2c57c] rounded-full bottom-0 left-0 opacity-60"></div>
+
+                <div class="absolute w-35 h-35 sm:w-36 sm:h-36 lg:w-48 lg:h-48 
+                bg-[#b48c64] rounded-full bottom-0 right-0 opacity-60"></div>
+
+                <!-- تصویر وسط -->
+                <div class="absolute rounded-xl top-1/2 left-1/2 transform 
+                -translate-x-1/2 -translate-y-1/2 
+                w-28 h-28 sm:w-36 sm:h-36 lg:w-45 lg:h-45 
+                overflow-hidden border-4 border-[#6B4C3B] shadow-lg bg-[#6B4C3B]">
+                    <img src="<?php echo esc_url($group_img); ?>" alt="Group Image" class="w-full h-full object-cover">
+                </div>
+
+                <!-- دایره -->
+                <div class="absolute top-[5%] left-[10%] w-6 h-6 bg-blue-500 rounded-full animate-bounce"></div>
+
+                <!-- مربع -->
+                <div class="absolute top-[20%] right-[10%] w-6 h-6 bg-green-500 animate-ping"></div>
+
+                <!-- مثلث -->
+                <div class="absolute bottom-[15%] left-[20%] w-0 h-0 border-l-[12px] border-r-[12px] border-b-[20px] border-l-transparent border-r-transparent border-b-yellow-500 animate-pulse"></div>
+
+                <!-- ستاره -->
+                <div class="absolute bottom-[10%] right-[20%] text-yellow-400 animate-spin">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                        <path d="M12 2l2.9 6.9L22 9.7l-5 4.8L18 22l-6-3.2L6 22l1-7.5-5-4.8 7.1-1L12 2z" />
+                    </svg>
+                </div>
+
+            </div>
+            <!-- متن‌ها  -->
+            <div class="flex-1 flex flex-col gap-6 sm:gap-8">
+                <p class="bg-[#6B4C3B] text-[#f7d59c] lg:mt-5 sm:mt-5 text-2xl sm:ml-5 md:mt-15 md:ml-5 lg:mx-10 md:text-3xl sm:text-xl lg:text-4xl font-bold rounded-full py-3 px-4 sm:px-8 text-center break-words"><?php echo esc_html($group_name); ?>
+                </p>
+
+                <div class="flex flex-col lg:mt-2 gap-4 sm:gap-6 md:ml-15 sm:ml-8">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 lg:mr-20 lg:mr-10">
+                        <strong class="bg-[#edbabc] px-4 sm:px-6 py-2 rounded-md text-center whitespace-normal break-words">سرگروه</strong>
+                        <p class="font-semibold text-right break-words text-center sm:text-left"><?php echo esc_html($leader_name); ?></p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 lg:mr-20 lg:mx-30">
+                        <strong class="bg-[#edbabc] px-4 sm:px-6 py-2 rounded-md text-center whitespace-normal break-words">رمز گروه</strong>
+                        <p class="font-semibold break-words text-center sm:text-left"><?php echo esc_html($group_password); ?></p>
+                    </div>
+                </div>
+
+                <!-- دکمه تنظیمات گروه -->
+                <div class="flex justify-center lg:-mt-1 md:-mt-4">
+                    <a href="<?php echo esc_url(home_url('/group-settings')); ?>"
+                        class="font-semibold bg-[#f2c57c] text-[#6B4C3B] px-6 py-3 sm:px-8 sm:py-4 rounded-lg shadow-md hover:bg-[#f2c57c] hover:text-[#8B5E3C] hover:shadow-lg transition">
+                        ⚙️ تنظیمات گروه
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    <?php else : ?>
+        <p>شما هنوز گروهی ایجاد نکرده‌اید.</p>
+<?php endif;
+       
+
     echo '<a href="' . esc_url(home_url('/add-member')) . '" 
         class="fixed bottom-6 right-6 bg-blue-600 text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg text-3xl hover:bg-blue-700">
         +
       </a>';
 
     echo '</div>';
-} else {
-    echo '<p>شما هنوز گروهی ایجاد نکرده‌اید.</p>';
-}
 
 
 if (is_array($members) && !empty($members)) {
