@@ -79,3 +79,14 @@ function planova_load_media_functions() {
     require_once(ABSPATH . 'wp-admin/includes/image.php');
 }
 add_action('init', 'planova_load_media_functions');
+
+// بارگزاری IRANYekanX فونت
+function mytheme_enqueue_fonts() {
+    wp_enqueue_style(
+        'fontiran',
+        get_template_directory_uri() . '/assets/fontiran.css',
+        array(),
+        null
+    );
+}
+add_action('wp_enqueue_scripts', 'mytheme_enqueue_fonts');
