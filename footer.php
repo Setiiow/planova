@@ -1,6 +1,6 @@
-<footer class="bg-[#fdf7f0] border-t-2 border-[#e5cfa3] text-gray-800 rounded-t-2xl">
+<footer class="bg-[#fdf7f0] border-t-2 border-[#e5cfa3] text-gray-800 rounded-t-4xl">
   <div class="max-w-[1100px] mx-auto flex flex-col md:flex-row justify-between items-start px-4 py-10 gap-6">
-    
+
     <!-- ستون راست: لوگو + درباره ما --><!-- ستون راست: لوگو + درباره ما -->
     <div class="flex-1 flex flex-col md:flex-row items-center md:items-start justify-center md:justify-end gap-4 order-1">
 

@@ -10,7 +10,7 @@
 
 <body <?php body_class("bg-gray-100 text-gray-600"); ?>>
 
-  <header class="bg-[#fdf7f0] border-b-2 border-[#e5cfa3] text-gray-800 rounded-b-2xl">
+  <header class="bg-[#fdf7f0] border-b-2 border-[#e5cfa3] text-[#6B4C3B] rounded-b-4xl font-semibold">
     <div class="max-w-[1100px] mx-auto flex items-center justify-between px-4 py-4 relative">
 
       <!--(منوی همبرگری (سمت راست -->
@@ -50,19 +50,19 @@
         <?php if (is_user_logged_in()) : ?>
           <!-- دکمه خروج -->
           <a href="<?php echo wp_logout_url(home_url()); ?>"
-            class="relative px-4 py-2 rounded-full font-semibold bg-[#f7d59c] text-gray-800
+            class="relative px-4 py-2 rounded-full font-semibold bg-[#f7d59c] text-[#6B4C3B]
             shadow-[0_4px_10px_rgba(180,140,100,0.3)]
-            hover:bg-[#f2c57c] hover:text-gray-900
+            hover:bg-[#f2c57c] hover:text-[#8B5E3C]
             hover:shadow-[0_4px_10px_rgba(180,140,100,0.4)]
             transition transform duration-200 ease-in-out hover:scale-105 text-sm md:text-base">
 
             خروج
 
             <!-- ستاره -->
-            <svg class="absolute top-0 left-0 w-4 h-4 text-gray-600 animate-pulse" fill="#f4c056" viewBox="0 0 24 24">
+            <svg class="absolute top-0 left-0 w-4 h-4 text-gray-600 animate-pulse" fill="#eae78eff" viewBox="0 0 24 24">
               <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
             </svg>
-            <svg class="absolute right-1 w-4 h-4 text-gray-600 animate-pulse" fill="#f4c056" viewBox="0 0 24 24">
+            <svg class="absolute right-1 w-4 h-4 text-gray-600 animate-pulse" fill="#fcf882ff" viewBox="0 0 24 24">
               <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
             </svg>
           </a>
@@ -70,19 +70,19 @@
         <?php else : ?>
           <!-- دکمه اصلی -->
           <button id="role-btn"
-            class="relative px-4 py-2 rounded-full font-semibold bg-[#f7d59c] text-gray-800
+            class="relative px-4 py-2 rounded-full font-semibold bg-[#f7d59c] text-[#6B4C3B]
            shadow-[0_4px_10px_rgba(180,140,100,0.3)]
-           hover:bg-[#f2c57c] hover:text-gray-900
+           hover:bg-[#f2c57c] hover:text-[#8B5E3C]
            hover:shadow-[0_4px_10px_rgba(180,140,100,0.4)]
            transition transform duration-200 ease-in-out hover:scale-105 text-sm md:text-base">
 
             ورود
 
             <!-- ستاره -->
-            <svg class="absolute top-0 left-1 w-4 h-4 text-gray-600 animate-pulse" fill="#f4c056" viewBox="0 0 24 24">
+            <svg class="absolute top-0 left-1 w-4 h-4 text-gray-600 animate-pulse" fill="#fcf882ff" viewBox="0 0 24 24">
               <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
             </svg>
-            <svg class="absolute right-1 w-4 h-4 text-gray-600 animate-pulse" fill="#f4c056" viewBox="0 0 24 24">
+            <svg class="absolute right-1 w-4 h-4 text-gray-600 animate-pulse" fill="#fcf882ff" viewBox="0 0 24 24">
               <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
             </svg>
           </button>
