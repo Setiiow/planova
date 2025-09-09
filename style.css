@@ -19,13 +19,16 @@ body {
 }
 
 .bg-yellow1 {
-    background-color: #f4c056;
+    background-color: #e5cfa3;
 }
 .bg-yellow2 {
     background-color: #fec89a;
 }
+.bg-yellow2 {
+    background-color: #f2c57c;
+}
 .text-blue1 {
-    color: #428EFF;
+    color: #d4a373;
 }
 .text-yellow1 {
     color: #f4c056;
@@ -36,7 +39,7 @@ body {
 }
 
 .bg-purple1 {
-    background-color: #7c51e0;
+    background-color: #e5cfa3;
 }
 
 html, body {
@@ -50,4 +53,34 @@ main {
   flex: 1; 
 }
 
+.wpcf7-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    margin: auto;
+}
+
+.wpcf7-form input,
+.wpcf7-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: IRANYekanX, Tahoma;
+}
+
+.wpcf7-form input[type="submit"] {
+    background-color: #f4c056;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.wpcf7-form input[type="submit"]:hover {
+    background-color: #e5cfa3;
+}
 
