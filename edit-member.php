@@ -91,10 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
 
                     if (empty($errors)) {
-                        require_once(ABSPATH . 'wp-admin/includes/file.php');
-                        require_once(ABSPATH . 'wp-admin/includes/media.php');
-                        require_once(ABSPATH . 'wp-admin/includes/image.php');
-
                         $upload = wp_handle_upload($file_array, ['test_form' => false]);
                         if (!empty($upload['url'])) {
                             $rewards[$index]['image'] = esc_url($upload['url']);

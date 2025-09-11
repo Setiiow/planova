@@ -53,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // آپلود تصویر جدید اگر انتخاب شد
         if (!empty($_FILES['group_image']['name'])) {
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
             $uploaded = wp_handle_upload($_FILES['group_image'], ['test_form' => false]);
             if (!isset($uploaded['error'])) {
                 $group_data['image'] = $uploaded['url'];

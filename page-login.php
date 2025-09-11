@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['wp-submit'])) {
         <button type="submit" name="wp-submit" class="bg-blue-500 text-white p-2 rounded">ورود</button>
         <p class="mt-4 text-sm">
             هنوز ثبت‌نام نکردید؟ 
-            <a href="<?php echo esc_url(get_permalink(get_page_by_path('register'))); ?>" class="text-blue-500 hover:underline">
+            <a href="<?php echo esc_url(home_url('/register')); ?>" class="text-blue-500 hover:underline">
                 اینجا کلیک کنید
             </a>
         </p>
