@@ -76,12 +76,12 @@ if ($group_name) : ?>
             </div>
             <!-- متن‌ها  -->
             <div class="flex-1 flex flex-col gap-6 sm:gap-8">
-                <p class="relative bg-[#6B4C3B] text-[#f7d59c] lg:mt-5 sm:mt-5 text-2xl sm:ml-5 md:mt-15 md:ml-5 lg:mx-10 md:text-3xl sm:text-xl lg:text-4xl font-bold rounded-full py-3 px-4 sm:px-8 text-center break-words opacity-70"><?php echo esc_html($group_name); ?>
-                 <!-- ستاره -->
-                <svg class="absolute top-0 left-0 w-12 h-12 text-gray-600 animate-pulse" fill="#eae78eff" viewBox="0 0 24 24">
-                <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
-                </svg>
-            </p>
+                <p class="relative bg-[#6B4C3B] text-[#f7d59c] lg:mt-5 sm:mt-5 text-2xl sm:ml-5 md:mt-15 md:ml-5 lg:mx-15 md:text-3xl sm:text-xl lg:text-4xl font-bold rounded-sm py-3 px-4 sm:px-8 text-center break-words opacity-70"><?php echo esc_html($group_name); ?>
+                    <!-- ستاره -->
+                    <svg class="absolute -top-5 -left-3 w-12 h-12 text-gray-600 animate-pulse" fill="#f4de37ff" viewBox="0 0 24 24">
+                        <path d="M12 0L14.5 7.5L22.5 8.5L16.5 13L18 21L12 17.5L6 21L7.5 13L1.5 8.5L9.5 7.5L12 0Z" />
+                    </svg>
+                </p>
 
                 <div class="flex flex-col lg:mt-2 gap-4 sm:gap-6 md:ml-15 sm:ml-8">
                     <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 lg:mr-20 lg:mr-10">
@@ -106,84 +106,93 @@ if ($group_name) : ?>
 
     <?php else : ?>
         <p>شما هنوز گروهی ایجاد نکرده‌اید.</p>
-        <?php endif;
+    <?php endif;
+
+echo '</div>';
 
 
+if (is_array($members) && !empty($members)) : ?>
+        <div class="relative bg-[#f2d8c2] shadow-md rounded p-4 mt-15 -mr-4">
 
+            <div class="flex items-center mb-4">
+                <h2 class="bg-[#6B4C3B] text-[#f7d59c] rounded-tl-full -mt-8 rounded-bl-full flex justify-center w-60 p-2 text-xl font-bold">
+                    اعضای گروه
+                </h2>
+                <a href="<?php echo esc_url(home_url('/add-member')); ?>"
+                    class="bottom-6 right-6 bg-[#f3ead6] text-[#6B4C3B] shadow-[0_4px_10px_rgba(107,76,59,0.3)] hover:shadow-[0_15px_30px_rgba(107,76,59,0.5)]
+                     mr-3 -mt-10 w-14 h-14 flex items-center justify-center rounded-full text-3xl hover:bg-[#edbabc]">
+                    +
+                </a>
+            </div>
 
-    echo '</div>';
+            <!-- برای اسکرول افقی -->
+            <div class="relative">
+                <!-- دکمه‌های اسکرول -->
+                <button id="scroll-left"
+                    class="absolute left-0 top-1/2 -translate-y-1/2 bg-[#6B4C3B] text-white w-8 h-8 rounded-full shadow-lg flex items-center justify-center z-10">></button>
+                <button id="scroll-right"
+                    class="absolute right-0 top-1/2 -translate-y-1/2 bg-[#6B4C3B] text-white w-8 h-8 rounded-full shadow-lg flex items-center justify-center z-10">
+                </button>
 
+                <!-- کانتینر اعضا -->
+                <div id="members-container" class="overflow-x-auto scroll-smooth flex gap-2 px-4 sm:px-6 py-2 ">
+                    <?php
+                    $colors = ['bg-[#ddbea9]', 'bg-[#f3ead6]'];
+                    foreach ($members as $index => $member_id) :
+                        $member_data = get_userdata($member_id);
+                        if (!$member_data) continue;
+                        $member_name     = esc_html($member_data->first_name);
+                        $member_lastname = esc_html($member_data->last_name);
+                        $member_img      = esc_html(get_user_meta($member_id, 'profile_image', true));
+                        $member_points   = esc_html(get_user_meta($member_id, 'points', true));
 
-    if (is_array($members) && !empty($members)) {
-        echo '<div class="bg-[#f2d8c2] shadow-md rounded p-4 mt-15 -mr-4">';
-        echo '<div class="flex items-center">';
-        echo '<h2 class="bg-[#6B4C3B] text-[#f7d59c] rounded-tl-full -mt-8 rounded-bl-full flex justify-center w-60 p-2 flex py-1 text-xl font-bold mb-4">اعضای گروه</h2>';
-        echo '<a href="' . esc_url(home_url('/add-member')) . '" 
-        class="bottom-6 right-6 bg-[#f3ead6] text-[#6B4C3B] shadow-[0_4px_10px_rgba(107,76,59,0.3)] hover:shadow-[0_15px_30px_rgba(107,76,59,0.5)] mr-3 -mt-10 w-14 h-14 flex items-center justify-center rounded-full text-3xl hover:bg-[#edbabc]">
-        +
-        </a>';
-        echo '</div>';
-        echo '<div class="flex flex-wrap gap-2 sm:gap-3 px-4 sm:px-6">';
+                        $bg_color = $colors[$index % count($colors)];
+                    ?>
+                        <a href="<?php echo home_url('/edit-member?member_id=' . $member_id); ?>"
+                            class="<?php echo $bg_color; ?> min-w-[100px] sm:min-w-[120px] md:min-w-[140px] lg:min-w-[140px] p-2 shadow-[0_4px_10px_rgba(107,76,59,0.3)] rounded-4xl hover:shadow-[0_15px_30px_rgba(107,76,59,0.5)] transition
+                                flex flex-col items-center text-center
+                                mx-1 sm:mx-3 md:mx-4 my-2">
 
-        // آرایه رنگ‌ها برای اعضا
-        $colors = ['bg-[#ddbea9]', 'bg-[#f3ead6]'];
+                            <img src="<?php echo $member_img; ?>" alt="<?php echo $member_name; ?>"
+                                class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full object-cover mb-1">
 
-        foreach ($members as $index => $member_id) {
-            $member_data = get_userdata($member_id);
-            if ($member_data) {
-                $member_name     = esc_html($member_data->first_name);
-                $member_lastname     = esc_html($member_data->last_name);
-                $member_img      = esc_html(get_user_meta($member_id, 'profile_image', true));
-                $member_points   = esc_html(get_user_meta($member_id, 'points', true));
-            }
+                            <h3 class="text-sm sm:text-base md:text-lg font-semibold break-words w-full">
+                                <?php echo $member_name . '<br>' . $member_lastname; ?>
+                            </h3>
 
-            // انتخاب رنگ از آرایه به صورت چرخشی
-            $bg_color = $colors[$index % count($colors)];
-        ?>
-            <a href="<?php echo home_url('/edit-member?member_id=' . $member_id); ?>"
-                class="<?php echo $bg_color; ?> p-2 shadow-[0_4px_10px_rgba(107,76,59,0.3)] rounded-4xl hover:shadow-[0_15px_30px_rgba(107,76,59,0.5)] transition
-                    flex flex-col items-center text-center
-                    w-20 sm:w-24 md:w-28 lg:w-32 
-                    mx-1 sm:mx-3 md:mx-4 
-                    my-2">
+                            <p class="text-xs sm:text-sm text-gray-600 mt-1">⭐<?php echo $member_points; ?></p>
 
-                <img src="<?php echo $member_img; ?>" alt="<?php echo $member_name; ?>"
-                    class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full object-cover mb-1">
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
 
-                <h3 class="text-xs sm:text-sm md:text-base lg:text-base font-semibold break-words w-full">
-                    <?php echo $member_name . '<br>' . $member_lastname; ?>
-                </h3>
+    <?php else : ?>
+        <p class="mt-4 text-gray-600">هنوز عضوی به گروه اضافه نشده است.</p>
+    <?php endif; ?>
 
-                <p class="text-xs sm:text-sm text-gray-600 mt-1">⭐<?php echo $member_points; ?></p>
-
-            </a>
-    <?php }
-        echo '</div>';
-        echo '</div>';
-    } else {
-        echo '<p class="mt-4 text-gray-600">هنوز عضوی به گروه اضافه نشده است.</p>';
-    }
-    echo '<a href="' . esc_url(home_url('/add-task')) . '" 
-    class="fixed bottom-6 left-6 bg-[#6B4C3B] text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg text-2xl hover:bg-[#f3eae6]">
-    📝
-  </a>';
-    ?>
+    <!-- دکمه ایجاد تسک -->
+    <a href="<?php echo esc_url(home_url('/add-task')); ?>"
+        class="fixed bottom-6 left-6 bg-[#6B4C3B] text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg text-2xl hover:bg-[#f3eae6] z-10">
+        📝
+    </a>
     <!-- دکمه ثبت جایزه  -->
     <a href="<?php echo esc_url(home_url('/add-reward')); ?>"
         class="fixed top-24 right-6 z-50 bg-pink-500 text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg text-2xl hover:bg-pink-600 hover:scale-110 transition-transform duration-300">
         🎁
     </a>
 
-<script>
-    // بعد از 1 ثانیه پیام مخفی شود
-    setTimeout(function() {
-        const msg = document.getElementById('success-msg');
-        if (msg) {
-            msg.style.display = 'none';
-        }
-    }, 1000);
-</script>
+    <script>
+        // بعد از 1 ثانیه پیام مخفی شود
+        setTimeout(function() {
+            const msg = document.getElementById('success-msg');
+            if (msg) {
+                msg.style.display = 'none';
+            }
+        }, 1000);
+    </script>
 
-<?php
-get_footer();
-?>
+    <?php
+    get_footer();
+    ?>
