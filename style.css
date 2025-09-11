@@ -84,3 +84,21 @@ main {
     background-color: #e5cfa3;
 }
 
+#members-container::-webkit-scrollbar {
+    height: 8px; /* ارتفاع اسکرول افقی */
+}
+
+#members-container::-webkit-scrollbar-track {
+    background: #f0e5d8; /* رنگ زمینه نوار */
+    border-radius: 10px;
+}
+
+#members-container::-webkit-scrollbar-thumb {
+    background: #6b4c3b; /* رنگ دسته اسکرول */
+    border-radius: 10px;
+}
+
+.header-menu li {
+    list-style: none; /* حذف نقطه یا شماره */
+}
+
