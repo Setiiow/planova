@@ -102,3 +102,27 @@ main {
     list-style: none; /* حذف نقطه یا شماره */
 }
 
+.fancy-lines {
+  position: relative;
+  display: inline-block; /* تا فقط دور متن اعمال بشه */
+}
+
+.fancy-lines::before,
+.fancy-lines::after {
+  content: "";
+  position: absolute;
+  top: -25px;   /* بالاتر بیاد یا پایین‌تر، اینو تنظیم کن */
+  left: -10px; /* فاصله از متن */
+  width: 4px;
+  height: 25px;
+  background: #f2c57c;
+  border-radius: 20px;
+  transform: rotate(-15deg);
+}
+
+.fancy-lines::after {
+  left: 3px;        /* خط وسط نزدیک بشه */
+  height: 18px;     /* کوتاه‌تر برای وسط */
+  transform: rotate(0deg);
+  box-shadow: 18px 0 #f2c57c; /* خط سوم ساخته میشه */
+}
