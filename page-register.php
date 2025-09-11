@@ -3,10 +3,7 @@
 Template Name: Register Page
 */
 
-ob_start();
-
-get_header();
-
+$errors = ''; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
 
@@ -62,18 +59,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
             wp_redirect(home_url('/dashboard'));
             exit;
         } else {
-            echo '<p class="text-red-500">' . esc_html($user_id->get_error_message()) . '</p>';
-        }
-    } else {
-        foreach ($errors as $error) {
-            echo '<p class="text-red-500">' . esc_html($error) . '</p>';
+            $errors[] = $user_id->get_error_message();
         }
     }
 }
 ?>
-
+<?php get_header(); ?>
 <main class="max-w-screen-md mx-auto p-4">
     <h1 class="text-2xl font-bold mb-4"><?php the_title(); ?></h1>
+
+     <!-- نمایش خطاها -->
+    <?php if (!empty($errors)) : ?>
+        <div class="mb-4">
+            <?php foreach ($errors as $error): ?>
+                <p class="text-red-500"><?php echo esc_html($error); ?></p>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
     <!-- فرم ثبت‌ نام , ایجاد گروه -->
     <form method="post" class="bg-white p-4 rounded shadow-md flex flex-col gap-4">
@@ -104,6 +106,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
 </main>
 
 <?php
-ob_end_flush();
 get_footer();
 ?>

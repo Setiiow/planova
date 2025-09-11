@@ -2,8 +2,6 @@
 /*
 Template Name: Login Page
 */
-ob_start();
-get_header();
 
 $login_error = '';
 
@@ -30,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['wp-submit'])) {
     }
 }
 ?>
-
+<?php get_header(); ?>
 <main class="max-w-screen-md mx-auto p-4">
     <h1 class="text-2xl font-bold mb-4"><?php the_title(); ?></h1>
 
@@ -55,5 +53,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['wp-submit'])) {
 
 <?php
 get_footer();
-ob_end_flush();
 ?>
