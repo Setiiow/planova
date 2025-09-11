@@ -54,7 +54,7 @@
             shadow-[0_4px_10px_rgba(180,140,100,0.3)]
             hover:bg-[#f2c57c] hover:text-[#8B5E3C]
             hover:shadow-[0_4px_10px_rgba(180,140,100,0.4)]
-            transition transform duration-200 ease-in-out hover:scale-105 text-sm md:text-base">
+            transition transform duration-200 ease-in-out hover:scale-105 text-md md:text-base">
 
             خروج
 
@@ -74,7 +74,7 @@
            shadow-[0_4px_10px_rgba(180,140,100,0.3)]
            hover:bg-[#f2c57c] hover:text-[#8B5E3C]
            hover:shadow-[0_4px_10px_rgba(180,140,100,0.4)]
-           transition transform duration-200 ease-in-out hover:scale-105 text-sm md:text-base">
+           transition transform duration-200 ease-in-out hover:scale-105 text-md md:text-base">
 
             ورود
 
@@ -89,7 +89,7 @@
           <!-- منوی کشویی -->
           <div id="role-menu"
             class="absolute top-full mt-2 hidden flex-col 
-          bg-white
+          bg-white z-50
           rounded-xl shadow-lg 
           min-w-[160px] sm:min-w-[192px] 
           max-w-[85vw] sm:max-w-xs
@@ -173,9 +173,9 @@
 
         function checkWidth() {
           if (window.innerWidth < 768) {
-            logoContainer.classList.add('justify-center');
+            logoContainer.classList.add('justify-center', 'mx-auto');
           } else {
-            logoContainer.classList.remove('justify-center');
+            logoContainer.classList.remove('justify-center', 'mx-auto');
           }
         }
         window.addEventListener('resize', checkWidth);
