@@ -55,10 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_reward'])) {
         }
 
         if (empty($errors)) {
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
-            require_once(ABSPATH . 'wp-admin/includes/media.php');
-            require_once(ABSPATH . 'wp-admin/includes/image.php');
-
             $upload = media_handle_upload('member_image', 0);
             if (!is_wp_error($upload)) {
                 $member_img_url = wp_get_attachment_url($upload);
