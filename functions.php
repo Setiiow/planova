@@ -90,3 +90,62 @@ function mytheme_enqueue_fonts() {
     );
 }
 add_action('wp_enqueue_scripts', 'mytheme_enqueue_fonts');
+
+function two_posts_shortcode() {
+    $args = array(
+        'post_type'      => 'post',
+        'posts_per_page' => 2,
+        'orderby'        => 'date',
+        'order'          => 'DESC'
+    );
+    $query = new WP_Query($args);
+    ob_start();
+    if ($query->have_posts()) : ?>
+        <div class="grid gap-8 sm:grid-cols-2">
+            <?php while ($query->have_posts()) : $query->the_post(); ?>
+                
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-2xl transition transform hover:-translate-y-1 duration-300">
+                    
+                    <!-- دسکتاپ و تبلت: کارت بزرگ بالای متن -->
+                    <a href="<?php the_permalink(); ?>" class="hidden sm:block">
+                        <?php if (has_post_thumbnail()) : ?>
+                            <?php the_post_thumbnail('large', [
+                                'class' => 'w-full h-56 object-cover group-hover:scale-105 transition duration-300'
+                            ]); ?>
+                        <?php else : ?>
+                            <img src="<?php echo get_template_directory_uri(); ?>/assets/images/placeholder.png"
+                                class="w-full h-56 object-cover" alt="no image">
+                        <?php endif; ?>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-[#6B4C3B] mb-2 group-hover:text-[#f2c57c] transition">
+                                <?php the_title(); ?>
+                            </h3>
+                            <p class="text-sm text-gray-500">
+                                منتشر شده در <?php echo get_the_date('j F Y'); ?>
+                            </p>
+                        </div>
+                    </a>
+
+                    <!-- موبایل: کارت باریک افقی زیر هم -->
+                    <a href="<?php the_permalink(); ?>" class="flex sm:hidden flex-row items-center bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition p-3 mb-4">
+                        <?php if (has_post_thumbnail()) : ?>
+                            <?php the_post_thumbnail('medium', [
+                                'class' => 'w-20 h-20 object-cover rounded-lg flex-shrink-0 mr-3'
+                            ]); ?>
+                        <?php else : ?>
+                            <img src="<?php echo get_template_directory_uri(); ?>/assets/images/placeholder.png"
+                                class="w-20 h-20 object-cover rounded-lg flex-shrink-0 mr-3" alt="no image">
+                        <?php endif; ?>
+                        <div class="flex-1">
+                            <h3 class="text-base font-bold text-[#6B4C3B] mb-1"><?php the_title(); ?></h3>
+                            <p class="text-xs text-gray-500"><?php echo get_the_date('j F Y'); ?></p>
+                        </div>
+                    </a>
+
+                </div>
+            <?php endwhile; wp_reset_postdata(); ?>
+        </div>
+    <?php endif;
+    return ob_get_clean();
+}
+add_shortcode('latest_two_posts', 'two_posts_shortcode');
