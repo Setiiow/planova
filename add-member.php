@@ -6,76 +6,47 @@ get_header();
 
 // بررسی ورود کاربر
 if (! is_user_logged_in()) {
-    echo '<p>لطفاً ابتدا وارد شوید.</p>';
+    echo '<p class="text-center text-red-600 mt-10 font-bold">لطفاً ابتدا وارد شوید.</p>';
     get_footer();
     exit;
 }
 
-$user = wp_get_current_user();
+$user    = wp_get_current_user();
 $user_id = $user->ID;
 
-// بررسی نقش کاربر
-if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
-    echo '<p>شما اجازه دسترسی به این بخش را ندارید.</p>';
-    get_footer();
-    exit;
-}
+// مقداردهی اولیه برای جلوگیری از خطا
+$success_message = '';
+$errors          = [];
+$name            = '';
+$lastname        = '';
+$gender          = '';
+$member_img_url  = '';
 
-// مقدار پیش‌فرض تصاویر بر اساس جنسیت
+// پیش‌فرض تصاویر
 $default_girl_img = get_template_directory_uri() . '/assets/images/default-girl.webp';
 $default_boy_img  = get_template_directory_uri() . '/assets/images/default-boy.png';
-$member_img_url = '';
-$success_message = '';
-$name = '';
-$lastname = '';
-$gender = '';
-$errors = [];
 
+// وقتی فرم ارسال شد
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
-
-    $name = sanitize_text_field($_POST['member_name'] ?? '');
+    $name     = sanitize_text_field($_POST['member_name'] ?? '');
     $lastname = sanitize_text_field($_POST['member_lastname'] ?? '');
-    $gender = sanitize_text_field($_POST['gender'] ?? '');
+    $gender   = sanitize_text_field($_POST['gender'] ?? '');
 
     if (empty($name)) $errors[] = 'لطفاً نام عضو را وارد کنید.';
     if (empty($lastname)) $errors[] = 'لطفاً نام خانوادگی عضو را وارد کنید.';
     if (empty($gender) || !in_array($gender, ['girl', 'boy'])) $errors[] = 'لطفاً جنسیت عضو را انتخاب کنید.';
 
-    // گرفتن اعضای قبلی
-    $members = get_user_meta($user_id, '_group_members', true);
-    if (!is_array($members)) $members = [];
-
-    foreach ($members as $member_id) {
-        $member_data = get_userdata($member_id);
-        if ($member_data) {
-            if (
-                strcasecmp($member_data->first_name, $name) === 0 &&
-                strcasecmp($member_data->last_name, $lastname) === 0
-            ) {
-                $errors[] = 'این عضو قبلاً در گروه شما ثبت شده است.';
-                break;
-            }
-        }
-    }
-
-
-
-    // (با بررسی حجم و پسوند) آپلود تصویر
+    // آپلود تصویر
     if (!empty($_FILES['member_image']['name'])) {
         $file = $_FILES['member_image'];
-
-        // بررسی حجم
         if ($file['size'] > 2 * 1024 * 1024) {
             $errors[] = 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد.';
         }
-
-        // بررسی فرمت
         $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
         $file_type = mime_content_type($file['tmp_name']);
         if (!in_array($file_type, $allowed_types)) {
             $errors[] = 'فرمت تصویر معتبر نیست. فقط JPG, PNG, WEBP مجاز است.';
         }
-
         if (empty($errors)) {
             require_once(ABSPATH . 'wp-admin/includes/file.php');
             require_once(ABSPATH . 'wp-admin/includes/media.php');
@@ -89,88 +60,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
         }
     }
 
-
     if (empty($errors)) {
-
         if (empty($member_img_url)) {
             $member_img_url = ($gender === 'girl') ? $default_girl_img : $default_boy_img;
         }
 
-        // ساخت نام کاربری لاتین و یکتا
+        // ایجاد یوزر جدید
         do {
             $user_login = 'member' . rand(1000, 9999);
         } while (username_exists($user_login));
 
-        $user_pass = wp_generate_password();
+        $user_pass  = wp_generate_password();
         $user_email = $user_login . '@example.com';
-
         $new_user_id = wp_create_user($user_login, $user_pass, $user_email);
 
-        if (is_wp_error($new_user_id)) {
-            $errors[] = 'خطا در ایجاد عضو: ' . $new_user_id->get_error_message();
-        } else {
+        if (!is_wp_error($new_user_id)) {
             wp_update_user([
-                'ID' => $new_user_id,
+                'ID'         => $new_user_id,
                 'first_name' => $name,
                 'last_name'  => $lastname,
                 'role'       => 'member'
             ]);
             update_user_meta($new_user_id, 'gender', $gender);
             update_user_meta($new_user_id, 'profile_image', $member_img_url);
-            update_user_meta($new_user_id, 'points', 0); // اضافه کردن فیلد امتیاز با مقدار اولیه 0
-            // ذخیره رمز گروه در پروفایل عضو هنگام افزودن عضو جدید
-            $group_info = get_user_meta($user_id, '_group_info', true);
-            if (!empty($group_info['password'])) {
-                update_user_meta($new_user_id, 'group_password', $group_info['password']);
-            }
+            update_user_meta($new_user_id, 'points', 0);
         }
 
-        // اضافه کردن به گروه سرگروه
+        // افزودن به لیست اعضا
+        $members = get_user_meta($user_id, '_group_members', true);
+        if (!is_array($members)) $members = [];
         $members[] = $new_user_id;
         update_user_meta($user_id, '_group_members', $members);
-        $success_message = '<p class="text-green-600">عضو با موفقیت اضافه شد ✅</p>';
 
-        // خالی کردن فیلدها بعد از موفقیت
-        $name = $lastname = $member_img_url = $gender = '';
-    }
-}
+        $success_message = '<p class="text-green-600 text-center font-bold">✅ عضو با موفقیت اضافه شد</p>';
 
-// نمایش خطا 
-if (!empty($errors)) {
-    echo '<div class="bg-red-200 text-red-800 p-3 rounded mb-4">';
-    foreach ($errors as $error) {
-        echo '<p>' . esc_html($error) . '</p>';
+        $name = $lastname = $gender = $member_img_url = '';
     }
-    echo '</div>';
 }
 ?>
 
-<main class="max-w-screen-md mx-auto p-4">
-    <h2 class="text-xl font-bold mb-4">افزودن عضو</h2>
+<main class="max-w-md mx-auto p-6 bg-[#fdfaf6] rounded-2xl shadow-lg mt-10">
+    <h2 class="text-2xl font-bold text-[#6B4C3B] mb-6 text-center">✨ افزودن عضو جدید ✨</h2>
 
     <?php if ($success_message) echo $success_message; ?>
 
-    <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-md flex flex-col gap-4">
-        <label>نام عضو:
-            <input type="text" name="member_name" value="<?php echo esc_attr($name); ?>" class="border p-2 w-full" required>
-        </label>
-        <label>نام خانوادگی عضو:
-            <input type="text" name="member_lastname" value="<?php echo esc_attr($lastname); ?>" class="border p-2 w-full">
-        </label>
-        <label>جنسیت:
-            <select name="gender" class="border p-2" required>
-                <option value="girl" <?php selected($gender, 'girl'); ?>>دختر</option>
-                <option value="boy" <?php selected($gender, 'boy'); ?>>پسر</option>
-            </select>
-        </label>
-        <label>تصویر عضو:
-            <input type="file" name="member_image" class="border p-2 w-full">
+    <?php if (!empty($errors)) : ?>
+        <div class="bg-red-200 text-red-800 p-4 rounded-xl mb-6 space-y-1 font-semibold text-sm">
+            <?php foreach ($errors as $error) : ?>
+                <p>❌ <?php echo esc_html($error); ?></p>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="post" enctype="multipart/form-data" 
+          class="bg-[#fff8f0] p-6 rounded-2xl shadow-md flex flex-col gap-5 border border-[#f2c57c]/30">
+
+        <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
+            نام عضو
+            <input type="text" name="member_name" value="<?php echo esc_attr($name); ?>"
+                   class="border border-[#f2c57c]/50 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#f2c57c] w-full bg-white" required>
         </label>
 
-        <div class="flex gap-4">
-            <button type="submit" name="add_member" class="bg-blue-500 text-white px-4 py-2 rounded">افزودن عضو</button>
-            <a href="<?php echo home_url('/dashboard'); ?>" class="bg-gray-500 text-white px-4 py-2 rounded">
-                بازگشت به داشبورد
+        <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
+            نام خانوادگی
+            <input type="text" name="member_lastname" value="<?php echo esc_attr($lastname); ?>"
+                   class="border border-[#f2c57c]/50 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#f2c57c] w-full bg-white">
+        </label>
+
+        <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
+            جنسیت
+            <select name="gender" class="border border-[#f2c57c]/50 rounded-xl p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#f2c57c]" required>
+                <option value="">-- انتخاب کنید --</option>
+                <option value="girl" <?php selected($gender, 'girl'); ?>>👧 دختر</option>
+                <option value="boy" <?php selected($gender, 'boy'); ?>>👦 پسر</option>
+            </select>
+        </label>
+
+        <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
+            تصویر عضو
+            <input type="file" name="member_image"
+                   class="border-2 border-dashed border-[#f2c57c]/50 rounded-xl p-3 bg-white cursor-pointer hover:bg-[#f2c57c]/30 transition">
+        </label>
+
+        <div class="flex gap-4 justify-center mt-4">
+            <button type="submit" name="add_member"
+                    class="bg-[#f2c57c] text-[#6B4C3B] font-bold px-6 py-3 rounded-2xl shadow-md hover:bg-[#8B5E3C] hover:text-white transition">
+                ➕ افزودن
+            </button>
+            <a href="<?php echo home_url('/dashboard'); ?>"
+               class="bg-[#6B4C3B] text-white font-bold px-6 py-3 rounded-2xl shadow-md hover:bg-[#8B5E3C] transition">
+                 بازگشت
             </a>
         </div>
     </form>
