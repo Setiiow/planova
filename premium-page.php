@@ -9,7 +9,14 @@ get_header();
 
     <!-- بخش اول صفحه(مقدمه) -->
     <section class="bg-gradient-to-b from-[#fadfbb] to-[#f2c57c] text-white py-20 text-center rounded-b-4xl shadow-lg">
-        <h1 class="text-4xl md:text-5xl font-extrabold mb-4">نسخه پریمیوم؛ یک گام جلوتر</h1>
+        <div class="inline-flex items-center justify-center relative">
+            <h1 class="text-[30px] md:text-5xl font-extrabold text-[#6B4C3B]">
+                نسخه پریمیوم؛ یک گام جلوتر
+            </h1>
+            <img src="<?php echo get_template_directory_uri(); ?>/assets/images/premium.png"
+                alt="premium-icon"
+                class="mb-8 -mr-3 md:mr-0 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 -rotate-12">
+        </div>
         <p class="text-lg md:text-xl font-medium mx-2">ابزارهای پیشرفته، پشتیبانی اختصاصی و تجربه‌ای کامل برای والدین، معلمان و کودکان</p>
         <a href="#plans" class="mt-8 inline-block bg-[#6B4C3B] text-white px-6 py-3 rounded-full text-lg font-bold hover:bg-[#8B5E3C] transition transform hover:scale-105 shadow-xl">
             مشاهده پلن‌ها
@@ -38,7 +45,12 @@ get_header();
     <!-- پلن‌های پریمیوم -->
     <section id="plans" class="bg-[#fdf7f0] py-20">
         <div class="max-w-6xl mx-auto px-6 text-center">
-            <h2 class="text-3xl md:text-4xl font-extrabold mb-12">پلن‌های نسخه پریمیوم</h2>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-[#6B4C3B] relative inline-block mb-12">
+                پلن‌های نسخه پریمیوم
+                <!-- خط طلایی زیر عنوان -->
+                <span class="block w-20 h-1 bg-[#f2c57c] mx-auto mt-2 rounded-full"></span>
+            </h2>
+
             <div class="grid md:grid-cols-3 gap-8">
 
                 <!-- پلن 1 -->
@@ -56,9 +68,9 @@ get_header();
                 </div>
 
                 <!-- پلن 2 -->
-                <div class="bg-[#6B4C3B] text-white rounded-2xl shadow-xl p-10 transform scale-105">
+                <div class="bg-[#8B5E3C]/90 text-white rounded-2xl shadow-xl p-10 transform scale-105">
                     <h3 class="text-xl font-bold mb-4">سه ماهه</h3>
-                    <p class="text-4xl font-extrabold mb-6">۲۴۹,۰۰۰ تومان</p>
+                    <p class="text-4xl font-extrabold mb-6">۲۱۰,۰۰۰ تومان</p>
                     <ul class="space-y-3 mb-6">
                         <li>✔ گزارش کامل پیشرفت کودک</li>
                         <li>✔ شخصی‌سازی داشبورد</li>
@@ -72,7 +84,7 @@ get_header();
                 <!-- پلن 3 -->
                 <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-2xl transition">
                     <h3 class="text-xl font-bold mb-4">یک ساله</h3>
-                    <p class="text-4xl font-extrabold text-[#6B4C3B] mb-6">۷۹۹,۰۰۰ تومان</p>
+                    <p class="text-4xl font-extrabold text-[#6B4C3B] mb-6">۶۵۰,۰۰۰ تومان</p>
                     <ul class="space-y-3 text-gray-700 mb-6">
                         <li>✔ گزارش کامل پیشرفت کودک</li>
                         <li>✔ شخصی‌سازی داشبورد</li>
@@ -90,9 +102,11 @@ get_header();
 
     <!-- بخش مقایسه -->
     <section class="max-w-5xl mx-auto py-16 px-6">
-        <h2 class="text-2xl md:text-3xl font-extrabold text-center mb-10 text-[#6B4C3B]">
-            تفاوت نسخه رایگان و پریمیوم
-        </h2>
+        <div class="flex justify-center">
+            <h2 class="fancy-lines text-2xl md:text-3xl font-extrabold text-center mb-10 text-[#6B4C3B]">
+                تفاوت نسخه رایگان و پریمیوم
+            </h2>
+        </div>
 
         <div class="overflow-x-auto">
             <table class="w-full bg-[#fdf7f0] text-center border border-[#f2c57c]/50 rounded-2xl overflow-hidden shadow-md">
@@ -120,7 +134,7 @@ get_header();
                         <td class="text-green-600 font-bold">✔</td>
                     </tr>
                     <tr class="hover:bg-[#fdf7f0] transition">
-                        <td class="py-4 px-3 text-right font-medium">امکان چند گروه و اعضای بیشتر</td>
+                        <td class="py-4 px-3 text-right font-medium">امکان ایجاد چند گروه و اعضای بیش از 15 نفر</td>
                         <td class="text-red-500 font-bold">✖</td>
                         <td class="text-green-600 font-bold">✔</td>
                     </tr>
@@ -129,14 +143,21 @@ get_header();
         </div>
     </section>
 
-    <!-- CTA پایانی -->
-    <section class="text-center py-20 bg-gradient-to-b from-[#f2c57c] to-[#fadfbb] text-[#6B4C3B] rounded-t-4xl shadow-inner">
-        <h2 class="text-3xl md:text-4xl font-extrabold mb-6">همین امروز به پریمیوم بپیوندید</h2>
-        <p class="text-lg mb-6">با امکانات کامل و پشتیبانی اختصاصی، بهترین تجربه را برای خود و کودکانتان بسازید.</p>
-        <a href="#buy" class="inline-block bg-[#6B4C3B] text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-[#8B5E3C] transition transform hover:scale-105 shadow-lg">
-            ارتقا به پریمیوم
-        </a>
+    <!-- محتوا -->
+    <section class="text-center py-12 bg-gradient-to-b from-[#f2c57c] to-[#fadfbb] text-[#6B4C3B] rounded-t-4xl shadow-inner">
+        <h2 class="text-3xl md:text-4xl font-extrabold mb-4">همین امروز به پریمیوم بپیوندید</h2>
+        <p class="text-lg mb-4 leading-snug">با امکانات کامل و پشتیبانی اختصاصی، بهترین تجربه را برای خود و کودکانتان بسازید.</p>
+        <div class="relative inline-block">
+            <a href="#buy" class="inline-block relative bg-[#6B4C3B] text-white px-5 py-2 mt-2 rounded-full font-bold text-lg hover:bg-[#8B5E3C] transition transform hover:scale-105 shadow-lg">
+                ارتقا به پریمیوم
+            </a>
+            <!-- تصویر روی دکمه -->
+            <img src="<?php echo get_template_directory_uri(); ?>/assets/images/premium.png"
+                alt="premium-icon"
+                class="absolute -top-3 -left-3 w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-8 -rotate-12">
+        </div>
     </section>
+
 
 </main>
 
