@@ -79,7 +79,7 @@ get_header();
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 
         <!-- کارت ۱ -->
-        <div class="bg-[#f2c57c]/30 rounded-2xl p-6 shadow-md hover:shadow-xl transition">
+        <div class="bg-[#f2c57c]/30 text-center rounded-2xl p-6 shadow-md hover:shadow-xl transition">
             <h3 class="text-xl font-semibold mb-3">سرگرم‌کننده و آموزنده</h3>
             <p class="text-sm sm:text-base leading-relaxed">
                 تجربه‌ای تعاملی برای یادگیری برنامه‌ریزی و مسئولیت‌پذیری.
@@ -87,7 +87,7 @@ get_header();
         </div>
 
         <!-- کارت ۲ -->
-        <div class="bg-[#f2c57c]/30 rounded-2xl p-6 shadow-md hover:shadow-xl transition">
+        <div class="bg-[#f2c57c]/30 text-center rounded-2xl p-6 shadow-md hover:shadow-xl transition">
             <h3 class="text-xl font-semibold mb-3">تقویت مهارت‌های زندگی</h3>
             <p class="text-sm sm:text-base leading-relaxed">
                 تقویت و پیشرفت مرحله به مرحله مهارت های مدیریت زمان
@@ -95,7 +95,7 @@ get_header();
         </div>
 
         <!-- کارت ۳ -->
-        <div class="bg-[#f2c57c]/30 rounded-2xl p-6 shadow-md hover:shadow-xl transition">
+        <div class="bg-[#f2c57c]/30 text-center rounded-2xl p-6 shadow-md hover:shadow-xl transition">
             <h3 class="text-xl font-semibold mb-3">همراهی خانواده و مدارس</h3>
             <p class="text-sm sm:text-base leading-relaxed">
                 امکان تعریف وظایف و پیگیری پیشرفت بچه‌ها.
@@ -103,7 +103,7 @@ get_header();
         </div>
 
         <!-- کارت ۴ -->
-        <div class="bg-[#f2c57c]/30 rounded-2xl p-6 shadow-md hover:shadow-xl transition">
+        <div class="bg-[#f2c57c]/30 text-center rounded-2xl p-6 shadow-md hover:shadow-xl transition">
             <h3 class="text-xl font-semibold mb-3">الهام‌بخش و انگیزشی</h3>
             <p class="text-sm sm:text-base leading-relaxed">
                 ایجاد اشتیاق با سیستم تعاملی و پاداش‌دهی.
@@ -186,7 +186,7 @@ get_header();
         </div>
 
         <p class="text-center text-lg sm:text-xl mb-12 text-[#8B5E3C]">
-            پاسخ به سوالات پرتکرار شما کاربران درباره استفاده از سایت و امکانات آن </p>
+            پاسخ به سوالات پرتکرار شما کاربران درباره استفاده از پلانووا و امکانات آن </p>
         <!-- آکاردئون FAQ -->
         <div class="space-y-4">
 
@@ -216,7 +216,7 @@ get_header();
             <!-- سوال 3 -->
             <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                 <button class="w-full flex justify-between items-center p-4 text-left font-semibold text-lg hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
-                    این سایت برای چه بازه سنی مناسب است و کودکان چگونه می‌توانند به وظایف خود دسترسی داشته باشند؟
+                    پلانووا برای چه بازه سنی مناسب است و کودکان چگونه می‌توانند به وظایف خود دسترسی داشته باشند؟
                     <span class="transform transition-transform duration-300">+</span>
                 </button>
                 <div class="p-4 hidden text-gray-700 text-right">
@@ -244,7 +244,7 @@ get_header();
             <!-- سوال 5 -->
             <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                 <button class="w-full flex justify-between items-center p-4 text-left font-semibold text-lg hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
-                    آیا مدارس می‌توانند از سایت برای مدیریت کلاس و ایجاد انگیزه در دانش‌آموزان استفاده کنند؟
+                    آیا مدارس می‌توانند از پلانووا برای مدیریت کلاس و ایجاد انگیزه در دانش‌آموزان استفاده کنند؟
                     <span class="transform transition-transform duration-300">+</span>
                 </button>
                 <div class="p-4 hidden text-gray-700 text-right">
@@ -258,6 +258,7 @@ get_header();
 
 
 <script>
+    // تنظیم اسلایدهای فعلی و نمایش اسلاید بر اساس اندازه صفحه
     let currentSlide = 0;
     const slides = document.querySelectorAll(".slide");
 
@@ -290,7 +291,8 @@ get_header();
     // بروزرسانی هنگام تغییر اندازه
     window.addEventListener("resize", () => showSlide(currentSlide));
 
-    // جاوااسکریپت آکاردئون
+    //  آکاردئون FAQ 
+    // باز و بسته کردن محتوای سوالات متداول با کلیک روی دکمه
     document.querySelectorAll('.faq-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const content = btn.nextElementSibling;
