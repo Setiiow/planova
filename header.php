@@ -11,6 +11,42 @@
 <body <?php body_class("bg-gray-100 text-gray-600"); ?>>
 
   <header class="bg-[#fdf7f0] border-b-2 border-[#e5cfa3] text-[#6B4C3B] rounded-b-4xl font-semibold">
+    <?php
+    if (is_user_logged_in()) :
+      $current_user = wp_get_current_user();
+      $user_roles = (array) $current_user->roles;
+
+      // لینک بر اساس نقش
+      if (array_intersect(['parent', 'teacher'], $user_roles)) {
+        $dashboard_url = home_url('/dashboard');
+      } elseif (in_array('member', $user_roles)) {
+        $dashboard_url = home_url('/member-dashboard');
+      } else {
+        $dashboard_url = home_url();
+      }
+
+      // بررسی اینکه صفحه فعلی همان داشبورد نباشد
+      if (! is_page(array('dashboard', 'member-dashboard'))) :
+    ?>
+        <a href="<?php echo esc_url($dashboard_url); ?>"
+          class="fixed bottom-4 right-4 z-50 
+          bg-[#6B4C3B] hover:bg-[#8B5E3C] 
+          text-white text-sm sm:text-base font-medium
+          px-3 py-2 sm:px-3 sm:py-1 
+          rounded-full shadow-md 
+          transition transform hover:scale-105 hover:shadow-lg
+          flex items-center gap-1">
+          <span>داشبورد</span>
+          <!-- آیکن فلش -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </a>
+    <?php
+      endif;
+    endif;
+    ?>
+
     <div class="max-w-[1100px] mx-auto flex items-center justify-between px-4 py-4 relative">
 
       <!--(منوی همبرگری (سمت راست -->
@@ -123,7 +159,7 @@
       wp_nav_menu([
         'theme_location' => 'header_menu',
         'container' => false,
-        'menu_class' => 'mobile-menu absolute top-full right-0 mt-2 hidden flex-col gap-4 bg-[#fdf7f0] text-gray-800 p-4 rounded-lg shadow-lg w-56',
+        'menu_class' => 'mobile-menu absolute top-full right-0 mt-2 hidden flex-col gap-4 bg-[#fdf7f0] text-gray-800 p-4 rounded-lg shadow-lg w-56 z-50',
         'walker' => new class extends Walker_Nav_Menu {
           function start_el(&$output, $item, $depth = 0, $args = [], $id = 0)
           {
@@ -136,49 +172,49 @@
     </div>
 
 
-      <script>
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        const mobileMenu = document.querySelector('.mobile-menu');
+    <script>
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      const mobileMenu = document.querySelector('.mobile-menu');
 
-        hamburgerBtn.addEventListener('click', () => {
-          mobileMenu.classList.toggle('hidden');
-          const icon = hamburgerBtn.querySelector('i');
-          if (icon.classList.contains('fa-bars')) {
-            icon.classList.remove('fa-bars');
-            icon.classList.add('fa-xmark');
-          } else {
-            icon.classList.remove('fa-xmark');
-            icon.classList.add('fa-bars');
-          }
-        });
-
-        const roleBtn = document.getElementById('role-btn');
-        const roleMenu = document.getElementById('role-menu');
-
-        roleBtn?.addEventListener('click', () => {
-          roleMenu.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', function(e) {
-          if (!roleBtn?.contains(e.target) && !roleMenu?.contains(e.target) && !hamburgerBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
-            roleMenu?.classList.add('hidden');
-            mobileMenu?.classList.add('hidden');
-            hamburgerBtn.querySelector('i').classList.remove('fa-xmark');
-            hamburgerBtn.querySelector('i').classList.add('fa-bars');
-          }
-        });
-
-        // لوگو وسط برای صفحه‌های کوچک
-        const logoContainer = document.querySelector('.flex-1');
-
-        function checkWidth() {
-          if (window.innerWidth < 768) {
-            logoContainer.classList.add('justify-center', 'mx-auto');
-          } else {
-            logoContainer.classList.remove('justify-center', 'mx-auto');
-          }
+      hamburgerBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        const icon = hamburgerBtn.querySelector('i');
+        if (icon.classList.contains('fa-bars')) {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-xmark');
+        } else {
+          icon.classList.remove('fa-xmark');
+          icon.classList.add('fa-bars');
         }
-        window.addEventListener('resize', checkWidth);
-        checkWidth();
-      </script>
+      });
+
+      const roleBtn = document.getElementById('role-btn');
+      const roleMenu = document.getElementById('role-menu');
+
+      roleBtn?.addEventListener('click', () => {
+        roleMenu.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!roleBtn?.contains(e.target) && !roleMenu?.contains(e.target) && !hamburgerBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+          roleMenu?.classList.add('hidden');
+          mobileMenu?.classList.add('hidden');
+          hamburgerBtn.querySelector('i').classList.remove('fa-xmark');
+          hamburgerBtn.querySelector('i').classList.add('fa-bars');
+        }
+      });
+
+      // لوگو وسط برای صفحه‌های کوچک
+      const logoContainer = document.querySelector('.flex-1');
+
+      function checkWidth() {
+        if (window.innerWidth < 768) {
+          logoContainer.classList.add('justify-center', 'mx-auto');
+        } else {
+          logoContainer.classList.remove('justify-center', 'mx-auto');
+        }
+      }
+      window.addEventListener('resize', checkWidth);
+      checkWidth();
+    </script>
   </header>
