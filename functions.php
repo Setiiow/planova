@@ -149,3 +149,13 @@ function two_posts_shortcode() {
     return ob_get_clean();
 }
 add_shortcode('latest_two_posts', 'two_posts_shortcode');
+
+// ایجاد نقش کاربری جدید "member" با دسترسی محدود به مشاهده محتوا
+add_action('init', function() {
+    if (!get_role('member')) {
+        add_role('member', 'عضو', [
+            'read' => true, // فقط دسترسی به دیدن داشبورد
+        ]);
+    }
+});
+
