@@ -96,60 +96,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
 }
 ?>
 
-<main class="max-w-md mx-auto p-6 bg-[#fdfaf6] rounded-2xl shadow-lg mt-10">
-    <h2 class="text-2xl font-bold text-[#6B4C3B] mb-6 text-center">✨ افزودن عضو جدید ✨</h2>
+<main class="w-full bg-gradient-to-br from-[#fdfaf6] via-[#fff8f0] to-[#fdfaf6] pt-10 pb-10 px-4">
+    <div class="w-full max-w-md md:max-w-xl lg:max-w-2xl mx-auto bg-[#fff8f0] rounded-2xl shadow-lg p-6 md:p-10 border border-[#f2c57c]/30">
+        
+        <!-- عنوان اصلی فرم -->
+        <h2 class="text-2xl sm:text-3xl font-bold text-[#6B4C3B] mb-6 text-center">✨ افزودن عضو جدید ✨</h2>
 
-    <?php if ($success_message) echo $success_message; ?>
+        <!-- نمایش پیام موفقیت در صورت ثبت شدن عضو -->
+        <?php if ($success_message) echo $success_message; ?>
 
-    <?php if (!empty($errors)) : ?>
-        <div class="bg-red-200 text-red-800 p-4 rounded-xl mb-6 space-y-1 font-semibold text-sm">
-            <?php foreach ($errors as $error) : ?>
-                <p>❌ <?php echo esc_html($error); ?></p>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
+        <!-- اگر خطا وجود داشته باشد این بخش نمایش داده می‌شود -->
+        <?php if (!empty($errors)) : ?>
+            <div class="bg-red-200 text-red-800 p-4 rounded-xl mb-6 space-y-1 font-semibold text-sm sm:text-base">
+                <?php foreach ($errors as $error) : ?>
+                    <p>❌ <?php echo esc_html($error); ?></p> <!-- نمایش تک‌ تک خطاها -->
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
 
-    <form method="post" enctype="multipart/form-data" 
-          class="bg-[#fff8f0] p-6 rounded-2xl shadow-md flex flex-col gap-5 border border-[#f2c57c]/30">
+        <!-- فرم افزودن عضو -->
+        <form method="post" enctype="multipart/form-data" class="flex flex-col gap-4 pb-6">
+            
+            <!-- فیلد نام عضو -->
+            <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
+                نام عضو
+                <input type="text" name="member_name" value="<?php echo esc_attr($name); ?>"
+                       class="w-full border border-[#f2c57c]/50 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#f2c57c] bg-white">
+            </label>
 
-        <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
-            نام عضو
-            <input type="text" name="member_name" value="<?php echo esc_attr($name); ?>"
-                   class="border border-[#f2c57c]/50 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#f2c57c] w-full bg-white" required>
-        </label>
+            <!-- فیلد نام خانوادگی عضو -->
+            <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
+                نام خانوادگی
+                <input type="text" name="member_lastname" value="<?php echo esc_attr($lastname); ?>"
+                       class="w-full border border-[#f2c57c]/50 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#f2c57c] bg-white">
+            </label>
 
-        <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
-            نام خانوادگی
-            <input type="text" name="member_lastname" value="<?php echo esc_attr($lastname); ?>"
-                   class="border border-[#f2c57c]/50 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#f2c57c] w-full bg-white">
-        </label>
+            <!-- انتخاب جنسیت (دختر یا پسر) -->
+            <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
+                جنسیت
+                <select name="gender" class="w-full border border-[#f2c57c]/50 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#f2c57c] bg-white">
+                    <option value="">-- انتخاب کنید --</option>
+                    <option value="girl" <?php selected($gender, 'girl'); ?>>👧 دختر</option>
+                    <option value="boy" <?php selected($gender, 'boy'); ?>>👦 پسر</option>
+                </select>
+            </label>
 
-        <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
-            جنسیت
-            <select name="gender" class="border border-[#f2c57c]/50 rounded-xl p-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#f2c57c]" required>
-                <option value="">-- انتخاب کنید --</option>
-                <option value="girl" <?php selected($gender, 'girl'); ?>>👧 دختر</option>
-                <option value="boy" <?php selected($gender, 'boy'); ?>>👦 پسر</option>
-            </select>
-        </label>
+            <!-- آپلود تصویر عضو -->
+            <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
+                تصویر عضو
+                <input type="file" name="member_image"
+                       class="w-full border-2 border-dashed border-[#f2c57c]/50 rounded-xl p-3 bg-white cursor-pointer hover:bg-[#f2c57c]/30 transition">
+            </label>
 
-        <label class="flex flex-col gap-2 text-[#6B4C3B] font-medium">
-            تصویر عضو
-            <input type="file" name="member_image"
-                   class="border-2 border-dashed border-[#f2c57c]/50 rounded-xl p-3 bg-white cursor-pointer hover:bg-[#f2c57c]/30 transition">
-        </label>
-
-        <div class="flex gap-4 justify-center mt-4">
-            <button type="submit" name="add_member"
-                    class="bg-[#f2c57c] text-[#6B4C3B] font-bold px-6 py-3 rounded-2xl shadow-md hover:bg-[#8B5E3C] hover:text-white transition">
-                ➕ افزودن
-            </button>
-            <a href="<?php echo home_url('/dashboard'); ?>"
-               class="bg-[#6B4C3B] text-white font-bold px-6 py-3 rounded-2xl shadow-md hover:bg-[#8B5E3C] transition">
-                 بازگشت
-            </a>
-        </div>
-    </form>
+            <!-- دکمه‌ها: افزودن عضو جدید + بازگشت به داشبورد -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mt-4">
+                <button type="submit" name="add_member"
+                        class="flex-1 bg-[#f2c57c] text-[#6B4C3B] font-bold px-6 py-3 rounded-2xl shadow-md hover:bg-[#8B5E3C] hover:text-white transition transform hover:scale-105">
+                    ➕ افزودن
+                </button>
+                <a href="<?php echo home_url('/dashboard'); ?>"
+                   class="flex-1 bg-[#6B4C3B] text-white font-bold px-6 py-3 rounded-2xl shadow-md hover:bg-[#8B5E3C] transition transform hover:scale-105 text-center">
+                     بازگشت
+                </a>
+            </div>
+        </form>
+    </div>
 </main>
 
-<?php get_footer(); ?>
+<?php get_footer(); ?> <!-- نمایش فوتر سایت -->
