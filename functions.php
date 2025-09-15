@@ -1,4 +1,5 @@
 <?php
+// پشتیبانی از title-tag ،تصویر شاخص، لوگو و منوها
 function mytheme_setup()
 {
     add_theme_support('title-tag');
@@ -7,12 +8,12 @@ function mytheme_setup()
     add_theme_support('menus');
 }
 add_action('after_setup_theme', 'mytheme_setup');
-
+// ثبت منوی هدر
 register_nav_menus([
     'header_menu' => 'Header Menu',
 ]);
 
-// Enqueue CSS و Tailwind
+// بارگذاری استایل‌ها و Tailwind
 function mytheme_enqueue_scripts()
 {
     wp_enqueue_style('mytheme-style', get_stylesheet_uri());
@@ -20,6 +21,8 @@ function mytheme_enqueue_scripts()
 }
 add_action('wp_enqueue_scripts', 'mytheme_enqueue_scripts');
 
+
+// تابع تبدیل اعداد انگلیسی به فارسی
 function toPersianNumerals($input)
 {
     $english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -27,6 +30,7 @@ function toPersianNumerals($input)
     return str_replace($english, $persian, (string) $input);
 }
 
+// ایجاد نقش‌ های کاربری جدید parent و teacher
 add_action('init', function () {
     if (!get_role('parent')) {
         add_role('parent', 'والد', ['read' => true]);
@@ -36,6 +40,7 @@ add_action('init', function () {
     }
 });
 
+// جلوگیری از دسترسی کاربران غیرمدیر به داشبورد ادمین
 add_action('admin_init', function () {
     if (!current_user_can('administrator') && is_admin() && !defined('DOING_AJAX')) {
         wp_redirect(home_url('/dashboard'));
@@ -43,6 +48,7 @@ add_action('admin_init', function () {
     }
 });
 
+// ریدایرکت ورود بر اساس نقش کاربری
 add_filter('login_redirect', function ($redirect_to, $request, $user) {
     if (isset($user->roles) && is_array($user->roles)) {
         if (in_array('parent', $user->roles)) {
@@ -53,13 +59,6 @@ add_filter('login_redirect', function ($redirect_to, $request, $user) {
     }
     return $redirect_to;
 }, 10, 3);
-
-add_filter('login_url', function ($login_url) {
-    if (!is_admin()) {
-        return home_url('/login');
-    }
-    return $login_url;
-});
 
 add_action('wp_enqueue_scripts', function(){
   // استایل اصلی
@@ -91,6 +90,7 @@ function mytheme_enqueue_fonts() {
 }
 add_action('wp_enqueue_scripts', 'mytheme_enqueue_fonts');
 
+// شورت‌کد نمایش آخرین دو پست
 function two_posts_shortcode() {
     $args = array(
         'post_type'      => 'post',
@@ -137,8 +137,8 @@ function two_posts_shortcode() {
                                 class="w-20 h-20 object-cover rounded-lg flex-shrink-0 mr-3" alt="no image">
                         <?php endif; ?>
                         <div class="flex-1">
-                            <h3 class="text-base font-bold text-[#6B4C3B] mb-1"><?php the_title(); ?></h3>
-                            <p class="text-xs text-gray-500"><?php echo get_the_date('j F Y'); ?></p>
+                            <h3 class="text-base font-bold text-[#6B4C3B] mb-1 mr-3"><?php the_title(); ?></h3>
+                            <p class="text-xs text-gray-500 mr-3"><?php echo get_the_date('j F Y'); ?></p>
                         </div>
                     </a>
 
@@ -150,7 +150,7 @@ function two_posts_shortcode() {
 }
 add_shortcode('latest_two_posts', 'two_posts_shortcode');
 
-// ایجاد نقش کاربری جدید "member" با دسترسی محدود به مشاهده محتوا
+// ایجاد نقش کاربری جدید member با دسترسی محدود به مشاهده محتوا
 add_action('init', function() {
     if (!get_role('member')) {
         add_role('member', 'عضو', [
