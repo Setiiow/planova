@@ -2,12 +2,14 @@
 /* Template Name: Dashboard */
 get_header();
 
+//  بررسی ورود کاربر 
 if (! is_user_logged_in()) {
     echo '<p class="text-red-500 text-center mt-24">لطفاً ابتدا وارد شوید.</p>';
     get_footer();
     exit;
 }
 
+//  بررسی نقش کاربر 
 $user = wp_get_current_user();
 if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
     echo '<p class="text-red-500 text-center mt-24">شما اجازه دسترسی به این بخش را ندارید.</p>';
@@ -15,6 +17,7 @@ if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
     exit;
 }
 
+// گرفتن شناسه کاربر و اطلاعات گروه و اعضا
 $user_id = $user->ID;
 $errors = [];
 
@@ -33,6 +36,8 @@ $group_password = $group['password'] ?? '';
 $group_img = $group['image'] ?? '';
 $leader_name    = get_the_author_meta('display_name', $user_id);
 
+//  بخش نمایش اطلاعات گروه 
+// اگر گروه ساخته شده باشد، کارت اطلاعات گروه نمایش داده می شود
 if ($group_name) : ?>
     <section class="mt-18 flex justify-center px-4 sm:px-6">
         <div class="max-w-4xl w-full bg-gradient-to-br from-[#fff8f0] to-[#fff3e8] rounded-3xl shadow-2xl backdrop-blur-sm p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 transform transition-all duration-500 hover:scale-[1.03] hover:shadow-3xl">
@@ -59,6 +64,7 @@ if ($group_name) : ?>
                         <p class="text-base sm:text-lg font-semibold"><?php echo esc_html($group_password); ?></p>
                     </div>
                 </div>
+                <!-- دکمه‌های تنظیمات و افزودن جایزه -->
                 <div class="flex gap-3 md:gap-6">
                     <a href="<?php echo esc_url(home_url('/group-settings')); ?>" class="whitespace-nowrap bg-gradient-to-r from-[#f2c57c]/60 via-[#f2d8c2]/40 to-[#f2c57c]/60 text-[#6B4C3B] px-6 py-2 rounded-xl shadow-lg hover:shadow-2xl hover:text-[#8B5E3C] transition font-bold text-lg">
                         تنظیمات
@@ -71,9 +77,11 @@ if ($group_name) : ?>
         </div>
     </section>
 <?php else : ?>
+    <!-- پیام وقتی گروهی ایجاد نشده باشد -->
     <p class="text-center text-[#6B4C3B] mt-24 text-lg">شما هنوز گروهی ایجاد نکرده‌اید.</p>
 <?php endif; ?>
-
+<!-- بخش اعضای گروه  -->
+<!-- اگر اعضایی وجود داشته باشند، نمایش افقی اعضا -->
 <?php if (is_array($members) && !empty($members)) : ?>
     <div class="my-12 flex flex-col gap-6">
 
@@ -81,7 +89,7 @@ if ($group_name) : ?>
             <h2 class="text-[#6B4C3B] text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-[#f2c57c]/60 via-[#f2d8c2]/50 to-[#f2c57c]/60 rounded-3xl px-6 py-3 shadow-lg flex items-center gap-3">
                 اعضای گروه
             </h2>
-
+            <!-- دکمه افزودن عضو -->
             <a href="<?php echo esc_url(home_url('/add-member')); ?>"
                 class="bottom-6 right-6 from-[#f2c57c]/60 via-[#f2d8c2]/50 to-[#f2c57c]/60 text-[#6B4C3B] shadow-[0_4px_10px_rgba(107,76,59,0.3)] hover:shadow-[0_15px_30px_rgba(107,76,59,0.5)]
                      mr-3 mt-2 w-14 h-14 flex items-center justify-center rounded-full text-3xl">
@@ -90,18 +98,18 @@ if ($group_name) : ?>
 
         </div>
 
-
+        <!-- لیست اعضا -->
         <div id="members-container" class="overflow-x-auto scroll-smooth flex gap-4 px-4 sm:px-6 py-3">
             <?php
             $colors = ['bg-[#fff0e0]', 'bg-[#ffe8d0]'];
             foreach ($members as $index => $member_id) :
-                $member_data = get_userdata($member_id);
-                if (!$member_data) continue;
+                $member_data = get_userdata($member_id); // گرفتن اطلاعات کاربر بر اساس ID
+                if (!$member_data) continue; // اگر کاربر وجود نداشت، ادامه نده
                 $member_name     = esc_html($member_data->first_name);
                 $member_lastname = esc_html($member_data->last_name);
                 $member_img      = esc_html(get_user_meta($member_id, 'profile_image', true));
                 $member_points   = esc_html(get_user_meta($member_id, 'points', true));
-                $bg_color = $colors[$index % count($colors)];
+                $bg_color = $colors[$index % count($colors)]; // انتخاب رنگ بر اساس ترتیب عضو
             ?>
                 <a href="<?php echo home_url('/edit-member?member_id=' . $member_id); ?>"
                     class="<?php echo $bg_color; ?> min-w-[90px] sm:min-w-[100px] md:min-w-[110px] p-2 rounded-2xl 
@@ -125,6 +133,7 @@ if ($group_name) : ?>
         </div>
     </div>
 <?php else : ?>
+    <!-- پیام وقتی هیچ عضوی وجود ندارد -->
     <div class="my-16 mx-auto max-w-sm text-center bg-gradient-to-r from-[#fff8f0] via-[#fff3e8] to-[#fff8f0] 
             text-[#6B4C3B] font-semibold text-lg rounded-2xl shadow-lg p-6 flex flex-col items-center gap-4
             transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
