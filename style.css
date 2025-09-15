@@ -46,43 +46,97 @@ html, body {
   height: 100%;
   margin: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* ساختار کلی صفحه: هدر-محتوا-فوتر */
 }
 
 main {
   flex: 1; 
 }
 
+/* استایل های فرم تماس */
 .wpcf7-form {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 500px;
-    margin: auto;
+    background: linear-gradient(135deg, rgba(242, 197, 124, 0.15), rgba(255, 248, 240, 0.9));
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 600px;
+    margin: 40px auto;
+    box-shadow: 0 8px 30px rgba(107, 76, 59, 0.15);
+    font-family: IRANYekanX, Tahoma, sans-serif;
 }
 
+/* استایل فیلدهای ورودی و textarea */
 .wpcf7-form input,
 .wpcf7-form textarea {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-family: IRANYekanX, Tahoma;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    font-size: 15px;
+    color: #6B4C3B;
+    transition: all 0.3s ease;
 }
 
+/* هاور و فوکوس فیلدها */
+.wpcf7-form input:focus,
+.wpcf7-form textarea:focus {
+    border-color: #f2c57c;
+    outline: none;
+    background: #fff;
+    box-shadow: 0 0 8px rgba(242, 197, 124, 0.6);
+}
+
+/* دکمه */
 .wpcf7-form input[type="submit"] {
-    background-color: #f4c056;
+    background: linear-gradient(135deg, #f2c57c, #e5cfa3);
     border: none;
-    padding: 10px 20px;
-    cursor: pointer;
+    padding: 14px 28px;
+    border-radius: 50px;
+    color: #6B4C3B;
+    font-size: 16px;
     font-weight: bold;
-    transition: 0.3s;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(242, 197, 124, 0.4);
+    transition: all 0.3s ease;
 }
 
+/* هاور دکمه */
 .wpcf7-form input[type="submit"]:hover {
-    background-color: #e5cfa3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(242, 197, 124, 0.6);
+    background: linear-gradient(135deg, #e5cfa3, #f2c57c);
 }
+
+/* پیام خطا یا موفقیت */
+.wpcf7-response-output {
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.wpcf7-not-valid-tip {
+    font-size: 13px;
+    color: #d9534f;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+
+/* راست‌چین کردن placeholder */
+.wpcf7-form input::placeholder,
+.wpcf7-form textarea::placeholder {
+    text-align: right;
+    direction: rtl;
+    color: #6b4c3b;
+}
+
 
 #members-container::-webkit-scrollbar {
     height: 8px; /* ارتفاع اسکرول افقی */
@@ -107,12 +161,13 @@ main {
   display: inline-block; /* تا فقط دور متن اعمال بشه */
 }
 
+/* ایجاد سه خط تزئینی اطراف متن */
 .fancy-lines::before,
 .fancy-lines::after {
   content: "";
   position: absolute;
-  top: -25px;   /* بالاتر بیاد یا پایین‌تر، اینو تنظیم کن */
-  left: -10px; /* فاصله از متن */
+  top: -25px;
+  left: -10px; 
   width: 4px;
   height: 25px;
   background: #f2c57c;
@@ -121,8 +176,10 @@ main {
 }
 
 .fancy-lines::after {
-  left: 3px;        /* خط وسط نزدیک بشه */
-  height: 18px;     /* کوتاه‌تر برای وسط */
+  left: 3px;        
+  height: 18px;    
   transform: rotate(0deg);
-  box-shadow: 18px 0 #f2c57c; /* خط سوم ساخته میشه */
+  box-shadow: 18px 0 #f2c57c; 
 }
+
+
