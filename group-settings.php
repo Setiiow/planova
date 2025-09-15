@@ -2,30 +2,25 @@
 /*
 Template Name: Group Setting
 */
-get_header(); // شروع قالب و وارد کردن هدر سایت
+get_header();
 
-// اگه کاربر وارد نشده باشه، پیغام میدیم و صفحه رو متوقف می‌کنیم
-if ( ! is_user_logged_in() ) {
+if (! is_user_logged_in()) {
     echo '<p>لطفاً ابتدا وارد شوید.</p>';
     get_footer();
     exit;
 }
 
-// گرفتن اطلاعات کاربر فعلی
 $user = wp_get_current_user();
 $user_id = $user->ID;
 
-// بررسی نقش کاربر: فقط والدین و معلم‌ها اجازه دارن این صفحه رو ببینن
-if ( ! array_intersect(['parent','teacher'], (array) $user->roles) ) {
+if (! array_intersect(['parent', 'teacher'], (array) $user->roles)) {
     echo '<p>شما اجازه دسترسی به این بخش را ندارید.</p>';
     get_footer();
     exit;
 }
 
-// گرفتن اطلاعات قبلی گروه از متای کاربر
 $group_data = get_user_meta($user_id, '_group_info', true);
-if ( ! is_array($group_data) ) {
-    // اگه چیزی پیدا نشد، یه آرایه خالی می‌سازیم تا فرم خالی باشه
+if (! is_array($group_data)) {
     $group_data = [
         'name'     => '',
         'password' => '',
@@ -33,40 +28,29 @@ if ( ! is_array($group_data) ) {
     ];
 }
 
-// نام فعلی سرگروه از پروفایل کاربر
 $leader_name = $user->display_name;
+$default_img = get_template_directory_uri() . '/assets/images/default-group.jpeg';
 
-// مسیر عکس پیشفرض گروه (اگه تصویری انتخاب نشده باشه)
-$default_img = get_template_directory_uri() . '/assets/images/default-group.png';
-
-// بررسی اگه فرم ارسال شده باشه
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    // اگه دکمه حذف عکس زده شده باشه
     if (isset($_POST['remove_group_image'])) {
-        $group_data['image'] = $default_img; // برمی‌گردونیم به عکس پیشفرض
-        update_user_meta($user_id, '_group_info', $group_data); // ذخیره در دیتابیس
+        $group_data['image'] = $default_img;
+        update_user_meta($user_id, '_group_info', $group_data);
         echo '<p class="text-green-600">عکس حذف شد و به حالت پیشفرض برگشت ✅</p>';
     }
 
-    // اگه دکمه ذخیره تغییرات زده شده باشه
     if (isset($_POST['update_group'])) {
-        // گرفتن داده‌ها از فرم و تمیز کردنشون
         $group_data['name']     = sanitize_text_field($_POST['group_name']);
         $group_data['password'] = sanitize_text_field($_POST['group_password']);
 
-        // اگه کاربر یه عکس جدید انتخاب کرده باشه
         if (!empty($_FILES['group_image']['name'])) {
             $uploaded = wp_handle_upload($_FILES['group_image'], ['test_form' => false]);
             if (!isset($uploaded['error'])) {
-                $group_data['image'] = $uploaded['url']; // مسیر عکس جدید
+                $group_data['image'] = $uploaded['url'];
             }
         }
 
-        // ذخیره اطلاعات گروه در دیتابیس
         update_user_meta($user_id, '_group_info', $group_data);
 
-        // بروزرسانی نام سرگروه در پروفایل کاربر
         if (isset($_POST['leader_name']) && !empty($_POST['leader_name'])) {
             wp_update_user([
                 'ID'           => $user_id,
@@ -74,173 +58,126 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
         }
 
-        // پیام موفقیت
-        echo '<p class="text-green-600">تنظیمات با موفقیت ذخیره شد ✅</p>';
+        echo '<p class="text-green-800 bg-green-100 font-semibold rounded-lg px-4 py-2 shadow-md text-center mx-auto mb-4 w-max">
+      تنظیمات با موفقیت ذخیره شد ✅
+      </p>';
+
         $leader_name = get_the_author_meta('display_name', $user_id);
     }
 }
 ?>
 
-<main class="relative w-full min-h-screen overflow-x-hidden">
-    <!-- relative → برای موقعیت‌دهی داخلی
-         w-full → عرض کامل صفحه
-         min-h-screen → حداقل ارتفاع برابر با ارتفاع صفحه
-         overflow-x-hidden → جلوگیری از اسکرول افقی -->
+<main class="relative w-full min-h-screen overflow-x-hidden flex items-center justify-center 
+             animate-gradient bg-[length:400%_400%]">
+    <div class="max-w-4xl w-full mx-auto px-4 pt-12 md:py-8">
+        <div class="bg-white/70 backdrop-blur-xl border border-white/30 rounded-2xl p-6 shadow-xl 
+                    hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-transform duration-300">
 
-    <div class="max-w-2xl mx-auto px-4 py-12">
-        <!-- max-w-2xl → حداکثر عرض کانتینر
-             mx-auto → مرکز کردن افقی
-             px-4 → padding افقی
-             py-12 → padding عمودی -->
-
-        <div class="bg-[#fdfaf6] border-4 border-[#f2c57c]/40 rounded-2xl p-8 shadow-2xl">
-            <!-- bg-[#fdfaf6] → پس‌زمینه کرمی
-                 border-4 border-[#f2c57c]/40 → حاشیه زرد ملایم با شفافیت 40٪
-                 rounded-2xl → گوشه‌های گرد
-                 p-8 → padding داخلی
-                 shadow-2xl → سایه قوی برای جلوه سه‌بعدی -->
-
-            <header class="mb-6 text-center">
-                <!-- mb-6 → margin-bottom
-                     text-center → متن وسط‌چین -->
-                <h1 class="text-3xl md:text-4xl font-extrabold text-[#6B4C3B] inline-flex items-center justify-center gap-3">
-                    <!-- text-3xl → اندازه فونت بزرگ
-                         md:text-4xl → برای صفحات متوسط به بالا فونت بزرگ‌تر
-                         font-extrabold → ضخامت بسیار زیاد
-                         text-[#6B4C3B] → رنگ قهوه‌ای
-                         inline-flex → برای استفاده از flex داخل متن
-                         items-center → وسط چین عمودی آیکون‌ها و متن
-                         justify-center → وسط چین افقی
-                         gap-3 → فاصله بین آیکون‌ها و متن -->
-                    <span class="text-4xl">🌈</span>
+            <header class="mb-4 text-center">
+                <h1 class="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-[#8B5E3C] to-[#f2c57c] bg-clip-text text-transparent 
+                           inline-flex items-center justify-center gap-2 tracking-tight">
+                    <span class="text-3xl">🌈</span>
                     تنظیمات گروه
-                    <span class="text-2xl">✨</span>
+                    <span class="text-xl">✨</span>
                 </h1>
             </header>
 
-            <form method="post" enctype="multipart/form-data" class="space-y-6" novalidate>
-                <!-- space-y-6 → فاصله عمودی بین عناصر فرم -->
+            <!-- فرم جمع و جور بدون اسکرول -->
+            <form method="post" enctype="multipart/form-data"
+                class="grid grid-cols-1 md:grid-cols-2 gap-4 p-2"
+                novalidate>
 
                 <!-- نام گروه -->
-                <label class="form-label">
-                    <span class="inline-flex items-center gap-3">
-                        <span class="text-2xl">🏷️</span>
+                <label class="form-label block">
+                    <span class="inline-flex items-center gap-2 text-sm md:text-base">
+                        <span class="text-lg">🏷️</span>
                         <span>نام گروه</span>
                     </span>
                     <input type="text" name="group_name" required
-                           value="<?php echo esc_attr($group_data['name']); ?>"
-                           class="mt-2 block w-full rounded-xl p-3 border-2 border-[#f2c57c]/50 bg-white 
+                        value="<?php echo esc_attr($group_data['name']); ?>"
+                        class="mt-1 block w-full rounded-lg p-2 border border-[#f2c57c]/50 bg-white/90 
+                                  text-[#6B4C3B] text-sm md:text-base 
                                   focus:outline-none focus:ring-2 focus:ring-[#f2c57c]/40 focus:border-[#8B5E3C] 
-                                  text-[#6B4C3B] font-medium" />
-                    <!-- mt-2 → فاصله از بالا
-                         block → نمایش به صورت بلاک
-                         w-full → عرض کامل
-                         rounded-xl → گوشه‌های گرد
-                         p-3 → padding داخلی
-                         border-2 → ضخامت حاشیه
-                         border-[#f2c57c]/50 → رنگ حاشیه زرد با شفافیت 50٪
-                         bg-white → پس‌زمینه سفید
-                         focus:outline-none → حذف حاشیه پیش‌فرض هنگام فوکوس
-                         focus:ring-2 → حلقه هنگام فوکوس
-                         focus:ring-[#f2c57c]/40 → رنگ حلقه زرد با شفافیت 40٪
-                         focus:border-[#8B5E3C] → تغییر رنگ حاشیه هنگام فوکوس
-                         text-[#6B4C3B] → رنگ متن قهوه‌ای
-                         font-medium → ضخامت متوسط متن -->
-
+                                  transition duration-200 shadow-sm" />
                 </label>
 
-                <!-- رمز گروه (مشابه input نام گروه) -->
-                <label class="form-label">
-                    <span class="inline-flex items-center gap-3">
-                        <span class="text-2xl">🔑</span>
+                <!-- رمز گروه -->
+                <label class="form-label block">
+                    <span class="inline-flex items-center gap-2 text-sm md:text-base">
+                        <span class="text-lg">🔑</span>
                         <span>رمز گروه</span>
                     </span>
                     <input type="text" name="group_password" required
-                           value="<?php echo esc_attr($group_data['password']); ?>"
-                           class="mt-2 block w-full rounded-xl p-3 border-2 border-[#f2c57c]/50 bg-white 
+                        value="<?php echo esc_attr($group_data['password']); ?>"
+                        class="mt-1 block w-full rounded-lg p-2 border border-[#f2c57c]/50 bg-white/90 
+                                  text-[#6B4C3B] text-sm md:text-base
                                   focus:outline-none focus:ring-2 focus:ring-[#f2c57c]/40 focus:border-[#8B5E3C] 
-                                  text-[#6B4C3B] font-medium" />
+                                  transition duration-200 shadow-sm" />
                 </label>
 
                 <!-- نام سرگروه -->
-                <label class="form-label">
-                    <span class="inline-flex items-center gap-3">
-                        <span class="text-2xl">👩‍🏫</span>
+                <label class="form-label block col-span-1 md:col-span-2">
+                    <span class="inline-flex items-center gap-2 text-sm md:text-base">
+                        <span class="text-lg">👩‍🏫</span>
                         <span>نام سرگروه</span>
                     </span>
                     <input type="text" name="leader_name" required
-                           value="<?php echo esc_attr($leader_name); ?>"
-                           class="mt-2 block w-full rounded-xl p-3 border-2 border-[#f2c57c]/50 bg-white 
+                        value="<?php echo esc_attr($leader_name); ?>"
+                        class="mt-1 block w-full rounded-lg p-2 border border-[#f2c57c]/50 bg-white/90 
+                                  text-[#6B4C3B] text-sm md:text-base
                                   focus:outline-none focus:ring-2 focus:ring-[#f2c57c]/40 focus:border-[#8B5E3C] 
-                                  text-[#6B4C3B] font-medium" />
+                                  transition duration-200 shadow-sm" />
                 </label>
 
                 <!-- تصویر گروه -->
-                <div class="flex flex-col gap-3">
-                    <!-- flex → برای چینش افقی یا عمودی
-                         flex-col → چینش عمودی
-                         gap-3 → فاصله بین عناصر -->
-                    <span class="form-label inline-flex items-center gap-3">
-                        <span class="text-2xl">🖼️</span>
+                <div class="flex flex-col gap-2 col-span-1 md:col-span-2">
+                    <span class="form-label inline-flex items-center gap-2 text-sm md:text-base">
+                        <span class="text-lg">🖼️</span>
                         <span>تصویر گروه</span>
                     </span>
 
                     <?php if (!empty($group_data['image'])): ?>
-                        <div class="flex items-center gap-4">
-                            <!-- flex → چینش افقی
-                                 items-center → وسط چین عمودی
-                                 gap-4 → فاصله بین تصویر و متن -->
+                        <div class="flex items-center gap-2">
                             <img src="<?php echo esc_url($group_data['image']); ?>" alt="Group Image"
-                                 class="w-24 h-24 rounded-full object-cover border-4 border-[#f2c57c]/70 shadow-lg">
-                            <!-- w-24 h-24 → اندازه تصویر
-                                 rounded-full → گرد کامل
-                                 object-cover → تصویر بدون کشیدگی
-                                 border-4 → ضخامت حاشیه
-                                 border-[#f2c57c]/70 → رنگ حاشیه زرد با شفافیت
-                                 shadow-lg → سایه قوی -->
-
-                            <div class="flex-1">
+                                class="w-20 h-20 rounded-full object-cover border-2 border-[#f2c57c]/70 shadow-sm" />
+                            <div class="flex-1 text-xs md:text-sm">
                                 <p class="text-[#6B4C3B] font-medium">تصویر فعلی</p>
-                                <p class="text-sm text-[#6B4C3B]/60">اگر می‌خواهی آن را تغییر دهی، فایل جدید انتخاب کن.</p>
+                                <p class="text-[#6B4C3B]/70">اگر می‌خواهی آن را تغییر دهی، فایل جدید انتخاب کن.</p>
                             </div>
                         </div>
                     <?php endif; ?>
 
                     <input type="file" name="group_image"
-                           class="mt-2 block w-full rounded-xl p-3 border-2 border-dashed border-[#f2c57c]/70 
-                                  bg-[#fff8f0] text-[#6B4C3B] cursor-pointer" />
+                        class="mt-1 block w-full rounded-lg p-2 border border-dashed border-[#f2c57c]/70 
+                                  bg-[#fff8f0] text-[#6B4C3B] text-sm cursor-pointer hover:bg-[#fdf3e6] transition" />
                 </div>
 
                 <!-- دکمه حذف عکس -->
-                <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex flex-col sm:flex-row gap-2 col-span-1 md:col-span-2">
                     <button type="submit" name="remove_group_image"
-                            class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl 
+                        class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg 
                                    bg-red-500 text-white w-full sm:w-auto hover:bg-red-600 transition">
                         حذف عکس
                     </button>
                 </div>
 
                 <!-- دکمه‌های پایانی -->
-                <div class="flex gap-4 flex-col sm:flex-row">
-                    <!-- ذخیره تغییرات -->
+                <div class="flex gap-2 flex-col sm:flex-row col-span-1 md:col-span-2">
                     <button type="submit" name="update_group"
-                            class="px-6 py-3 rounded-xl font-bold text-[#6B4C3B] bg-[#f2c57c] 
-                                   hover:bg-[#8B5E3C] hover:text-white transition duration-200 ease-in-out flex-1">
+                        class="relative overflow-hidden px-4 py-2 rounded-lg font-bold text-[#6B4C3B] bg-[#f2c57c] 
+                                   transition duration-200 flex-1 hover:text-white hover:scale-105">
                         💾 ذخیره تغییرات
                     </button>
 
-                    <!-- بازگشت به داشبورد -->
                     <a href="<?php echo home_url('/dashboard'); ?>"
-                       class="px-6 py-3 rounded-xl font-bold text-[#6B4C3B] bg-[#f2c57c] 
-                              hover:bg-[#8B5E3C] hover:text-white transition duration-200 ease-in-out flex-1 text-center">
-                         بازگشت به داشبورد
+                        class="relative overflow-hidden px-4 py-2 rounded-lg font-bold text-[#6B4C3B] bg-[#f2c57c] 
+                              transition duration-200 flex-1 text-center hover:text-white hover:scale-105">
+                        بازگشت به داشبورد
                     </a>
                 </div>
-
             </form>
         </div>
     </div>
 </main>
 
-
-<?php get_footer(); // پایان قالب و وارد کردن فوتر سایت ?>
+<?php get_footer(); ?>

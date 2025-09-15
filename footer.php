@@ -24,16 +24,16 @@
   <h3 class="text-xl font-bold mb-4">بخش‌های سایت</h3>
   <ul class="space-y-2 text-sm">
     <li>
-      <a href="<?php echo site_url('/about'); ?>" class="hover:text-[#8B5E3C] transition">درباره ما</a>
+      <a href="<?php echo site_url('/about'); ?>" class="hover:text-[#8B5E3C] transition font-semibold">درباره ما</a>
     </li>
     <li>
-      <a href="<?php echo site_url('/contact'); ?>" class="hover:text-[#8B5E3C] transition">ارتباط با ما</a>
+      <a href="<?php echo site_url('/contact'); ?>" class="hover:text-[#8B5E3C] transition font-semibold">ارتباط با ما</a>
     </li>
     <li>
-      <a href="<?php echo site_url('/courses'); ?>" class="hover:text-[#8B5E3C] transition">دوره‌ها</a>
+      <a href="<?php echo site_url('/courses'); ?>" class="hover:text-[#8B5E3C] transition font-semibold">دوره‌ها</a>
     </li>
     <li>
-      <a href="<?php echo site_url('/blog'); ?>" class="hover:text-[#8B5E3C] transition">بلاگ</a>
+      <a href="<?php echo site_url('/blog'); ?>" class="hover:text-[#8B5E3C] transition font-semibold">بلاگ</a>
     </li>
     <li>
       <a href="<?php echo site_url('/premium'); ?>" class="hover:text-[#8B5E3C] transition font-semibold">نسخه ویژه</a>

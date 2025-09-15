@@ -23,7 +23,7 @@ $gender          = '';
 $member_img_url  = '';
 
 // پیش‌فرض تصاویر
-$default_girl_img = get_template_directory_uri() . '/assets/images/default-girl.webp';
+$default_girl_img = get_template_directory_uri() . '/assets/images/default-girl.png';
 $default_boy_img  = get_template_directory_uri() . '/assets/images/default-boy.png';
 
 // وقتی فرم ارسال شد

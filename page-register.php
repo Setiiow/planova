@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
                 'meta_value' => $group_password
             ])));
 
-            $default_img = get_template_directory_uri() . '/assets/images/default-group.png';
+            $default_img = get_template_directory_uri() . '/assets/images/default-group.jpeg';
 
             update_user_meta($user_id, '_group_info', [
                 'name'     => $group_name,
@@ -65,9 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
 get_header();
 ?>
 
-<main class="min-h-screen flex items-center justify-center bg-[#f2c57c] px-4 relative overflow-hidden">
+<main class="min-h-screen flex items-center justify-center bg-[#f2c57c] relative overflow-hidden">
 
-  <div class="w-full max-w-4xl flex flex-col md:flex-row items-center md:items-start gap-6 relative">
+  <div class="w-full max-w-4xl flex flex-col md:flex-row items-center md:items-start lg:mr-85 md:mr-55 mx-4 gap-6 relative">
 
     <!-- فرم ثبت‌نام -->
     <div class="w-full max-w-md bg-white shadow-lg rounded-2xl p-6 sm:p-8 relative z-10">
@@ -137,7 +137,7 @@ get_header();
     </div>
 
     <!-- تصویر کنار فرم -->
-    <div class="absolute right-0 top-0 md:static md:flex md:items-start">
+    <div class="hidden lg:block absolute right-0 top-0 md:static md:flex md:items-start">
       <img src="<?php echo get_template_directory_uri(); ?>/assets/images/boy.png"
            alt="پسر بچه سلام می‌کند"
            class="max-w-[160px] sm:max-w-[200px] md:max-w-[250px] lg:max-w-[300px] object-contain drop-shadow-xl md:-translate-y-6 md:translate-x-6" />

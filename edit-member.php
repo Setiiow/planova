@@ -288,76 +288,84 @@ if (!empty($success_message)) {
 <?php if ($member_data): ?>
     <?php if (!empty($rewards) && is_array($rewards)): ?>
         <div class="reward-view mb-5">
-            <h2 class="text-lg font-bold mb-4 text-center mt-4">جوایز عضو</h2>
+            <h2 class="text-xl font-bold mb-4 text-center mt-4 text-[#6B4C3B]">جوایز عضو</h2>
             <ul class="space-y-2">
                 <?php foreach ($rewards as $index => $reward): ?>
-        <div class="w-full max-w-4xl mx-auto px-4"> <!-- کانتینر مرکزی با margin اتوماتیک و padding کناری -->
-    <form method="post" enctype="multipart/form-data" class="flex flex-col items-center w-full">
-        <li class="flex flex-col md:flex-row justify-between items-center border-b border-[#f2c57c]/50 pb-3 mb-3 w-full p-3 bg-[#fdfaf6] rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
-            data-reward-index="<?php echo $index; ?>">
+                    <div class="w-full max-w-4xl mx-auto px-4"> <!-- کانتینر مرکزی با margin اتوماتیک و padding کناری -->
+                        <form method="post" enctype="multipart/form-data" class="flex flex-col items-center w-full">
+                            <li class="flex flex-col md:flex-row justify-between items-center border-b border-[#f2c57c]/50 pb-3 mb-3 w-full p-4 bg-[#fdfaf6] rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300"
+                                data-reward-index="<?php echo $index; ?>">
 
-            <!-- نمایش جایزه -->
-            <div class="reward-view flex flex-col md:flex-row justify-between items-center w-full md:gap-4 gap-2">
-                <div class="flex items-center gap-3">
-                    <img src="<?php echo esc_url($reward['image']); ?>"
-                         alt="<?php echo esc_attr($reward['title']); ?>"
-                         class="w-24 h-24 rounded-full object-cover border-4 border-[#f2c57c] shadow-inner">
-                    <div class="flex flex-col text-center md:text-left">
-                        <span class="text-[#6B4C3B] font-bold text-lg"><?php echo esc_html($reward['title']); ?></span>
-                        <span class="text-[#8B5E3C] font-medium text-sm">(امتیاز: <?php echo esc_html($reward['points']); ?>)</span>
+                                <!-- نمایش جایزه -->
+                                <div class="reward-view flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-4">
+                                    <!-- تصویر + عنوان -->
+                                    <div class="flex items-center gap-3 w-full md:w-auto">
+                                        <img src="<?php echo esc_url($reward['image']); ?>"
+                                            alt="<?php echo esc_attr($reward['title']); ?>"
+                                            class="w-20 h-20 rounded-2xl object-cover border-4 border-[#f2c57c] shadow-inner">
+                                        <div class="flex flex-col text-center md:text-left">
+                                            <span class="text-[#6B4C3B] font-bold text-lg"><?php echo esc_html($reward['title']); ?></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- دکمه‌ها + امتیاز و قفل -->
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
+                                        <!-- دکمه‌ها -->
+                                        <div class="flex gap-2 flex-wrap">
+                                            <button type="button" class="edit-reward-btn bg-[#f2c57c] text-[#6B4C3B] hover:bg-[#f2c57c]/80 px-4 py-2 rounded-full font-semibold shadow-md transition-all hover:scale-105">ویرایش</button>
+                                            <button type="submit" name="delete_reward" value="<?php echo esc_attr($reward['id']); ?>" class="del-reward-btn bg-[#8B5E3C] text-white hover:bg-[#6B4C3B] px-4 py-2 rounded-full font-semibold shadow-md transition-all hover:scale-105">حذف</button>
+                                        </div>
+
+                                        <!-- امتیاز و قفل -->
+                                        <div class="flex items-center gap-2 bg-[#f2c57c]/30 px-3 py-2 rounded-full font-semibold">
+                                            <span class="text-sm text-[#6B4C3B]">(<?php echo esc_html($reward['points']); ?> امتیاز)</span>
+                                            <span class="text-xl">
+                                                <?php if ($points >= intval($reward['points'])): ?>
+                                                    🔓
+                                                <?php else: ?>
+                                                    🔒
+                                                <?php endif; ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- فرم ویرایش جایزه -->
+                                <div class="reward-edit hidden flex flex-col gap-3 mt-4 w-full bg-[#fff8f0] p-4 rounded-2xl shadow-inner">
+                                    <input type="text" name="rewards[<?php echo esc_attr($reward['id']); ?>][title]" value="<?php echo esc_attr($reward['title']); ?>" placeholder="عنوان جایزه" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c] transition">
+                                    <input type="number" name="rewards[<?php echo esc_attr($reward['id']); ?>][points]" value="<?php echo esc_attr($reward['points']); ?>" min="0" placeholder="امتیاز مورد نیاز" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c] transition">
+                                    <input type="file" name="rewards[<?php echo esc_attr($reward['id']); ?>][image]" class="border border-[#f2c57c] p-2 rounded w-full">
+
+                                    <div class="flex flex-wrap gap-3 mt-3 justify-between">
+                                        <button type="submit" name="del_reward_photo" value="<?php echo esc_attr($reward['id']); ?>" class="bg-[#8B5E3C] text-white hover:bg-[#6B4C3B] px-4 py-2 rounded-full shadow-md hover:scale-105 transition-all">حذف عکس</button>
+                                        <button type="submit" name="save_reward" value="<?php echo esc_attr($reward['id']); ?>" class="bg-[#f2c57c] text-[#6B4C3B] hover:bg-[#f2c57c]/80 px-4 py-2 rounded-full shadow-md hover:scale-105 transition-all">ثبت تغییرات</button>
+                                        <button type="button" class="cancel-reward-btn bg-[#6B4C3B] text-white hover:bg-[#8B5E3C] px-4 py-2 rounded-full shadow-md hover:scale-105 transition-all">لغو</button>
+                                    </div>
+                                </div>
+                            </li>
+                        </form>
                     </div>
-                    <div class="mx-2 text-xl p-2 rounded bg-[#f2c57c]/30 font-semibold">
-                        <?php if ($points >= intval($reward['points'])): ?>
-                            🔓
-                        <?php else: ?>
-                            🔒
-                        <?php endif; ?>
-                    </div>
-                </div>
 
-                <!-- دکمه‌ها -->
-                <div class="flex gap-2 mt-3 md:mt-0">
-                    <button type="button" class="edit-reward-btn bg-[#f2c57c] text-[#6B4C3B] hover:bg-[#f2c57c]/80 px-4 py-2 rounded-full font-semibold shadow-md transition-all hover:scale-105">ویرایش</button>
-                    <button type="submit" name="delete_reward" value="<?php echo esc_attr($reward['id']); ?>" class="del-reward-btn bg-[#8B5E3C] text-white hover:bg-[#6B4C3B] px-4 py-2 rounded-full font-semibold shadow-md transition-all hover:scale-105">حذف</button>
-                </div>
-            </div>
+                    <!-- فعال‌سازی دکمه ویرایش -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            document.querySelectorAll('.edit-reward-btn').forEach(btn => {
+                                btn.addEventListener('click', () => {
+                                    const card = btn.closest('li');
+                                    const form = card.querySelector('.reward-edit');
+                                    if (form) form.classList.toggle('hidden');
+                                });
+                            });
 
-            <!-- فرم ویرایش جایزه -->
-            <div class="reward-edit hidden flex flex-col gap-3 mt-4 w-full bg-[#fff8f0] p-4 rounded-lg shadow-inner">
-                <input type="text" name="rewards[<?php echo esc_attr($reward['id']); ?>][title]" value="<?php echo esc_attr($reward['title']); ?>" placeholder="عنوان جایزه" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c] transition">
-                <input type="number" name="rewards[<?php echo esc_attr($reward['id']); ?>][points]" value="<?php echo esc_attr($reward['points']); ?>" min="0" placeholder="امتیاز مورد نیاز" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c] transition">
-                <input type="file" name="rewards[<?php echo esc_attr($reward['id']); ?>][image]" class="border border-[#f2c57c] p-2 rounded w-full">
-
-                <div class="flex flex-wrap gap-3 mt-3 justify-between">
-                    <button type="submit" name="del_reward_photo" value="<?php echo esc_attr($reward['id']); ?>" class="bg-[#8B5E3C] text-white hover:bg-[#6B4C3B] px-4 py-2 rounded-full shadow-md hover:scale-105 transition-all">حذف عکس</button>
-                    <button type="submit" name="save_reward" value="<?php echo esc_attr($reward['id']); ?>" class="bg-[#f2c57c] text-[#6B4C3B] hover:bg-[#f2c57c]/80 px-4 py-2 rounded-full shadow-md hover:scale-105 transition-all">ثبت تغییرات</button>
-                    <button type="button" class="cancel-reward-btn bg-[#6B4C3B] text-white hover:bg-[#8B5E3C] px-4 py-2 rounded-full shadow-md hover:scale-105 transition-all">لغو</button>
-                </div>
-            </div>
-        </li>
-    </form>
-</div>
-
-<!-- فعال‌سازی دکمه ویرایش -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.edit-reward-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const card = btn.closest('li');
-            const form = card.querySelector('.reward-edit');
-            if (form) form.classList.toggle('hidden');
-        });
-    });
-
-    document.querySelectorAll('.cancel-reward-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const card = btn.closest('li');
-            const form = card.querySelector('.reward-edit');
-            if (form) form.classList.add('hidden');
-        });
-    });
-});
-</script>
+                            document.querySelectorAll('.cancel-reward-btn').forEach(btn => {
+                                btn.addEventListener('click', () => {
+                                    const card = btn.closest('li');
+                                    const form = card.querySelector('.reward-edit');
+                                    if (form) form.classList.add('hidden');
+                                });
+                            });
+                        });
+                    </script>
 
                 <?php endforeach; ?>
             </ul>
@@ -367,83 +375,112 @@ document.addEventListener('DOMContentLoaded', () => {
     <?php endif; ?>
     <div class="bg-gray-50 rounded-lg shadow p-4 text-center member-card max-w-xl mx-auto" data-member-id="<?php echo $member_id; ?>">
         <form method="post" enctype="multipart/form-data" class="flex flex-col items-center bg-[#fdfaf6] p-4 rounded-xl shadow-md max-w-md mx-auto md:max-w-lg lg:max-w-xl">
-    <input type="hidden" name="member_id" value="<?php echo $member_id; ?>">
+            <input type="hidden" name="member_id" value="<?php echo $member_id; ?>">
 
-    <!-- تصویر پروفایل -->
-    <img src="<?php echo esc_url($profile_image ?: ($gender === 'girl' ? $default_girl_img : $default_boy_img)); ?>"
-         alt="<?php echo esc_attr($first_name); ?>"
-         class="w-24 h-24 rounded-full object-cover mb-4 border-2 border-[#f2c57c]">
+            <!-- تصویر پروفایل -->
+            <img src="<?php echo esc_url($profile_image ?: ($gender === 'girl' ? $default_girl_img : $default_boy_img)); ?>"
+                alt="<?php echo esc_attr($first_name); ?>"
+                class="w-24 h-24 rounded-full object-cover mb-4 border-2 border-[#f2c57c]">
 
-    <!-- نمایش اطلاعات عضو -->
-    <div class="member-view text-center w-full">
-        <h3 class="text-xl font-semibold text-[#6B4C3B] mb-1"><?php echo esc_html($first_name . ' ' . $last_name); ?></h3>
-        <p class="text-sm text-[#8B5E3C] mb-1">جنسیت: <?php echo ($gender === 'girl' ? 'دختر' : 'پسر'); ?></p>
-        <p class="text-sm text-[#8B5E3C] mb-2">امتیاز: <?php echo esc_html($points); ?></p>
-        <div class="flex justify-center gap-2 flex-wrap">
-            <button type="button" class="edit-btn bg-[#f2c57c] text-[#6B4C3B] hover:bg-[#f2c57c]/80 px-4 py-2 rounded transition-colors">ویرایش</button>
-            <button type="submit" name="delete_member" class="del-btn bg-[#8B5E3C] text-white hover:bg-[#6B4C3B] px-4 py-2 rounded transition-colors"
-                    data-name="<?php echo esc_attr(trim($first_name . ' ' . $last_name)); ?>">حذف</button>
-        </div>
-    </div>
+            <!-- نمایش اطلاعات عضو -->
+            <div class="member-view text-center w-full">
+                <h3 class="text-xl font-semibold text-[#6B4C3B] mb-1"><?php echo esc_html($first_name . ' ' . $last_name); ?></h3>
+                <p class="text-sm text-[#8B5E3C] mb-1">جنسیت: <?php echo ($gender === 'girl' ? 'دختر' : 'پسر'); ?></p>
+                <p class="text-sm text-[#8B5E3C] mb-2">امتیاز: <?php echo esc_html($points); ?></p>
+                <div class="flex justify-center gap-2 flex-wrap">
+                    <button type="button" class="edit-btn bg-[#f2c57c] text-[#6B4C3B] hover:bg-[#f2c57c]/80 px-4 py-2 rounded transition-colors">ویرایش</button>
+                    <button type="submit" name="delete_member" class="del-btn bg-[#8B5E3C] text-white hover:bg-[#6B4C3B] px-4 py-2 rounded transition-colors"
+                        data-name="<?php echo esc_attr(trim($first_name . ' ' . $last_name)); ?>">حذف</button>
+                </div>
+            </div>
 
-    <!-- فرم ویرایش     -->
-    <div class="member-edit hidden flex flex-col gap-3 w-full mt-4 bg-[#fff8f0] p-4 rounded-lg shadow-inner">
-        <input type="text" name="first_name" value="<?php echo esc_attr($first_name); ?>" placeholder="نام" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c]">
-        <input type="text" name="last_name" value="<?php echo esc_attr($last_name); ?>" placeholder="نام خانوادگی" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c]">
-        
-        <select name="gender" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c]">
-            <option value="girl" <?php selected($gender, 'girl'); ?>>دختر</option>
-            <option value="boy" <?php selected($gender, 'boy'); ?>>پسر</option>
-        </select>
+            <!-- فرم ویرایش     -->
+            <div class="member-edit hidden flex flex-col gap-3 w-full mt-4 bg-[#fff8f0] p-4 rounded-lg shadow-inner">
+                <input type="text" name="first_name" value="<?php echo esc_attr($first_name); ?>" placeholder="نام" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c]">
+                <input type="text" name="last_name" value="<?php echo esc_attr($last_name); ?>" placeholder="نام خانوادگی" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c]">
 
-        <input type="number" name="points" value="<?php echo esc_attr($points); ?>" min="0" placeholder="امتیاز" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c]">
-        <input type="file" name="profile_image" class="border border-[#f2c57c] p-2 rounded w-full">
+                <select name="gender" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c]">
+                    <option value="girl" <?php selected($gender, 'girl'); ?>>دختر</option>
+                    <option value="boy" <?php selected($gender, 'boy'); ?>>پسر</option>
+                </select>
 
-        <div class="flex flex-wrap justify-between gap-2 mt-2">
-            <button type="submit" name="del_photo" class="bg-[#8B5E3C] text-white hover:bg-[#6B4C3B] px-4 py-2 rounded transition-colors">حذف عکس</button>
-            <button type="submit" name="save_member" class="bg-[#f2c57c] text-[#6B4C3B] hover:bg-[#f2c57c]/80 px-4 py-2 rounded transition-colors">ثبت تغییرات</button>
-            <button type="button" class="cancel-btn bg-[#6B4C3B] text-white hover:bg-[#8B5E3C] px-4 py-2 rounded transition-colors">لغو</button>
-        </div>
-    </div>
-</form>
+                <input type="number" name="points" value="<?php echo esc_attr($points); ?>" min="0" placeholder="امتیاز" class="border border-[#f2c57c] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c]">
+                <input type="file" name="profile_image" class="border border-[#f2c57c] p-2 rounded w-full">
+
+                <div class="flex flex-wrap justify-between gap-2 mt-2">
+                    <button type="submit" name="del_photo" class="bg-[#8B5E3C] text-white hover:bg-[#6B4C3B] px-4 py-2 rounded transition-colors">حذف عکس</button>
+                    <button type="submit" name="save_member" class="bg-[#f2c57c] text-[#6B4C3B] hover:bg-[#f2c57c]/80 px-4 py-2 rounded transition-colors">ثبت تغییرات</button>
+                    <button type="button" class="cancel-btn bg-[#6B4C3B] text-white hover:bg-[#8B5E3C] px-4 py-2 rounded transition-colors">لغو</button>
+                </div>
+            </div>
+        </form>
 
     </div>
 <?php endif; ?>
 
 <!-- نمایش وظایف عضو -->
 <?php if (!empty($tasks) && is_array($tasks)): ?>
-    <div class="bg-white shadow-md rounded p-4 mt-6">
-        <h2 class="text-lg font-bold mb-4">وظایف عضو</h2>
-        <ul class="space-y-2">
+    <div class="bg-white shadow-lg rounded-2xl p-6 mt-8 max-w-4xl mx-auto mb-8">
+        <h2 class="text-xl font-bold mb-6 text-center text-[#6B4C3B]">وظایف عضو</h2>
+        <ul class="space-y-4">
             <?php foreach ($tasks as $index => $task): ?>
-                <form method="post" enctype="multipart/form-data" class="flex flex-col items-center">
-                    <li class="flex justify-between items-center border-b pb-2" data-task-index="<?php echo $index; ?>">
-                        <div class="task-view flex justify-between items-center">
-                            <div class="flex items-center gap-2">
-                                <span><?php echo esc_html($task['title']); ?></span>
-                                <span class="mr-2 text-green-700">(امتیاز: <?php echo esc_html($task['points']); ?>)</span>
+                <form method="post" enctype="multipart/form-data" class="flex flex-col items-center w-full">
+                    <li class="flex flex-col md:flex-row justify-between items-center gap-3 border border-[#f2c57c]/40 bg-[#fffaf5] p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 w-full"
+                        data-task-index="<?php echo $index; ?>">
+
+                        <!-- نمایش وظیفه -->
+                        <div class="task-view flex flex-col md:flex-row justify-between items-center w-full gap-3">
+                            <div class="flex flex-col md:flex-row items-center gap-3 text-center md:text-right">
+                                <span class="text-[#6B4C3B] font-semibold"><?php echo esc_html($task['title']); ?></span>
+                                <span class="text-[#8B5E3C] text-sm font-medium">(امتیاز: <?php echo esc_html($task['points']); ?>)</span>
                                 <?php if (!empty($task['done']) && $task['done'] == 1): ?>
-                                    <span class="text-green-600 font-semibold">انجام شده ✅</span>
+                                    <span class="text-green-600 font-bold">انجام شده ✅</span>
                                 <?php else: ?>
-                                    <span class="text-red-600 font-semibold">انجام نشده ❌</span>
+                                    <span class="text-red-600 font-bold">انجام نشده ❌</span>
                                 <?php endif; ?>
                             </div>
-                            <div class="flex gap-2">
-                                <button type="button" class="bg-blue-500 text-white px-2 py-1 rounded edit-task-btn">ویرایش</button>
-                                <button type="submit" name="delete_task" value="<?php echo esc_attr($task['id']); ?>" class="bg-red-500 text-white px-2 py-1 rounded del-task-btn">حذف</button>
+
+                            <!-- دکمه‌ها -->
+                            <div class="flex gap-2 mt-2 md:mt-0">
+                                <button type="button"
+                                    class="edit-task-btn bg-[#f2c57c] text-[#6B4C3B] hover:bg-[#f2c57c]/80 px-3 py-2 rounded-full font-semibold shadow-md transition-all hover:scale-105">
+                                    ویرایش
+                                </button>
+                                <button type="submit" name="delete_task" value="<?php echo esc_attr($task['id']); ?>"
+                                    class="del-task-btn bg-[#8B5E3C] text-white hover:bg-[#6B4C3B] px-3 py-2 rounded-full font-semibold shadow-md transition-all hover:scale-105">
+                                    حذف
+                                </button>
                             </div>
                         </div>
 
                         <!-- فرم ویرایش وظیفه -->
-                        <div class="task-edit hidden flex flex-col gap-1 mt-2">
-                            <input type="text" name="tasks[<?php echo esc_attr($task['id']); ?>][title]" value="<?php echo esc_attr($task['title']); ?>" class="border p-1 w-full">
-                            <input type="number" name="tasks[<?php echo esc_attr($task['id']); ?>][points]" value="<?php echo esc_attr($task['points']); ?>" min="0" class="border p-1 w-full">
-                            <select name="tasks[<?php echo esc_attr($task['id']); ?>][done]" class="border p-1 w-full">
+                        <div class="task-edit hidden flex flex-col gap-3 mt-4 w-full bg-[#fff8f0] p-4 rounded-xl shadow-inner border border-[#f2c57c]/40">
+                            <input type="text" name="tasks[<?php echo esc_attr($task['id']); ?>][title]"
+                                value="<?php echo esc_attr($task['title']); ?>"
+                                class="border border-[#f2c57c] p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c] transition"
+                                placeholder="عنوان وظیفه">
+
+                            <input type="number" name="tasks[<?php echo esc_attr($task['id']); ?>][points]"
+                                value="<?php echo esc_attr($task['points']); ?>" min="0"
+                                class="border border-[#f2c57c] p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c] transition"
+                                placeholder="امتیاز">
+
+                            <select name="tasks[<?php echo esc_attr($task['id']); ?>][done]"
+                                class="border border-[#f2c57c] p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#f2c57c] transition">
                                 <option value="1" <?php selected($task['done'], 1); ?>>انجام شده</option>
                                 <option value="0" <?php selected($task['done'], 0); ?>>انجام نشده</option>
                             </select>
-                            <button type="submit" name="save_task" value="<?php echo esc_attr($task['id']); ?>" class="bg-green-500 text-white px-2 py-1 rounded">ثبت تغییرات</button>
-                            <button type="button" class="bg-gray-500 text-white px-2 py-1 rounded cancel-task-btn">لغو</button>
+
+                            <div class="flex flex-wrap gap-3 mt-3 justify-between">
+                                <button type="submit" name="save_task" value="<?php echo esc_attr($task['id']); ?>"
+                                    class="bg-[#f2c57c] text-[#6B4C3B] hover:bg-[#f2c57c]/80 px-4 py-2 rounded-full font-semibold shadow-md hover:scale-105 transition-all">
+                                    ثبت تغییرات
+                                </button>
+                                <button type="button"
+                                    class="cancel-task-btn bg-[#6B4C3B] text-white hover:bg-[#8B5E3C] px-4 py-2 rounded-full font-semibold shadow-md hover:scale-105 transition-all">
+                                    لغو
+                                </button>
+                            </div>
                         </div>
                     </li>
                 </form>
@@ -451,8 +488,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </ul>
     </div>
 <?php else: ?>
-    <p class="mt-4 text-gray-600">هنوز وظیفه‌ای برای این عضو ثبت نشده است.</p>
+    <p class="mt-6 text-gray-600 text-center">هنوز وظیفه‌ای برای این عضو ثبت نشده است.</p>
 <?php endif; ?>
+
 
 
 <script>

@@ -41,7 +41,7 @@ get_header();
             <li class="flex items-center gap-2 justify-start">
               <i class="fa-solid fa-phone text-[#f2c57c] text-lg"></i>
               <span class="font-semibold">تلفن:</span>
-              <a href="tel:+98037317070" class="transition">037317070</a>
+              <a href="tel:+98037317070" class="transition">09150001122</a>
             </li>
           </ul>
         </div>
@@ -65,7 +65,7 @@ get_header();
               <li class="flex items-center gap-2 justify-start">
                 <i class="fa-solid fa-phone text-[#f2c57c] text-lg"></i>
                 <span class="font-semibold">تلفن:</span>
-                <a href="tel:+98037317070" class="transition">037317070</a>
+                <a href="tel:+98037317070" class="transition">09150001122</a>
               </li>
             </ul>
           </div>
