@@ -5,12 +5,12 @@ Template Name: Premium Page
 get_header();
 ?>
 
-<main class="font-sans text-gray-800">
+<main class="text-gray-800">
 
     <!-- بخش اول صفحه(مقدمه) -->
-    <section class="bg-gradient-to-b from-[#fadfbb] to-[#f2c57c] text-white py-20 text-center rounded-b-4xl shadow-lg">
+    <section class="bg-gradient-to-b from-[#fadfbb] to-[#f2c57c] text-white py-18 text-center rounded-b-4xl shadow-lg">
         <div class="inline-flex items-center justify-center relative">
-            <h1 class="text-[30px] md:text-5xl font-extrabold text-[#6B4C3B]">
+            <h1 class="text-[25px] md:text-5xl mb-6 font-extrabold text-[#6B4C3B]">
                 نسخه پریمیوم؛ یک گام جلوتر
             </h1>
             <img src="<?php echo get_template_directory_uri(); ?>/assets/images/premium.png"
@@ -143,9 +143,9 @@ get_header();
         </div>
     </section>
 
-    <!-- محتوا -->
+    <!-- دعوت به اقدام -->
     <section class="text-center py-12 bg-gradient-to-b from-[#f2c57c] to-[#fadfbb] text-[#6B4C3B] rounded-t-4xl shadow-inner">
-        <h2 class="text-3xl md:text-4xl font-extrabold mb-4">همین امروز به پریمیوم بپیوندید</h2>
+        <h2 class="text-3xl md:text-4xl font-extrabold mb-6">همین امروز به پریمیوم بپیوندید</h2>
         <p class="text-lg mb-4 leading-snug">با امکانات کامل و پشتیبانی اختصاصی، بهترین تجربه را برای خود و کودکانتان بسازید.</p>
         <div class="relative inline-block">
             <a href="#buy" class="inline-block relative bg-[#6B4C3B] text-white px-5 py-2 mt-2 rounded-full font-bold text-lg hover:bg-[#8B5E3C] transition transform hover:scale-105 shadow-lg">
