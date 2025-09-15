@@ -4,7 +4,6 @@ get_header();
 <section class="px-4 sm:px-8 md:px-16 lg:px-10">
     <div class="flex flex-col md:flex-row items-center md:items-start mb-8">
 
-
         <!-- متن + عکس -->
         <div class="relative mt-8 md:mr-6 lg:mr-10 md:mt-5 lg:mt-12 mx-4 sm:mx-10 md:mx-20 text-[#6B4C3B] text-right">
             <div class="relative inline-block">
@@ -20,12 +19,10 @@ get_header();
                 تجربه آموزشی و انگیزشی برای کودکان در زمینه برنامه‌ریزی و مسئولیت‌پذیری
             </h2>
 
-            <p class="text-base sm:text-base lg:text-lg leading-relaxed">
-                فرصتی را فراهم کردیم تا با برنامه‌ریزی وظایف، پیگیری پیشرفت و جمع‌آوری امتیازها، کودکان و دانش آموزان را از همان
-                <br class="hidden sm:block">
-                سنین کم با مهارت های برنامه ریزی، مدیریت زمان و مسئولیت‌پذیری
-                <br class="hidden sm:block">
-                آشنا کنیم و با انگیزه و تمرکز در رشد و پیشرفت فرزندان ایران سهیم باشیم.
+            <p class="text-base sm:text-base lg:text-lg leading-relaxed max-w-[700px]">
+                فرصتی را فراهم کردیم تا با برنامه‌ریزی وظایف، پیگیری پیشرفت، جمع‌آوری امتیازها و ویدیوهای آموزشی،
+                کودکان و دانش‌آموزان را از همان سنین کم با مهارت‌های برنامه‌ریزی، مدیریت
+                زمان و مسئولیت‌پذیری آشنا کنیم و با ایجاد انگیزه و تمرکز در رشد و پیشرفت فرزندان ایران سهیم باشیم.
             </p>
 
             <span>
@@ -112,11 +109,11 @@ get_header();
 
     </div>
 </section>
-<section class="px-4 sm:px-8 md:px-16 lg:px-24 pt-30 pb-40 bg-[#fff8f0]">
+<section class="px-4 sm:px-8 md:px-16 lg:px-24 pt-30 pb-20 bg-[#fff8f0]">
 
 
     <!-- مستطیل بزرگ با گوشه‌های گرد -->
-    <div class="relative overflow-visible bg-[#f2c57c] rounded-3xl h-[150px] sm:h-[120px] md:h-[150px] flex items-center justify-center shadow-lg overflow-hidden">
+    <div class="relative overflow-visible bg-[#f2c57c] rounded-3xl h-[150px] sm:h-[120px] md:h-[150px] flex items-center justify-center mb-10 shadow-lg overflow-hidden">
 
         <!-- نیم دایره بالایی    -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[90%] lg:w-[60%] md:w-[80%] lg:h-12 md:h-12 h-10 bg-[#fdfaf6] rounded-b-full">
@@ -125,14 +122,32 @@ get_header();
             </h2>
         </div>
 
-        <!-- تصاویر -->
-        <img src="<?php echo get_template_directory_uri(); ?>/assets/images/planning.jpeg"
-            alt="ویدیو ۱"
-            class="slide absolute -bottom-10 sm:-bottom-20 lg:left-[20%] md:left-[11%] sm:left-[12%] h-30 sm:h-28 w-50 sm:w-48 md:w-60 md:h-40 lg:w-70 lg:h-40 shadow-lg rounded-xl transform hover:scale-105 transition z-20" />
 
-        <img src="<?php echo get_template_directory_uri(); ?>/assets/images/planning.jpeg"
-            alt="ویدیو ۲"
-            class="slide hidden absolute -bottom-10 sm:-bottom-20 lg:right-[20%] md:right-[11%] sm:right-[12%] h-30 sm:h-28 w-50 sm:w-48 md:w-60 md:h-40 lg:w-70 lg:h-40 shadow-lg rounded-xl transform hover:scale-105 transition z-20" />
+        <!-- نمایش ۲ محصول آخر ووکامرس به صورت اسلایدر در موبایل و عادی در صفحات بزرگتر -->
+        <?php
+        $products = wc_get_products([
+            'limit' => 2,
+            'status' => 'publish',
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ]);
+        ?>
+        <?php if (!empty($products)): ?>
+            <?php foreach ($products as $index => $product): ?>
+                <!-- لینک به صفحه دوره‌ها -->
+                <a href="<?php echo esc_url(home_url('/courses')); ?>">
+                    <img src="<?php echo get_the_post_thumbnail_url($product->get_id(), 'large'); ?>"
+                        alt="<?php echo esc_attr($product->get_name()); ?>"
+                        class="slide <?php echo $index === 1 ? 'hidden ' : ''; ?> absolute -bottom-10 sm:-bottom-20
+                        left-1/2 sm:left-auto 
+                        <?php echo $index === 0 ? 'lg:left-[20%] md:left-[11%] sm:left-[12%]' : 'lg:right-[20%] md:right-[11%] sm:right-[12%]'; ?>
+                        transform -translate-x-1/2 sm:translate-x-0
+                        h-30 sm:h-28 md:h-40 lg:h-40
+                        w-50 sm:w-48 md:w-60 lg:w-70
+                        shadow-lg rounded-xl hover:scale-105 transition z-20" />
+                </a>
+            <?php endforeach; ?>
+        <?php endif; ?>
 
         <!-- دکمه‌های ناوبری فقط در موبایل -->
         <button onclick="prevSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-[#6B4C3B] text-white rounded-full p-2 sm:hidden z-30">
@@ -142,6 +157,21 @@ get_header();
             ‹
         </button>
     </div>
+    <!-- فلش و متن زیر سکشن -->
+    <div class="flex flex-col items-center justify-center mt-25 cursor-pointer">
+        <!-- فلش رو به بالا با SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg"
+            class="w-6 h-6 text-[#6B4C3B] animate-bounce"
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+        </svg>
+
+        <!-- متن زیر فلش -->
+        <a href="<?php echo esc_url(home_url('/courses')); ?>" class="md:text-lg text-md font-semibold text-[#8B5E3C] mt-1">
+            مشاهده تمامی دوره‌ها
+        </a>
+    </div>
+
 
 </section>
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -158,12 +188,12 @@ get_header();
                 sm:text-base md:px-1 md:mt-1 md:py-2 md:text-base lg:px-4 lg:py-2 lg:my-4 lg:text-lg mt-4 rounded-lg 
                 shadow-md hover:bg-[#f2c57c] hover:text-[#8B5E3C] hover:shadow-lg transition inline-block">
             مشاهده همه
-            <!-- فلش سمت راست متن -->
+            <!-- فلش کنار متن -->
             <span class="text-[#6B4C3B] text-lg font-bold ml-2">&larr;</span>
         </a>
     </div>
 
-    <!-- بخش کارت‌ها -->
+    <!-- (این شورت کد دوتا از اخرین بلاگ هارو نمایش میده) بخش کارت‌ها -->
     <div>
         <?php echo do_shortcode('[latest_two_posts]'); ?>
     </div>
@@ -192,19 +222,19 @@ get_header();
 
             <!-- سوال 1 -->
             <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                <button class="w-full flex justify-between items-center p-4 font-semibold text-lg hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
+                <button class="w-full flex justify-between items-center p-4 font-semibold md:text-lg text-base hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
                     ویدیوهای آموزشی چه مهارت‌هایی را به کودکان آموزش می‌دهند و چرا برای والدین و معلمان مفید هستند؟
                     <span class="transform transition-transform duration-300">+</span>
                 </button>
                 <div class="p-4 hidden text-gray-700 text-right">
-                    ویدیوهای آموزشی مجموعه‌ای جذاب و کاربردی هستند که به کودکان کمک می‌کنند مهارت‌های برنامه‌ریزی، مدیریت زمان، مسئولیت‌پذیری، تعیین هدف، حل مسئله و تقویت حافظه را به شکل سرگرم‌کننده یاد بگیرند و مهارت‌های زندگی خود را با انگیزه و تمرکز تقویت کنند. برای والدین و معلمان، این ویدیوها ابزار مفیدی برای راهنمایی و همراهی کودکان و هماهنگی بهتر فعالیت‌ها و وظایف روزانه هستند.
+                    ویدیوهای آموزشی، توسط مشاوران کودک و نوجوان تهیه شده و به کودکان کمک می‌کنند مهارت‌های برنامه‌ریزی، مدیریت زمان، مسئولیت‌پذیری، تعیین هدف، حل مسئله و تقویت حافظه را به شکل سرگرم‌کننده یاد بگیرند؛ همچنین برای والدین و معلمان، ابزاری مفید برای همراهی و راهنمایی کودکان فراهم می‌کنند.
                 </div>
             </div>
 
 
             <!-- سوال 2 -->
             <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                <button class="w-full flex justify-between items-center p-4 text-left font-semibold text-lg hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
+                <button class="w-full flex justify-between items-center p-4 text-left font-semibold md:text-lg text-base hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
                     آیا والدین و معلمان می‌توانند چند کودک را همزمان مدیریت کنند؟
                     <span class="transform transition-transform duration-300">+</span>
                 </button>
@@ -215,18 +245,18 @@ get_header();
 
             <!-- سوال 3 -->
             <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                <button class="w-full flex justify-between items-center p-4 text-left font-semibold text-lg hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
+                <button class="w-full flex justify-between items-center p-4 text-left font-semibold md:text-lg text-base hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
                     پلانووا برای چه بازه سنی مناسب است و کودکان چگونه می‌توانند به وظایف خود دسترسی داشته باشند؟
                     <span class="transform transition-transform duration-300">+</span>
                 </button>
                 <div class="p-4 hidden text-gray-700 text-right">
-                    این سایت برای کودکان از ۵ سال به بالا طراحی شده و مناسب تمام سنینی است که والدین و معلمان می‌خواهند به فرزندان یا دانش‌آموزانشان در یادگیری برنامه‌ریزی، مدیریت زمان و مسئولیت‌پذیری کمک کنند. کودکان می‌توانند با هر دستگاه یا سیستمی که در اختیار دارند به راحتی به وظایف تعریف‌شده دسترسی پیدا کنند، آنها را تیک زده و پیشرفت خود را ثبت کنند، بدون اینکه امکان تغییر اطلاعات گروه یا دیگر تنظیمات اصلی را داشته باشند. والدین و معلمان هم میتواند روند پیشرفت کودکان را به راحتی نظارت و حمایت کنند.
+                    این سایت برای کودکان از ۶ سال به بالا طراحی شده و مناسب تمام سنینی است که والدین و معلمان می‌خواهند به فرزندان یا دانش‌آموزانشان در یادگیری برنامه‌ریزی، مدیریت زمان و مسئولیت‌پذیری کمک کنند. کودکان می‌توانند با هر دستگاه یا سیستمی که در اختیار دارند به راحتی به وظایف تعریف‌شده دسترسی پیدا کنند، آنها را تیک زده و پیشرفت خود را ثبت کنند، بدون اینکه امکان تغییر اطلاعات گروه یا دیگر تنظیمات اصلی را داشته باشند. والدین و معلمان هم میتواند روند پیشرفت کودکان را به راحتی نظارت و حمایت کنند.
                 </div>
             </div>
 
             <!-- سوال 4 -->
             <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                <button class="w-full flex justify-between items-center p-4 text-left font-semibold text-lg hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
+                <button class="w-full flex justify-between items-center p-4 text-left font-semibold md:text-lg text-base hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
                     نسخه پریمیوم چه امکاناتی دارد و چطور می‌توانم آن را خریداری کنم؟
                     <span class="transform transition-transform duration-300">+</span>
                 </button>
@@ -243,7 +273,7 @@ get_header();
 
             <!-- سوال 5 -->
             <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                <button class="w-full flex justify-between items-center p-4 text-left font-semibold text-lg hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
+                <button class="w-full flex justify-between items-center p-4 text-left font-semibold md:text-lg text-base hover:bg-[#f2c57c]/20 transition focus:outline-none faq-btn text-right">
                     آیا مدارس می‌توانند از پلانووا برای مدیریت کلاس و ایجاد انگیزه در دانش‌آموزان استفاده کنند؟
                     <span class="transform transition-transform duration-300">+</span>
                 </button>
